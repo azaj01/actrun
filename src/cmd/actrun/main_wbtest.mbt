@@ -1413,6 +1413,22 @@ test "cli: parse run view with --exit-status" {
 }
 
 ///|
+#cfg(target="native")
+async test "cli: run_command reports missing command without aborting" {
+  let (code, stdout, stderr) = run_command(
+    "__actrun_missing_command_for_test__",
+    [],
+    cwd=".",
+  )
+  inspect(code, content="-1")
+  inspect(stdout, content="")
+  inspect(
+    stderr,
+    content="failed to run command: __actrun_missing_command_for_test__",
+  )
+}
+
+///|
 test "cli: run_view_exit_code returns 0 for success" {
   let json = "{\"conclusion\": \"success\", \"status\": \"completed\"}"
   inspect(run_view_exit_code(json), content="0")
