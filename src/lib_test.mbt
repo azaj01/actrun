@@ -114,7 +114,7 @@ fn prepare_cached_github_action_root(
   }
   let segments : Array[String] = []
   for segment in action_root.split("/") {
-    let text = segment.to_string()
+    let text = segment.to_owned()
     if text.length() > 0 {
       segments.push(text)
     }
@@ -181,15 +181,45 @@ test "parser: parse simple push workflow" {
   let parsed = parse_workflow_yaml(src)
   let workflow = expect_workflow(parsed)
 
-  inspect(workflow.name, content="ci")
-  inspect(workflow.env.get("NODE_ENV").unwrap_or(""), content="test")
-  inspect(workflow.defaults.shell.unwrap_or(""), content="bash")
-  inspect(workflow.jobs.length(), content="1")
-  inspect(workflow.jobs[0].id, content="build")
-  inspect(workflow.jobs[0].runs_on, content="[\"ubuntu-latest\"]")
-  inspect(workflow.jobs[0].steps.length(), content="2")
-  inspect(workflow.jobs[0].steps[0].id, content="install")
-  inspect(workflow.jobs[0].steps[1].name, content="Test")
+  @debug.debug_inspect(
+    workflow.name,
+    content=(
+      #|"ci"
+    ),
+  )
+  @debug.debug_inspect(
+    workflow.env.get("NODE_ENV").unwrap_or(""),
+    content=(
+      #|"test"
+    ),
+  )
+  @debug.debug_inspect(
+    workflow.defaults.shell.unwrap_or(""),
+    content=(
+      #|"bash"
+    ),
+  )
+  @debug.debug_inspect(workflow.jobs.length(), content="1")
+  @debug.debug_inspect(
+    workflow.jobs[0].id,
+    content=(
+      #|"build"
+    ),
+  )
+  @debug.debug_inspect(workflow.jobs[0].runs_on, content="[\"ubuntu-latest\"]")
+  @debug.debug_inspect(workflow.jobs[0].steps.length(), content="2")
+  @debug.debug_inspect(
+    workflow.jobs[0].steps[0].id,
+    content=(
+      #|"install"
+    ),
+  )
+  @debug.debug_inspect(
+    workflow.jobs[0].steps[1].name,
+    content=(
+      #|"Test"
+    ),
+  )
 }
 
 ///|
@@ -222,16 +252,26 @@ test "parser: parse push object form and multiline run" {
   let parsed = parse_workflow_yaml(src)
   let workflow = expect_workflow(parsed)
 
-  inspect(workflow.trigger.branches, content="[\"main\", \"release/*\"]")
-  inspect(workflow.trigger.paths, content="[\"src/**\", \"package.json\"]")
-  inspect(workflow.jobs[1].needs, content="[\"build\"]")
-  inspect(
-    workflow.jobs[1].defaults.working_directory.unwrap_or(""),
-    content="packages/app",
+  @debug.debug_inspect(
+    workflow.trigger.branches,
+    content="[\"main\", \"release/*\"]",
   )
-  inspect(
+  @debug.debug_inspect(
+    workflow.trigger.paths,
+    content="[\"src/**\", \"package.json\"]",
+  )
+  @debug.debug_inspect(workflow.jobs[1].needs, content="[\"build\"]")
+  @debug.debug_inspect(
+    workflow.jobs[1].defaults.working_directory.unwrap_or(""),
+    content=(
+      #|"packages/app"
+    ),
+  )
+  @debug.debug_inspect(
     workflow.jobs[1].steps[0].run.unwrap_or(""),
-    content="pnpm install\npnpm lint",
+    content=(
+      #|"pnpm install\npnpm lint"
+    ),
   )
 }
 
@@ -249,9 +289,11 @@ test "parser: parse job level if condition" {
   let parsed = parse_workflow_yaml(src)
   let workflow = expect_workflow(parsed)
 
-  inspect(
+  @debug.debug_inspect(
     workflow.jobs[0].if_condition,
-    content="github.repository == 'mizchi/actrun'",
+    content=(
+      #|"github.repository == 'mizchi/actrun'"
+    ),
   )
 }
 
@@ -270,7 +312,12 @@ test "parser: parse step continue-on-error" {
   let parsed = parse_workflow_yaml(src)
   let workflow = expect_workflow(parsed)
 
-  inspect(workflow.jobs[0].steps[0].continue_on_error, content="true")
+  @debug.debug_inspect(
+    workflow.jobs[0].steps[0].continue_on_error,
+    content=(
+      #|"true"
+    ),
+  )
 }
 
 ///|
@@ -289,15 +336,19 @@ test "parser: parse checkout uses step" {
   let parsed = parse_workflow_yaml(src)
   let workflow = expect_workflow(parsed)
 
-  inspect(
+  @debug.debug_inspect(
     workflow.jobs[0].steps[0].uses.unwrap_or(""),
-    content="actions/checkout@v4",
+    content=(
+      #|"actions/checkout@v4"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     workflow.jobs[0].steps[0].with_values.get("fetch-depth").unwrap_or(""),
-    content="1",
+    content=(
+      #|"1"
+    ),
   )
-  inspect(workflow.jobs[0].steps[0].run, content="None")
+  @debug.debug_inspect(workflow.jobs[0].steps[0].run, content="None")
 }
 
 ///|
@@ -317,12 +368,37 @@ test "parser: parse local composite action yaml" {
   let parsed = parse_local_action_yaml(src)
   let action = expect_local_action(parsed)
 
-  inspect(action.name, content="Setup")
-  inspect(action.inputs.get("message").unwrap_or(""), content="hello")
-  inspect(action.steps.length(), content="2")
-  inspect(action.steps[0].run.unwrap_or(""), content="echo prepare")
-  inspect(action.steps[0].shell.unwrap_or(""), content="bash")
-  inspect(action.steps[1].id, content="finish")
+  @debug.debug_inspect(
+    action.name,
+    content=(
+      #|"Setup"
+    ),
+  )
+  @debug.debug_inspect(
+    action.inputs.get("message").unwrap_or(""),
+    content=(
+      #|"hello"
+    ),
+  )
+  @debug.debug_inspect(action.steps.length(), content="2")
+  @debug.debug_inspect(
+    action.steps[0].run.unwrap_or(""),
+    content=(
+      #|"echo prepare"
+    ),
+  )
+  @debug.debug_inspect(
+    action.steps[0].shell.unwrap_or(""),
+    content=(
+      #|"bash"
+    ),
+  )
+  @debug.debug_inspect(
+    action.steps[1].id,
+    content=(
+      #|"finish"
+    ),
+  )
 }
 
 ///|
@@ -335,9 +411,9 @@ test "parser: accept pull_request trigger" {
     #|    steps:
     #|      - run: echo ok
   let parsed = parse_workflow_yaml(src)
-  inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(parsed.errors, content="[]")
   guard parsed.workflow is Some(workflow) else { fail("expected workflow") }
-  inspect(workflow.jobs.length(), content="1")
+  @debug.debug_inspect(workflow.jobs.length(), content="1")
 }
 
 ///|
@@ -350,7 +426,7 @@ test "parser: reject unsupported trigger" {
     #|    steps:
     #|      - run: echo ok
   let parsed = parse_workflow_yaml(src)
-  inspect(
+  @debug.debug_inspect(
     parsed.errors,
     content="[\"only push and workflow_call triggers are supported in MVP\"]",
   )
@@ -376,8 +452,11 @@ test "parser: parse matrix exclude rows" {
   let parsed = parse_workflow_yaml(src)
   let workflow = expect_workflow(parsed)
 
-  inspect(parsed.errors, content="[]")
-  inspect(workflow.jobs[0].matrix.unwrap().rows.length(), content="3")
+  @debug.debug_inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(
+    workflow.jobs[0].matrix.unwrap().rows.length(),
+    content="3",
+  )
 }
 
 ///|
@@ -401,15 +480,22 @@ test "parser: parse mixed matrix axes and include rows" {
   let parsed = parse_workflow_yaml(src)
   let workflow = expect_workflow(parsed)
 
-  inspect(parsed.errors, content="[]")
-  inspect(workflow.jobs[0].matrix.unwrap().rows.length(), content="2")
-  inspect(
-    workflow.jobs[0].matrix.unwrap().rows[0].get("target").unwrap_or(""),
-    content="native",
+  @debug.debug_inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(
+    workflow.jobs[0].matrix.unwrap().rows.length(),
+    content="2",
   )
-  inspect(
+  @debug.debug_inspect(
+    workflow.jobs[0].matrix.unwrap().rows[0].get("target").unwrap_or(""),
+    content=(
+      #|"native"
+    ),
+  )
+  @debug.debug_inspect(
     workflow.jobs[0].matrix.unwrap().rows[1].get("os").unwrap_or(""),
-    content="windows-latest",
+    content=(
+      #|"windows-latest"
+    ),
   )
 }
 
@@ -431,9 +517,15 @@ test "parser: parse matrix max parallel" {
   let parsed = parse_workflow_yaml(src)
   let workflow = expect_workflow(parsed)
 
-  inspect(parsed.errors, content="[]")
-  inspect(workflow.jobs[0].matrix.unwrap().rows.length(), content="4")
-  inspect(workflow.jobs[0].matrix.unwrap().max_parallel, content="Some(2)")
+  @debug.debug_inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(
+    workflow.jobs[0].matrix.unwrap().rows.length(),
+    content="4",
+  )
+  @debug.debug_inspect(
+    workflow.jobs[0].matrix.unwrap().max_parallel,
+    content="Some(2)",
+  )
 }
 
 ///|
@@ -452,8 +544,8 @@ test "parser: reject non-positive matrix max parallel" {
     #|      - run: printf '%s' ok
   let parsed = parse_workflow_yaml(src)
 
-  inspect(parsed.workflow is None, content="true")
-  inspect(
+  @debug.debug_inspect(parsed.workflow is None, content="true")
+  @debug.debug_inspect(
     parsed.errors,
     content="[\"jobs.build.strategy.max-parallel must be positive\"]",
   )
@@ -473,7 +565,7 @@ test "wasi job: wasm-only steps are accepted" {
   let parsed = parse_workflow_yaml(src)
   let workflow = expect_workflow(parsed)
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 }
 
 ///|
@@ -490,8 +582,8 @@ test "wasi job: run step is rejected" {
   let parsed = parse_workflow_yaml(src)
   let workflow = expect_workflow(parsed)
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors.length() > 0, content="true")
-  inspect(lowered.errors[0].contains("run:"), content="true")
+  @debug.debug_inspect(lowered.errors.length() > 0, content="true")
+  @debug.debug_inspect(lowered.errors[0].contains("run:"), content="true")
 }
 
 ///|
@@ -507,8 +599,8 @@ test "wasi job: github action is rejected" {
   let parsed = parse_workflow_yaml(src)
   let workflow = expect_workflow(parsed)
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors.length() > 0, content="true")
-  inspect(lowered.errors[0].contains("wasm://"), content="true")
+  @debug.debug_inspect(lowered.errors.length() > 0, content="true")
+  @debug.debug_inspect(lowered.errors[0].contains("wasm://"), content="true")
 }
 
 ///|
@@ -524,7 +616,7 @@ test "wasi job: docker action is rejected" {
   let parsed = parse_workflow_yaml(src)
   let workflow = expect_workflow(parsed)
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors.length() > 0, content="true")
+  @debug.debug_inspect(lowered.errors.length() > 0, content="true")
 }
 
 ///|
@@ -540,7 +632,7 @@ test "non-wasi job: run step is allowed" {
   let parsed = parse_workflow_yaml(src)
   let workflow = expect_workflow(parsed)
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 }
 
 ///|
@@ -550,20 +642,20 @@ test "push trigger: branch and path filters" {
   let wrong_branch = new_push_event("feature/test", ["src/lib.mbt"])
   let wrong_path = new_push_event("main", ["docs/spec.md"])
 
-  assert_eq(matches_push_trigger(trigger, matched), true)
-  assert_eq(matches_push_trigger(trigger, wrong_branch), false)
-  assert_eq(matches_push_trigger(trigger, wrong_path), false)
+  @debug.assert_eq(matches_push_trigger(trigger, matched), true)
+  @debug.assert_eq(matches_push_trigger(trigger, wrong_branch), false)
+  @debug.assert_eq(matches_push_trigger(trigger, wrong_path), false)
 }
 
 ///|
 test "push trigger: paths ignore skips fully ignored changes" {
   let trigger = new_push_trigger(paths_ignore=["docs/*", "*.md"])
 
-  assert_eq(
+  @debug.assert_eq(
     matches_push_trigger(trigger, new_push_event("main", ["docs/spec.md"])),
     false,
   )
-  assert_eq(
+  @debug.assert_eq(
     matches_push_trigger(
       trigger,
       new_push_event("main", ["docs/spec.md", "src/main.mbt"]),
@@ -598,30 +690,65 @@ test "lowering: jobs and steps become bitflow tasks" {
 
   let result = lower_push_workflow(workflow)
 
-  inspect(result.errors, content="[]")
-  inspect(result.ir.nodes.length(), content="2")
-  inspect(result.ir.tasks.length(), content="5")
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.ir.nodes.length(), content="2")
+  @debug.debug_inspect(result.ir.tasks.length(), content="5")
+  @debug.debug_inspect(
     result.ir.entry_targets,
     content="[\"build/__finish\", \"lint/__finish\"]",
   )
 
   let build_test = flow_task_by_id(result.ir, "build/test")
-  inspect(build_test.needs, content="[\"build/install\"]")
+  @debug.debug_inspect(build_test.needs, content="[\"build/install\"]")
 
   let lint_step = flow_task_by_id(result.ir, "lint/lint")
-  inspect(lint_step.needs, content="[\"build/__finish\"]")
-  inspect(lint_step.cwd, content="packages/app")
+  @debug.debug_inspect(lint_step.needs, content="[\"build/__finish\"]")
+  @debug.debug_inspect(
+    lint_step.cwd,
+    content=(
+      #|"packages/app"
+    ),
+  )
 
   let build_test_plan = expect_task_plan(result.plan, "build/test")
-  inspect(build_test_plan.shell, content="bash")
-  inspect(build_test_plan.env.get("GLOBAL").unwrap_or(""), content="1")
-  inspect(build_test_plan.env.get("JOB_ONLY").unwrap_or(""), content="1")
-  inspect(build_test_plan.env.get("STEP_ONLY").unwrap_or(""), content="1")
-  inspect(build_test_plan.env.get("LEVEL").unwrap_or(""), content="job")
+  @debug.debug_inspect(
+    build_test_plan.shell,
+    content=(
+      #|"bash"
+    ),
+  )
+  @debug.debug_inspect(
+    build_test_plan.env.get("GLOBAL").unwrap_or(""),
+    content=(
+      #|"1"
+    ),
+  )
+  @debug.debug_inspect(
+    build_test_plan.env.get("JOB_ONLY").unwrap_or(""),
+    content=(
+      #|"1"
+    ),
+  )
+  @debug.debug_inspect(
+    build_test_plan.env.get("STEP_ONLY").unwrap_or(""),
+    content=(
+      #|"1"
+    ),
+  )
+  @debug.debug_inspect(
+    build_test_plan.env.get("LEVEL").unwrap_or(""),
+    content=(
+      #|"job"
+    ),
+  )
 
   let build_finish_plan = expect_task_plan(result.plan, "build/__finish")
-  inspect(build_finish_plan.kind, content="barrier")
+  @debug.debug_inspect(
+    build_finish_plan.kind,
+    content=(
+      #|"barrier"
+    ),
+  )
 }
 
 ///|
@@ -635,21 +762,46 @@ test "lowering: checkout uses step becomes checkout task" {
 
   let result = lower_push_workflow(workflow)
 
-  inspect(result.errors, content="[]")
-  inspect(result.ir.tasks.length(), content="3")
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.ir.tasks.length(), content="3")
 
   let checkout_task = flow_task_by_id(result.ir, "test/checkout")
-  inspect(checkout_task.needs, content="[]")
+  @debug.debug_inspect(checkout_task.needs, content="[]")
 
   let verify_task = flow_task_by_id(result.ir, "test/verify")
-  inspect(verify_task.needs, content="[\"test/checkout\"]")
+  @debug.debug_inspect(verify_task.needs, content="[\"test/checkout\"]")
 
   let checkout_plan = expect_task_plan(result.plan, "test/checkout")
-  inspect(checkout_plan.kind, content="action")
-  inspect(checkout_plan.script, content="")
-  inspect(checkout_plan.action.unwrap().backend, content="builtin")
-  inspect(checkout_plan.action.unwrap().kind, content="checkout")
-  inspect(checkout_plan.action.unwrap().uses, content="builtin://checkout")
+  @debug.debug_inspect(
+    checkout_plan.kind,
+    content=(
+      #|"action"
+    ),
+  )
+  @debug.debug_inspect(
+    checkout_plan.script,
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(
+    checkout_plan.action.unwrap().backend,
+    content=(
+      #|"builtin"
+    ),
+  )
+  @debug.debug_inspect(
+    checkout_plan.action.unwrap().kind,
+    content=(
+      #|"checkout"
+    ),
+  )
+  @debug.debug_inspect(
+    checkout_plan.action.unwrap().uses,
+    content=(
+      #|"builtin://checkout"
+    ),
+  )
 }
 
 ///|
@@ -665,13 +817,25 @@ test "lowering: checkout with values become INPUT env" {
 
   let result = lower_push_workflow(workflow)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let checkout_plan = expect_task_plan(result.plan, "test/checkout")
-  inspect(checkout_plan.action.unwrap().kind, content="checkout")
-  inspect(checkout_plan.env.get("INPUT_PATH").unwrap_or(""), content="repo")
-  inspect(
+  @debug.debug_inspect(
+    checkout_plan.action.unwrap().kind,
+    content=(
+      #|"checkout"
+    ),
+  )
+  @debug.debug_inspect(
+    checkout_plan.env.get("INPUT_PATH").unwrap_or(""),
+    content=(
+      #|"repo"
+    ),
+  )
+  @debug.debug_inspect(
     checkout_plan.env.get("INPUT_SPARSE_CHECKOUT").unwrap_or(""),
-    content="README.md\n.github",
+    content=(
+      #|"README.md\n.github"
+    ),
   )
 }
 
@@ -683,7 +847,7 @@ test "lowering: unsupported uses step is rejected" {
 
   let result = lower_push_workflow(workflow)
 
-  inspect(
+  @debug.debug_inspect(
     result.errors,
     content="[\"step 'test/setup' action 'bit://std/cache@v1' is not supported in MVP\"]",
   )
@@ -721,10 +885,20 @@ test "lowering: custom registry composite action expands from registry root" {
   let result = lower_push_workflow_in_workspace(workflow, workspace)
   lib_test_restore_env_var("ACTRUN_ACTION_REGISTRY_ROOT", previous_root)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let write_plan = expect_task_plan(result.plan, "test/setup__write")
-  inspect(write_plan.kind, content="run")
-  inspect(write_plan.script, content="printf '%s' 'from-registry'")
+  @debug.debug_inspect(
+    write_plan.kind,
+    content=(
+      #|"run"
+    ),
+  )
+  @debug.debug_inspect(
+    write_plan.script,
+    content=(
+      #|"printf '%s' 'from-registry'"
+    ),
+  )
 }
 
 ///|
@@ -759,17 +933,31 @@ test "lowering: custom registry node action resolves backend from manifest" {
   let result = lower_push_workflow_in_workspace(workflow, workspace)
   lib_test_restore_env_var("ACTRUN_ACTION_REGISTRY_ROOT", previous_root)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let setup_plan = expect_task_plan(result.plan, "test/setup")
-  inspect(setup_plan.kind, content="action")
-  inspect(setup_plan.action.unwrap().backend, content="node")
-  inspect(
-    setup_plan.action.unwrap().entrypoint.unwrap_or(""),
-    content=action_root + "/index.sh",
+  @debug.debug_inspect(
+    setup_plan.kind,
+    content=(
+      #|"action"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
+    setup_plan.action.unwrap().backend,
+    content=(
+      #|"node"
+    ),
+  )
+  @debug.debug_inspect(
+    setup_plan.action.unwrap().entrypoint.unwrap_or(""),
+    content=(
+      #|"/Users/mz/ghq/github.com/mizchi/actrun/_build/test-workspaces/custom-registry-node-root/bit/std/cache/v1/index.sh"
+    ),
+  )
+  @debug.debug_inspect(
     setup_plan.env.get("INPUT_MESSAGE").unwrap_or(""),
-    content="from-node",
+    content=(
+      #|"from-node"
+    ),
   )
 }
 
@@ -808,13 +996,36 @@ test "lowering: custom registry docker action resolves backend from manifest" {
   let result = lower_push_workflow_in_workspace(workflow, workspace)
   lib_test_restore_env_var("ACTRUN_ACTION_REGISTRY_ROOT", previous_root)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let setup_plan = expect_task_plan(result.plan, "test/setup")
-  inspect(setup_plan.kind, content="action")
-  inspect(setup_plan.action.unwrap().backend, content="docker")
-  inspect(setup_plan.action.unwrap().image.unwrap_or(""), content="alpine:3.21")
-  inspect(setup_plan.action.unwrap().entrypoint.unwrap_or(""), content="echo")
-  inspect(setup_plan.action.unwrap().args, content="[\"from-docker\"]")
+  @debug.debug_inspect(
+    setup_plan.kind,
+    content=(
+      #|"action"
+    ),
+  )
+  @debug.debug_inspect(
+    setup_plan.action.unwrap().backend,
+    content=(
+      #|"docker"
+    ),
+  )
+  @debug.debug_inspect(
+    setup_plan.action.unwrap().image.unwrap_or(""),
+    content=(
+      #|"alpine:3.21"
+    ),
+  )
+  @debug.debug_inspect(
+    setup_plan.action.unwrap().entrypoint.unwrap_or(""),
+    content=(
+      #|"echo"
+    ),
+  )
+  @debug.debug_inspect(
+    setup_plan.action.unwrap().args,
+    content="[\"from-docker\"]",
+  )
 }
 
 ///|
@@ -828,15 +1039,35 @@ test "lowering: docker uses step becomes docker action task" {
 
   let result = lower_push_workflow(workflow)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let image_plan = expect_task_plan(result.plan, "test/image")
-  inspect(image_plan.kind, content="action")
-  inspect(image_plan.action.unwrap().backend, content="docker")
-  inspect(image_plan.action.unwrap().kind, content="docker-image")
-  inspect(image_plan.action.unwrap().uses, content="docker://alpine:3.21")
+  @debug.debug_inspect(
+    image_plan.kind,
+    content=(
+      #|"action"
+    ),
+  )
+  @debug.debug_inspect(
+    image_plan.action.unwrap().backend,
+    content=(
+      #|"docker"
+    ),
+  )
+  @debug.debug_inspect(
+    image_plan.action.unwrap().kind,
+    content=(
+      #|"docker-image"
+    ),
+  )
+  @debug.debug_inspect(
+    image_plan.action.unwrap().uses,
+    content=(
+      #|"docker://alpine:3.21"
+    ),
+  )
 
   let verify_task = flow_task_by_id(result.ir, "test/verify")
-  inspect(verify_task.needs, content="[\"test/image\"]")
+  @debug.debug_inspect(verify_task.needs, content="[\"test/image\"]")
 }
 
 ///|
@@ -850,19 +1081,39 @@ test "lowering: wasm uses step becomes wasm action task" {
 
   let result = lower_push_workflow(workflow)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let module_plan = expect_task_plan(result.plan, "test/module")
-  inspect(module_plan.kind, content="action")
-  inspect(module_plan.action.unwrap().backend, content="wasm")
-  inspect(module_plan.action.unwrap().kind, content="wasm-module")
-  inspect(module_plan.action.unwrap().capabilities.wasm, content="true")
-  inspect(
+  @debug.debug_inspect(
+    module_plan.kind,
+    content=(
+      #|"action"
+    ),
+  )
+  @debug.debug_inspect(
+    module_plan.action.unwrap().backend,
+    content=(
+      #|"wasm"
+    ),
+  )
+  @debug.debug_inspect(
+    module_plan.action.unwrap().kind,
+    content=(
+      #|"wasm-module"
+    ),
+  )
+  @debug.debug_inspect(
+    module_plan.action.unwrap().capabilities.wasm,
+    content="true",
+  )
+  @debug.debug_inspect(
     module_plan.action.unwrap().entrypoint.unwrap_or(""),
-    content="std/echo@v1",
+    content=(
+      #|"std/echo@v1"
+    ),
   )
 
   let verify_task = flow_task_by_id(result.ir, "test/verify")
-  inspect(verify_task.needs, content="[\"test/module\"]")
+  @debug.debug_inspect(verify_task.needs, content="[\"test/module\"]")
 }
 
 ///|
@@ -882,20 +1133,52 @@ test "lowering: builtin artifact actions receive with values as INPUT env" {
 
   let result = lower_push_workflow(workflow)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let upload_plan = expect_task_plan(result.plan, "test/upload")
-  inspect(upload_plan.action.unwrap().backend, content="builtin")
-  inspect(upload_plan.action.unwrap().kind, content="upload-artifact")
-  inspect(upload_plan.env.get("INPUT_NAME").unwrap_or(""), content="bundle")
-  inspect(
+  @debug.debug_inspect(
+    upload_plan.action.unwrap().backend,
+    content=(
+      #|"builtin"
+    ),
+  )
+  @debug.debug_inspect(
+    upload_plan.action.unwrap().kind,
+    content=(
+      #|"upload-artifact"
+    ),
+  )
+  @debug.debug_inspect(
+    upload_plan.env.get("INPUT_NAME").unwrap_or(""),
+    content=(
+      #|"bundle"
+    ),
+  )
+  @debug.debug_inspect(
     upload_plan.env.get("INPUT_PATH").unwrap_or(""),
-    content="dist/result.txt",
+    content=(
+      #|"dist/result.txt"
+    ),
   )
 
   let download_plan = expect_task_plan(result.plan, "test/download")
-  inspect(download_plan.action.unwrap().kind, content="download-artifact")
-  inspect(download_plan.env.get("INPUT_NAME").unwrap_or(""), content="bundle")
-  inspect(download_plan.env.get("INPUT_PATH").unwrap_or(""), content="restored")
+  @debug.debug_inspect(
+    download_plan.action.unwrap().kind,
+    content=(
+      #|"download-artifact"
+    ),
+  )
+  @debug.debug_inspect(
+    download_plan.env.get("INPUT_NAME").unwrap_or(""),
+    content=(
+      #|"bundle"
+    ),
+  )
+  @debug.debug_inspect(
+    download_plan.env.get("INPUT_PATH").unwrap_or(""),
+    content=(
+      #|"restored"
+    ),
+  )
 }
 
 ///|
@@ -915,17 +1198,52 @@ test "lowering: builtin cache actions receive with values as INPUT env" {
 
   let result = lower_push_workflow(workflow)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let restore_plan = expect_task_plan(result.plan, "test/restore")
-  inspect(restore_plan.action.unwrap().backend, content="builtin")
-  inspect(restore_plan.action.unwrap().kind, content="cache-restore")
-  inspect(restore_plan.env.get("INPUT_KEY").unwrap_or(""), content="bundle-v1")
-  inspect(restore_plan.env.get("INPUT_PATH").unwrap_or(""), content="cache-dir")
+  @debug.debug_inspect(
+    restore_plan.action.unwrap().backend,
+    content=(
+      #|"builtin"
+    ),
+  )
+  @debug.debug_inspect(
+    restore_plan.action.unwrap().kind,
+    content=(
+      #|"cache-restore"
+    ),
+  )
+  @debug.debug_inspect(
+    restore_plan.env.get("INPUT_KEY").unwrap_or(""),
+    content=(
+      #|"bundle-v1"
+    ),
+  )
+  @debug.debug_inspect(
+    restore_plan.env.get("INPUT_PATH").unwrap_or(""),
+    content=(
+      #|"cache-dir"
+    ),
+  )
 
   let save_plan = expect_task_plan(result.plan, "test/save")
-  inspect(save_plan.action.unwrap().kind, content="cache-save")
-  inspect(save_plan.env.get("INPUT_KEY").unwrap_or(""), content="bundle-v1")
-  inspect(save_plan.env.get("INPUT_PATH").unwrap_or(""), content="cache-dir")
+  @debug.debug_inspect(
+    save_plan.action.unwrap().kind,
+    content=(
+      #|"cache-save"
+    ),
+  )
+  @debug.debug_inspect(
+    save_plan.env.get("INPUT_KEY").unwrap_or(""),
+    content=(
+      #|"bundle-v1"
+    ),
+  )
+  @debug.debug_inspect(
+    save_plan.env.get("INPUT_PATH").unwrap_or(""),
+    content=(
+      #|"cache-dir"
+    ),
+  )
 }
 
 ///|
@@ -942,23 +1260,43 @@ test "lowering: builtin cache action schedules deferred post save" {
 
   let result = lower_push_workflow(workflow)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
 
   let cache_plan = expect_task_plan(result.plan, "test/cache")
-  inspect(cache_plan.action.unwrap().kind, content="cache")
-  inspect(cache_plan.action_scope, content="Some(\"test/cache\")")
-  inspect(cache_plan.env.get("INPUT_KEY").unwrap_or(""), content="bundle-v1")
+  @debug.debug_inspect(
+    cache_plan.action.unwrap().kind,
+    content=(
+      #|"cache"
+    ),
+  )
+  @debug.debug_inspect(cache_plan.action_scope, content="Some(\"test/cache\")")
+  @debug.debug_inspect(
+    cache_plan.env.get("INPUT_KEY").unwrap_or(""),
+    content=(
+      #|"bundle-v1"
+    ),
+  )
 
   let post_plan = expect_task_plan(result.plan, "test/cache__post")
-  inspect(post_plan.action.unwrap().kind, content="cache-save-post")
-  inspect(post_plan.action_scope, content="Some(\"test/cache\")")
-  inspect(post_plan.requires_action_started, content="true")
-  inspect(post_plan.if_condition, content="success()")
+  @debug.debug_inspect(
+    post_plan.action.unwrap().kind,
+    content=(
+      #|"cache-save-post"
+    ),
+  )
+  @debug.debug_inspect(post_plan.action_scope, content="Some(\"test/cache\")")
+  @debug.debug_inspect(post_plan.requires_action_started, content="true")
+  @debug.debug_inspect(
+    post_plan.if_condition,
+    content=(
+      #|"success()"
+    ),
+  )
 
   let verify_task = flow_task_by_id(result.ir, "test/verify")
-  inspect(verify_task.needs, content="[\"test/cache\"]")
+  @debug.debug_inspect(verify_task.needs, content="[\"test/cache\"]")
   let post_task = flow_task_by_id(result.ir, "test/cache__post")
-  inspect(post_task.needs, content="[\"test/verify\"]")
+  @debug.debug_inspect(post_task.needs, content="[\"test/verify\"]")
 }
 
 ///|
@@ -1001,27 +1339,57 @@ test "lowering: local composite action expands inner steps" {
 
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
-  inspect(result.ir.tasks.length(), content="4")
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.ir.tasks.length(), content="4")
 
   let first = flow_task_by_id(result.ir, "test/setup__prepare")
-  inspect(first.needs, content="[]")
-  inspect(first.cmd, content="printf '%s' \"$FROM_INNER\" > local.txt")
+  @debug.debug_inspect(first.needs, content="[]")
+  @debug.debug_inspect(
+    first.cmd,
+    content=(
+      #|"printf '%s' \"$FROM_INNER\" > local.txt"
+    ),
+  )
 
   let second = flow_task_by_id(result.ir, "test/setup__step_2")
-  inspect(second.needs, content="[\"test/setup__prepare\"]")
+  @debug.debug_inspect(second.needs, content="[\"test/setup__prepare\"]")
 
   let verify = flow_task_by_id(result.ir, "test/verify")
-  inspect(verify.needs, content="[\"test/setup__step_2\"]")
+  @debug.debug_inspect(verify.needs, content="[\"test/setup__step_2\"]")
 
   let first_plan = expect_task_plan(result.plan, "test/setup__prepare")
-  inspect(first_plan.kind, content="run")
-  inspect(first_plan.shell, content="bash")
-  inspect(first_plan.env.get("FROM_INNER").unwrap_or(""), content="from-input")
-  inspect(first_plan.action_scope.unwrap_or(""), content="test/setup")
+  @debug.debug_inspect(
+    first_plan.kind,
+    content=(
+      #|"run"
+    ),
+  )
+  @debug.debug_inspect(
+    first_plan.shell,
+    content=(
+      #|"bash"
+    ),
+  )
+  @debug.debug_inspect(
+    first_plan.env.get("FROM_INNER").unwrap_or(""),
+    content=(
+      #|"from-input"
+    ),
+  )
+  @debug.debug_inspect(
+    first_plan.action_scope.unwrap_or(""),
+    content=(
+      #|"test/setup"
+    ),
+  )
 
   let verify_plan = expect_task_plan(result.plan, "test/verify")
-  inspect(verify_plan.action_scope.unwrap_or(""), content="")
+  @debug.debug_inspect(
+    verify_plan.action_scope.unwrap_or(""),
+    content=(
+      #|""
+    ),
+  )
 }
 
 ///|
@@ -1063,17 +1431,27 @@ test "lowering: local composite action expands nested local action" {
 
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let write = flow_task_by_id(result.ir, "test/setup__child__write")
-  inspect(write.needs, content="[]")
+  @debug.debug_inspect(write.needs, content="[]")
 
   let show = flow_task_by_id(result.ir, "test/setup__show")
-  inspect(show.needs, content="[\"test/setup__child__write\"]")
+  @debug.debug_inspect(show.needs, content="[\"test/setup__child__write\"]")
 
   let write_plan = expect_task_plan(result.plan, "test/setup__child__write")
-  inspect(write_plan.action_scope.unwrap_or(""), content="test/setup__child")
+  @debug.debug_inspect(
+    write_plan.action_scope.unwrap_or(""),
+    content=(
+      #|"test/setup__child"
+    ),
+  )
   let show_plan = expect_task_plan(result.plan, "test/setup__show")
-  inspect(show_plan.action_scope.unwrap_or(""), content="test/setup")
+  @debug.debug_inspect(
+    show_plan.action_scope.unwrap_or(""),
+    content=(
+      #|"test/setup"
+    ),
+  )
 }
 
 ///|
@@ -1104,12 +1482,22 @@ test "lowering: local composite action nested builtin uses becomes action task" 
 
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let checkout_plan = expect_task_plan(result.plan, "test/setup__checkout")
-  inspect(checkout_plan.kind, content="action")
-  inspect(checkout_plan.action.unwrap().uses, content="builtin://checkout")
+  @debug.debug_inspect(
+    checkout_plan.kind,
+    content=(
+      #|"action"
+    ),
+  )
+  @debug.debug_inspect(
+    checkout_plan.action.unwrap().uses,
+    content=(
+      #|"builtin://checkout"
+    ),
+  )
   let show = flow_task_by_id(result.ir, "test/setup__show")
-  inspect(show.needs, content="[\"test/setup__checkout\"]")
+  @debug.debug_inspect(show.needs, content="[\"test/setup__checkout\"]")
 }
 
 ///|
@@ -1152,16 +1540,28 @@ test "lowering: local composite action nested wasm uses receives input env" {
 
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let module_plan = expect_task_plan(result.plan, "test/setup__module")
-  inspect(module_plan.kind, content="action")
-  inspect(module_plan.action.unwrap().backend, content="wasm")
-  inspect(
+  @debug.debug_inspect(
+    module_plan.kind,
+    content=(
+      #|"action"
+    ),
+  )
+  @debug.debug_inspect(
+    module_plan.action.unwrap().backend,
+    content=(
+      #|"wasm"
+    ),
+  )
+  @debug.debug_inspect(
     module_plan.env.get("INPUT_MESSAGE").unwrap_or(""),
-    content="from-input",
+    content=(
+      #|"from-input"
+    ),
   )
   let show = flow_task_by_id(result.ir, "test/setup__show")
-  inspect(show.needs, content="[\"test/setup__module\"]")
+  @debug.debug_inspect(show.needs, content="[\"test/setup__module\"]")
 }
 
 ///|
@@ -1196,17 +1596,24 @@ test "lowering: cached github repo composite action with subpath expands inner s
 
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let write = flow_task_by_id(result.ir, "test/remote__write")
-  inspect(write.needs, content="[]")
+  @debug.debug_inspect(write.needs, content="[]")
   let write_plan = expect_task_plan(result.plan, "test/remote__write")
-  inspect(
+  @debug.debug_inspect(
     write_plan.env.get("GITHUB_ACTION_REPOSITORY").unwrap_or(""),
-    content="mizchi-test/demo-action",
+    content=(
+      #|"mizchi-test/demo-action"
+    ),
   )
-  inspect(write_plan.env.get("GITHUB_ACTION_REF").unwrap_or(""), content="v1")
+  @debug.debug_inspect(
+    write_plan.env.get("GITHUB_ACTION_REF").unwrap_or(""),
+    content=(
+      #|"v1"
+    ),
+  )
   let verify = flow_task_by_id(result.ir, "test/verify")
-  inspect(verify.needs, content="[\"test/remote__write\"]")
+  @debug.debug_inspect(verify.needs, content="[\"test/remote__write\"]")
 }
 
 ///|
@@ -1243,37 +1650,75 @@ test "lowering: cached github repo node action becomes node task" {
 
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let remote_plan = expect_task_plan(result.plan, "test/remote")
-  inspect(remote_plan.kind, content="action")
-  inspect(remote_plan.action.unwrap().backend, content="node")
-  inspect(remote_plan.action.unwrap().capabilities.host, content="true")
-  inspect(remote_plan.action.unwrap().capabilities.docker, content="false")
-  inspect(remote_plan.action.unwrap().kind, content="node-script")
-  inspect(
+  @debug.debug_inspect(
+    remote_plan.kind,
+    content=(
+      #|"action"
+    ),
+  )
+  @debug.debug_inspect(
+    remote_plan.action.unwrap().backend,
+    content=(
+      #|"node"
+    ),
+  )
+  @debug.debug_inspect(
+    remote_plan.action.unwrap().capabilities.host,
+    content="true",
+  )
+  @debug.debug_inspect(
+    remote_plan.action.unwrap().capabilities.docker,
+    content="false",
+  )
+  @debug.debug_inspect(
+    remote_plan.action.unwrap().kind,
+    content=(
+      #|"node-script"
+    ),
+  )
+  @debug.debug_inspect(
     remote_plan.action.unwrap().uses,
-    content="mizchi-test/node-action/action@v1",
+    content=(
+      #|"mizchi-test/node-action/action@v1"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     remote_plan.action.unwrap().entrypoint.unwrap_or(""),
-    content=action_root + "/main.sh",
+    content=(
+      #|"/Users/mz/ghq/github.com/mizchi/actrun/_build/actrun/github_actions/mizchi-test/node-action/v1/action/main.sh"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     remote_plan.action.unwrap().action_path.unwrap_or(""),
-    content=action_root,
+    content=(
+      #|"/Users/mz/ghq/github.com/mizchi/actrun/_build/actrun/github_actions/mizchi-test/node-action/v1/action"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     remote_plan.env.get("INPUT_MESSAGE").unwrap_or(""),
-    content="from-input",
+    content=(
+      #|"from-input"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     remote_plan.env.get("GITHUB_ACTION_REPOSITORY").unwrap_or(""),
-    content="mizchi-test/node-action",
+    content=(
+      #|"mizchi-test/node-action"
+    ),
   )
-  inspect(remote_plan.env.get("GITHUB_ACTION_REF").unwrap_or(""), content="v1")
-  inspect(
+  @debug.debug_inspect(
+    remote_plan.env.get("GITHUB_ACTION_REF").unwrap_or(""),
+    content=(
+      #|"v1"
+    ),
+  )
+  @debug.debug_inspect(
     remote_plan.env.get("GITHUB_ACTION_PATH").unwrap_or(""),
-    content=action_root,
+    content=(
+      #|"/Users/mz/ghq/github.com/mizchi/actrun/_build/actrun/github_actions/mizchi-test/node-action/v1/action"
+    ),
   )
 }
 
@@ -1302,16 +1747,18 @@ test "lowering: job outputs are carried into execution plan" {
 
   let result = lower_push_workflow(workflow)
 
-  inspect(result.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
     result.plan.job_outputs
     .get("build")
     .unwrap_or({})
     .get("artifact_id")
     .unwrap_or(""),
-    content="${{ steps.produce.outputs.artifact_id }}",
+    content=(
+      #|"${{ steps.produce.outputs.artifact_id }}"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     result.plan.job_needs.get("consume").unwrap_or([]),
     content="[\"build\"]",
   )
@@ -1356,28 +1803,60 @@ test "lowering: cached github repo docker action becomes docker task" {
 
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let remote_plan = expect_task_plan(result.plan, "test/remote")
-  inspect(remote_plan.kind, content="action")
-  inspect(remote_plan.action.unwrap().backend, content="docker")
-  inspect(remote_plan.action.unwrap().capabilities.host, content="false")
-  inspect(remote_plan.action.unwrap().capabilities.docker, content="true")
-  inspect(remote_plan.action.unwrap().kind, content="docker-action")
-  inspect(
+  @debug.debug_inspect(
+    remote_plan.kind,
+    content=(
+      #|"action"
+    ),
+  )
+  @debug.debug_inspect(
+    remote_plan.action.unwrap().backend,
+    content=(
+      #|"docker"
+    ),
+  )
+  @debug.debug_inspect(
+    remote_plan.action.unwrap().capabilities.host,
+    content="false",
+  )
+  @debug.debug_inspect(
+    remote_plan.action.unwrap().capabilities.docker,
+    content="true",
+  )
+  @debug.debug_inspect(
+    remote_plan.action.unwrap().kind,
+    content=(
+      #|"docker-action"
+    ),
+  )
+  @debug.debug_inspect(
     remote_plan.action.unwrap().image.unwrap_or(""),
-    content=action_root + "/Dockerfile",
+    content=(
+      #|"/Users/mz/ghq/github.com/mizchi/actrun/_build/actrun/github_actions/mizchi-test/docker-action/v1/action/Dockerfile"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     remote_plan.action.unwrap().entrypoint.unwrap_or(""),
-    content="/bin/sh",
+    content=(
+      #|"/bin/sh"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     remote_plan.action.unwrap().args,
-    content="[\"-c\", \"printf '%s' \\\"$INPUT_MESSAGE\\\" > \\\"$GITHUB_WORKSPACE/docker.txt\\\"\"]",
+    content=(
+      #|[
+      #|  "-c",
+      #|  "printf '%s' \"$INPUT_MESSAGE\" > \"$GITHUB_WORKSPACE/docker.txt\"",
+      #|]
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     remote_plan.env.get("INPUT_MESSAGE").unwrap_or(""),
-    content="from-input",
+    content=(
+      #|"from-input"
+    ),
   )
 }
 
@@ -1416,18 +1895,28 @@ test "lowering: cached github repo docker action schedules post lifecycle at job
 
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let pre = flow_task_by_id(result.ir, "test/remote__pre")
-  inspect(pre.needs, content="[]")
+  @debug.debug_inspect(pre.needs, content="[]")
   let main = flow_task_by_id(result.ir, "test/remote")
-  inspect(main.needs, content="[\"test/remote__pre\"]")
+  @debug.debug_inspect(main.needs, content="[\"test/remote__pre\"]")
   let verify = flow_task_by_id(result.ir, "test/verify")
-  inspect(verify.needs, content="[\"test/remote\"]")
+  @debug.debug_inspect(verify.needs, content="[\"test/remote\"]")
   let post = flow_task_by_id(result.ir, "test/remote__post")
-  inspect(post.needs, content="[\"test/verify\"]")
+  @debug.debug_inspect(post.needs, content="[\"test/verify\"]")
   let post_plan = expect_task_plan(result.plan, "test/remote__post")
-  inspect(post_plan.if_condition, content="always()")
-  inspect(post_plan.action_scope.unwrap_or(""), content="test/remote")
+  @debug.debug_inspect(
+    post_plan.if_condition,
+    content=(
+      #|"always()"
+    ),
+  )
+  @debug.debug_inspect(
+    post_plan.action_scope.unwrap_or(""),
+    content=(
+      #|"test/remote"
+    ),
+  )
 }
 
 ///|
@@ -1461,18 +1950,28 @@ test "lowering: cached github repo node action schedules post lifecycle at job e
 
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let pre = flow_task_by_id(result.ir, "test/remote__pre")
-  inspect(pre.needs, content="[]")
+  @debug.debug_inspect(pre.needs, content="[]")
   let main = flow_task_by_id(result.ir, "test/remote")
-  inspect(main.needs, content="[\"test/remote__pre\"]")
+  @debug.debug_inspect(main.needs, content="[\"test/remote__pre\"]")
   let verify = flow_task_by_id(result.ir, "test/verify")
-  inspect(verify.needs, content="[\"test/remote\"]")
+  @debug.debug_inspect(verify.needs, content="[\"test/remote\"]")
   let post = flow_task_by_id(result.ir, "test/remote__post")
-  inspect(post.needs, content="[\"test/verify\"]")
+  @debug.debug_inspect(post.needs, content="[\"test/verify\"]")
   let post_plan = expect_task_plan(result.plan, "test/remote__post")
-  inspect(post_plan.if_condition, content="always()")
-  inspect(post_plan.action_scope.unwrap_or(""), content="test/remote")
+  @debug.debug_inspect(
+    post_plan.if_condition,
+    content=(
+      #|"always()"
+    ),
+  )
+  @debug.debug_inspect(
+    post_plan.action_scope.unwrap_or(""),
+    content=(
+      #|"test/remote"
+    ),
+  )
 }
 
 ///|
@@ -1496,18 +1995,24 @@ test "lowering: step if status functions are accepted" {
 
   let lowered = lower_push_workflow(workflow)
 
-  inspect(lowered.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(
     expect_task_plan(lowered.plan, "build/always_step").if_condition,
-    content="always()",
+    content=(
+      #|"always()"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_plan(lowered.plan, "build/failure_step").if_condition,
-    content="failure()",
+    content=(
+      #|"failure()"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_plan(lowered.plan, "build/cancelled_step").if_condition,
-    content="cancelled()",
+    content=(
+      #|"cancelled()"
+    ),
   )
 }
 
@@ -1526,10 +2031,12 @@ test "lowering: step continue-on-error is accepted" {
 
   let lowered = lower_push_workflow(workflow)
 
-  inspect(lowered.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(
     expect_task_plan(lowered.plan, "build/fail_soft").continue_on_error,
-    content="true",
+    content=(
+      #|"true"
+    ),
   )
 }
 
@@ -1573,15 +2080,18 @@ async test "lowering: github repo action cache miss fetches and expands composit
   )
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(prefetch.errors, content="[]")
-  inspect(prefetch.fetched.length(), content="1")
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(prefetch.errors, content="[]")
+  @debug.debug_inspect(prefetch.fetched.length(), content="1")
+  @debug.debug_inspect(result.errors, content="[]")
   let write = flow_task_by_id(result.ir, "test/remote__write")
-  inspect(write.needs, content="[]")
-  assert_eq(@xfs.path_exists(repo_cache_root + "/composite/action.yml"), true)
+  @debug.debug_inspect(write.needs, content="[]")
+  @debug.assert_eq(
+    @xfs.path_exists(repo_cache_root + "/composite/action.yml"),
+    true,
+  )
   let log = @xfs.read_file_to_string(log_path)
-  assert_eq(log.contains("clone\n--depth\n1\n--branch\nv1\n"), true)
-  assert_eq(
+  @debug.assert_eq(log.contains("clone\n--depth\n1\n--branch\nv1\n"), true)
+  @debug.assert_eq(
     log.contains("https://github.com/mizchi-fetch-lib/demo-action-lib.git"),
     true,
   )
@@ -1613,7 +2123,7 @@ test "lowering: local composite action rejects unsupported nested uses" {
 
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(
+  @debug.debug_inspect(
     result.errors,
     content="[\"step 'test/setup__node' action 'bit://std/cache@v1' is not supported in MVP\"]",
   )
@@ -1633,16 +2143,16 @@ test "lowering: matrix job fan-in expands downstream needs" {
   let result = lower_push_workflow(workflow)
   let consume = flow_task_by_id(result.ir, "consume/read")
 
-  inspect(result.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
     consume.needs,
     content="[\"build__matrix_1/__finish\", \"build__matrix_2/__finish\"]",
   )
-  inspect(
+  @debug.debug_inspect(
     result.plan.job_needs.get("consume").unwrap_or([]),
     content="[\"build\"]",
   )
-  inspect(
+  @debug.debug_inspect(
     result.plan.job_need_targets
     .get("consume")
     .unwrap_or({})
@@ -1681,22 +2191,26 @@ test "lowering: matrix outputs are carried into execution plan" {
 
   let result = lower_push_workflow(workflow)
 
-  inspect(result.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
     result.plan.job_outputs
     .get("build__matrix_1")
     .unwrap_or({})
     .get("native")
     .unwrap_or(""),
-    content="${{ steps.produce.outputs.native }}",
+    content=(
+      #|"${{ steps.produce.outputs.native }}"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     result.plan.job_outputs
     .get("build__matrix_2")
     .unwrap_or({})
     .get("js")
     .unwrap_or(""),
-    content="${{ steps.produce.outputs.js }}",
+    content=(
+      #|"${{ steps.produce.outputs.js }}"
+    ),
   )
 }
 
@@ -1717,20 +2231,24 @@ test "lowering: matrix jobs retain fail-fast metadata" {
 
   let result = lower_push_workflow(workflow)
 
-  inspect(result.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
     result.plan.job_matrix_groups.get("build__matrix_1").unwrap_or(""),
-    content="build",
+    content=(
+      #|"build"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     result.plan.job_matrix_groups.get("build__matrix_3").unwrap_or(""),
-    content="build",
+    content=(
+      #|"build"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     result.plan.job_matrix_fail_fast.get("build__matrix_1").unwrap_or(false),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     result.plan.job_matrix_fail_fast.get("build__matrix_3").unwrap_or(false),
     content="true",
   )
@@ -1754,7 +2272,7 @@ test "parser/lowering: workflow and job permissions are silently ignored" {
 
   let result = lower_push_workflow(workflow)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
 }
 
 ///|
@@ -1777,11 +2295,14 @@ test "security: permissions do not leak into task plan env" {
   )
 
   let result = lower_push_workflow(workflow)
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   // Permissions should not appear in task plan env
   for task in result.plan.tasks {
-    inspect(task.env.get("PERMISSIONS_CONTENTS"), content="None")
-    inspect(task.env.get("GITHUB_TOKEN_PERMISSIONS"), content="None")
+    @debug.debug_inspect(task.env.get("PERMISSIONS_CONTENTS"), content="None")
+    @debug.debug_inspect(
+      task.env.get("GITHUB_TOKEN_PERMISSIONS"),
+      content="None",
+    )
   }
 }
 
@@ -1809,16 +2330,16 @@ test "security: permissions do not affect execution plan structure" {
   let result_with = lower_push_workflow(with_perms)
   let result_without = lower_push_workflow(without_perms)
 
-  inspect(result_with.errors, content="[]")
-  inspect(result_without.errors, content="[]")
+  @debug.debug_inspect(result_with.errors, content="[]")
+  @debug.debug_inspect(result_without.errors, content="[]")
   // Same number of tasks
-  inspect(
+  @debug.debug_inspect(
     result_with.plan.tasks.length() == result_without.plan.tasks.length(),
     content="true",
   )
   // Same task IDs
   for i in 0..<result_with.plan.tasks.length() {
-    inspect(
+    @debug.debug_inspect(
       result_with.plan.tasks[i].id == result_without.plan.tasks[i].id,
       content="true",
     )
@@ -1848,7 +2369,7 @@ test "parser/lowering: workflow and job concurrency are silently ignored" {
 
   let result = lower_push_workflow(workflow)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
 }
 
 ///|
@@ -1877,27 +2398,42 @@ test "parser/lowering: workflow_call is parsed and rejected in MVP" {
     #|        run: printf '%s' hi
   let parsed = parse_workflow_yaml(src)
 
-  inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(parsed.errors, content="[]")
   let workflow = parsed.workflow.unwrap()
-  inspect(workflow.workflow_call, content="true")
+  @debug.debug_inspect(workflow.workflow_call, content="true")
   let workflow_call = workflow.workflow_call_spec.unwrap()
-  inspect(
+  @debug.debug_inspect(
     workflow_call.inputs.get("target").unwrap().description,
-    content="target environment",
+    content=(
+      #|"target environment"
+    ),
   )
-  inspect(workflow_call.inputs.get("target").unwrap().required, content="true")
-  inspect(
+  @debug.debug_inspect(
+    workflow_call.inputs.get("target").unwrap().required,
+    content="true",
+  )
+  @debug.debug_inspect(
     workflow_call.inputs.get("target").unwrap().input_type,
-    content="string",
+    content=(
+      #|"string"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     workflow_call.outputs.get("build_id").unwrap().value,
-    content="${{ jobs.build.outputs.build_id }}",
+    content=(
+      #|"${{ jobs.build.outputs.build_id }}"
+    ),
   )
-  inspect(workflow_call.secrets.get("token").unwrap().required, content="true")
+  @debug.debug_inspect(
+    workflow_call.secrets.get("token").unwrap().required,
+    content="true",
+  )
 
   let result = lower_push_workflow(workflow)
-  inspect(result.errors, content="[\"workflow_call is not supported in MVP\"]")
+  @debug.debug_inspect(
+    result.errors,
+    content="[\"workflow_call is not supported in MVP\"]",
+  )
 }
 
 ///|
@@ -1939,18 +2475,18 @@ test "lowering: local reusable workflow jobs are expanded in workspace-aware mod
     #|        run: printf '%s' done > result.txt
   let parsed = parse_workflow_yaml(caller_src)
 
-  inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(parsed.errors, content="[]")
   let workflow = parsed.workflow.unwrap()
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let build_write = flow_task_by_id(result.ir, "call__build/write")
-  inspect(build_write.needs, content="[]")
+  @debug.debug_inspect(build_write.needs, content="[]")
   let verify = flow_task_by_id(result.ir, "call__test/verify")
-  inspect(verify.needs, content="[\"call__build/__finish\"]")
+  @debug.debug_inspect(verify.needs, content="[\"call__build/__finish\"]")
   let show = flow_task_by_id(result.ir, "after/show")
-  inspect(show.needs, content="[\"call__test/__finish\"]")
-  inspect(
+  @debug.debug_inspect(show.needs, content="[\"call__test/__finish\"]")
+  @debug.debug_inspect(
     result.plan.job_need_targets.get("after").unwrap().get("call").unwrap(),
     content="[\"call__test\"]",
   )
@@ -2011,31 +2547,39 @@ test "lowering: reusable workflow with and outputs are rewired to caller context
     #|        run: printf '%s' "${{ needs.call.outputs.result }}" > result.txt
   let parsed = parse_workflow_yaml(caller_src)
 
-  inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(parsed.errors, content="[]")
   let workflow = parsed.workflow.unwrap()
-  inspect(
+  @debug.debug_inspect(
     workflow.jobs[0].reusable_workflow_with.get("message").unwrap_or(""),
-    content="hello",
+    content=(
+      #|"hello"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     workflow.jobs[0].reusable_workflow_secrets.get("token").unwrap_or(""),
-    content="${{ secrets.CALL_TOKEN }}",
+    content=(
+      #|"${{ secrets.CALL_TOKEN }}"
+    ),
   )
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
     result.plan.job_virtual_targets.get("call").unwrap(),
     content="[\"call__test\"]",
   )
-  inspect(
+  @debug.debug_inspect(
     result.plan.job_outputs.get("call").unwrap().get("result").unwrap_or(""),
-    content="${{ needs.call__test.outputs.result }}",
+    content=(
+      #|"${{ needs.call__test.outputs.result }}"
+    ),
   )
   let build_write = expect_task_plan(result.plan, "call__build/write")
-  inspect(
+  @debug.debug_inspect(
     build_write.script,
-    content="printf '%s|%s' 'hello' '${{ secrets.CALL_TOKEN }}' > inner.txt",
+    content=(
+      #|"printf '%s|%s' 'hello' '${{ secrets.CALL_TOKEN }}' > inner.txt"
+    ),
   )
 }
 
@@ -2089,16 +2633,21 @@ test "lowering: reusable workflow secrets inherit is rewired to caller secrets c
     #|        run: printf '%s' "${{ needs.call.outputs.result }}" > result.txt
   let parsed = parse_workflow_yaml(caller_src)
 
-  inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(parsed.errors, content="[]")
   let workflow = parsed.workflow.unwrap()
-  inspect(workflow.jobs[0].reusable_workflow_inherit_secrets, content="true")
+  @debug.debug_inspect(
+    workflow.jobs[0].reusable_workflow_inherit_secrets,
+    content="true",
+  )
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let build_write = expect_task_plan(result.plan, "call__build/write")
-  inspect(
+  @debug.debug_inspect(
     build_write.script,
-    content="printf '%s' '${{ secrets.token }}' > inner.txt",
+    content=(
+      #|"printf '%s' '${{ secrets.token }}' > inner.txt"
+    ),
   )
 }
 
@@ -2146,15 +2695,17 @@ test "lowering: reusable workflow fills implicit defaults for typed inputs" {
     #|    uses: ./.github/workflows/reusable.yml
   let parsed = parse_workflow_yaml(caller_src)
 
-  inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(parsed.errors, content="[]")
   let workflow = parsed.workflow.unwrap()
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let capture = expect_task_plan(result.plan, "call__build/capture")
-  inspect(
+  @debug.debug_inspect(
     capture.script,
-    content="printf '%s|%s|%s' 'false' '0' 'hello' > inner.txt\nprintf 'result=%s' \"$(cat inner.txt)\" >> \"$GITHUB_OUTPUT\"",
+    content=(
+      #|"printf '%s|%s|%s' 'false' '0' 'hello' > inner.txt\nprintf 'result=%s' \"$(cat inner.txt)\" >> \"$GITHUB_OUTPUT\""
+    ),
   )
 }
 
@@ -2195,13 +2746,18 @@ test "lowering: reusable workflow rejects invalid typed inputs" {
     #|      retries: nope
   let parsed = parse_workflow_yaml(caller_src)
 
-  inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(parsed.errors, content="[]")
   let workflow = parsed.workflow.unwrap()
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(
+  @debug.debug_inspect(
     result.errors,
-    content="[\"job 'call' reusable workflow input 'enabled' expects boolean but got 'maybe': ./.github/workflows/reusable.yml\", \"job 'call' reusable workflow input 'retries' expects number but got 'nope': ./.github/workflows/reusable.yml\"]",
+    content=(
+      #|[
+      #|  "job 'call' reusable workflow input 'enabled' expects boolean but got 'maybe': ./.github/workflows/reusable.yml",
+      #|  "job 'call' reusable workflow input 'retries' expects number but got 'nope': ./.github/workflows/reusable.yml",
+      #|]
+    ),
   )
 }
 
@@ -2247,16 +2803,16 @@ test "lowering: reusable workflow caller matrix fans out to row aliases" {
     #|        run: test -f one.txt && test -f two.txt
   let parsed = parse_workflow_yaml(caller_src)
 
-  inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(parsed.errors, content="[]")
   let workflow = parsed.workflow.unwrap()
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
     result.plan.job_virtual_targets.get("call").unwrap(),
     content="[\"call__matrix_1\", \"call__matrix_2\"]",
   )
-  inspect(
+  @debug.debug_inspect(
     result.plan.job_need_targets.get("after").unwrap().get("call").unwrap(),
     content="[\"call__matrix_1__build\", \"call__matrix_2__build\"]",
   )
@@ -2316,12 +2872,12 @@ test "lowering: reusable workflow caller matrix aggregates workflow outputs" {
     #|        run: printf '%s' "${{ needs.call.outputs.result }}" > result.txt
   let parsed = parse_workflow_yaml(caller_src)
 
-  inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(parsed.errors, content="[]")
   let workflow = parsed.workflow.unwrap()
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
     result.plan.job_virtual_output_targets
     .get("call")
     .unwrap()
@@ -2329,7 +2885,7 @@ test "lowering: reusable workflow caller matrix aggregates workflow outputs" {
     .unwrap(),
     content="[\"call__matrix_1\", \"call__matrix_2\"]",
   )
-  inspect(
+  @debug.debug_inspect(
     result.plan.job_need_targets.get("after").unwrap().get("call").unwrap(),
     content="[\"call__matrix_1__build\", \"call__matrix_2__build\"]",
   )
@@ -2393,7 +2949,7 @@ async test "lowering: remote reusable workflow cache miss fetches and expands wo
     #|        run: printf '%s' "${{ needs.call.outputs.result }}" > result.txt
   let parsed = parse_workflow_yaml(caller_src)
 
-  inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(parsed.errors, content="[]")
   let workflow = parsed.workflow.unwrap()
   let log_path = workspace + "/git.log"
   let cache_root = "_build/actrun/github_actions/demo/tools/v1"
@@ -2408,27 +2964,31 @@ async test "lowering: remote reusable workflow cache miss fetches and expands wo
   )
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(prefetch.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(prefetch.errors, content="[]")
+  @debug.debug_inspect(
     prefetch.fetched,
     content="[\"demo/tools/.github/workflows/reusable.yml@v1\"]",
   )
-  inspect(result.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
     result.plan.job_virtual_targets.get("call").unwrap(),
     content="[\"call__verify\"]",
   )
-  inspect(
+  @debug.debug_inspect(
     result.plan.job_outputs.get("call").unwrap().get("result").unwrap_or(""),
-    content="${{ needs.call__verify.outputs.result }}",
+    content=(
+      #|"${{ needs.call__verify.outputs.result }}"
+    ),
   )
   let write = expect_task_plan(result.plan, "call__build/write")
-  inspect(
+  @debug.debug_inspect(
     write.script,
-    content="printf '%s|%s' 'hello' '${{ secrets.CALL_TOKEN }}' > inner.txt",
+    content=(
+      #|"printf '%s|%s' 'hello' '${{ secrets.CALL_TOKEN }}' > inner.txt"
+    ),
   )
   let log = @xfs.read_file_to_string(log_path)
-  assert_eq(log.contains("https://github.com/demo/tools.git"), true)
+  @debug.assert_eq(log.contains("https://github.com/demo/tools.git"), true)
 }
 
 ///|
@@ -2512,7 +3072,7 @@ async test "lowering: remote reusable workflow local action is resolved from cac
     #|        run: printf '%s' "${{ needs.call.outputs.result }}" > result.txt
   let parsed = parse_workflow_yaml(caller_src)
 
-  inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(parsed.errors, content="[]")
   let workflow = parsed.workflow.unwrap()
   let log_path = workspace + "/git.log"
   let cache_root = "_build/actrun/github_actions/demo/local-tools/v1"
@@ -2527,12 +3087,14 @@ async test "lowering: remote reusable workflow local action is resolved from cac
   )
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(prefetch.errors, content="[]")
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(prefetch.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let write = expect_task_plan(result.plan, "call__build/local__write")
-  inspect(
+  @debug.debug_inspect(
     write.script,
-    content="printf '%s|%s' 'hello' '${{ secrets.CALL_TOKEN }}' > inner.txt",
+    content=(
+      #|"printf '%s|%s' 'hello' '${{ secrets.CALL_TOKEN }}' > inner.txt"
+    ),
   )
 }
 
@@ -2565,16 +3127,16 @@ async test "prefetch: SHA-pinned action uses git init+fetch+checkout instead of 
     workspace,
     git_bin=Some(git_path),
   )
-  inspect(prefetch.errors, content="[]")
-  inspect(prefetch.fetched.length(), content="1")
+  @debug.debug_inspect(prefetch.errors, content="[]")
+  @debug.debug_inspect(prefetch.fetched.length(), content="1")
   let log = @xfs.read_file_to_string(log_path)
   // Must NOT use clone --branch (which fails for SHAs)
-  assert_eq(log.contains("clone"), false)
+  @debug.assert_eq(log.contains("clone"), false)
   // Must use: git init <dir>, git fetch --depth 1 <url> <sha>, git checkout FETCH_HEAD
-  assert_eq(log.contains("init\n"), true)
-  assert_eq(log.contains("fetch\n--depth\n1\n"), true)
-  assert_eq(log.contains(sha + "\n"), true)
-  assert_eq(log.contains("checkout\nFETCH_HEAD\n"), true)
+  @debug.assert_eq(log.contains("init\n"), true)
+  @debug.assert_eq(log.contains("fetch\n--depth\n1\n"), true)
+  @debug.assert_eq(log.contains(sha + "\n"), true)
+  @debug.assert_eq(log.contains("checkout\nFETCH_HEAD\n"), true)
 }
 
 ///|
@@ -2663,27 +3225,31 @@ test "lowering: nested local reusable workflow is expanded recursively" {
     #|        run: printf '%s' "${{ needs.call.outputs.result }}" > result.txt
   let parsed = parse_workflow_yaml(caller_src)
 
-  inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(parsed.errors, content="[]")
   let workflow = parsed.workflow.unwrap()
   let result = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(result.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
     result.plan.job_virtual_targets.get("call__inner").unwrap(),
     content="[\"call__inner__build\"]",
   )
-  inspect(
+  @debug.debug_inspect(
     result.plan.job_virtual_targets.get("call").unwrap(),
     content="[\"call__wrap\"]",
   )
-  inspect(
+  @debug.debug_inspect(
     result.plan.job_outputs.get("call").unwrap().get("result").unwrap_or(""),
-    content="${{ needs.call__wrap.outputs.result }}",
+    content=(
+      #|"${{ needs.call__wrap.outputs.result }}"
+    ),
   )
   let build_write = expect_task_plan(result.plan, "call__inner__build/write")
-  inspect(
+  @debug.debug_inspect(
     build_write.script,
-    content="printf '%s|%s' 'nested' '${{ secrets.CALL_TOKEN }}' > inner.txt",
+    content=(
+      #|"printf '%s|%s' 'nested' '${{ secrets.CALL_TOKEN }}' > inner.txt"
+    ),
   )
 }
 
@@ -2713,25 +3279,49 @@ test "parser/lowering: job container mapping is parsed and lowered" {
     #|        run: printf '%s' hi
   let parsed = parse_workflow_yaml(src)
 
-  inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(parsed.errors, content="[]")
   let workflow = parsed.workflow.unwrap()
   let container = workflow.jobs[0].container.unwrap()
-  inspect(container.image, content="node:20-bookworm")
-  inspect(container.credentials.unwrap().username, content="octocat")
-  inspect(
-    container.credentials.unwrap().password,
-    content="${{ secrets.REGISTRY_TOKEN }}",
+  @debug.debug_inspect(
+    container.image,
+    content=(
+      #|"node:20-bookworm"
+    ),
   )
-  inspect(container.env.get("NODE_ENV").unwrap_or(""), content="test")
-  inspect(container.ports, content="[\"80\", \"5432\"]")
-  inspect(container.volumes, content="[\"cache:/cache\"]")
-  inspect(container.options.unwrap_or(""), content="--cpus 1")
+  @debug.debug_inspect(
+    container.credentials.unwrap().username,
+    content=(
+      #|"octocat"
+    ),
+  )
+  @debug.debug_inspect(
+    container.credentials.unwrap().password,
+    content=(
+      #|"${{ secrets.REGISTRY_TOKEN }}"
+    ),
+  )
+  @debug.debug_inspect(
+    container.env.get("NODE_ENV").unwrap_or(""),
+    content=(
+      #|"test"
+    ),
+  )
+  @debug.debug_inspect(container.ports, content="[\"80\", \"5432\"]")
+  @debug.debug_inspect(container.volumes, content="[\"cache:/cache\"]")
+  @debug.debug_inspect(
+    container.options.unwrap_or(""),
+    content=(
+      #|"--cpus 1"
+    ),
+  )
 
   let result = lower_push_workflow(workflow)
-  inspect(result.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
     result.plan.job_containers.get("build").unwrap().image,
-    content="node:20-bookworm",
+    content=(
+      #|"node:20-bookworm"
+    ),
   )
 }
 
@@ -2761,25 +3351,52 @@ test "parser/lowering: job services mapping is parsed and lowered into execution
     #|        run: printf '%s' hi
   let parsed = parse_workflow_yaml(src)
 
-  inspect(parsed.errors, content="[]")
+  @debug.debug_inspect(parsed.errors, content="[]")
   let workflow = parsed.workflow.unwrap()
   let service = workflow.jobs[0].services.get("postgres").unwrap()
-  inspect(service.image, content="postgres:16")
-  inspect(service.credentials.unwrap().username, content="octocat")
-  inspect(
-    service.credentials.unwrap().password,
-    content="${{ secrets.REGISTRY_TOKEN }}",
+  @debug.debug_inspect(
+    service.image,
+    content=(
+      #|"postgres:16"
+    ),
   )
-  inspect(service.env.get("POSTGRES_DB").unwrap_or(""), content="app")
-  inspect(service.ports, content="[\"5432\"]")
-  inspect(service.volumes, content="[\"db:/var/lib/postgresql/data\"]")
-  inspect(service.options.unwrap_or(""), content="--health-cmd pg_isready")
+  @debug.debug_inspect(
+    service.credentials.unwrap().username,
+    content=(
+      #|"octocat"
+    ),
+  )
+  @debug.debug_inspect(
+    service.credentials.unwrap().password,
+    content=(
+      #|"${{ secrets.REGISTRY_TOKEN }}"
+    ),
+  )
+  @debug.debug_inspect(
+    service.env.get("POSTGRES_DB").unwrap_or(""),
+    content=(
+      #|"app"
+    ),
+  )
+  @debug.debug_inspect(service.ports, content="[\"5432\"]")
+  @debug.debug_inspect(
+    service.volumes,
+    content="[\"db:/var/lib/postgresql/data\"]",
+  )
+  @debug.debug_inspect(
+    service.options.unwrap_or(""),
+    content=(
+      #|"--health-cmd pg_isready"
+    ),
+  )
 
   let result = lower_push_workflow(workflow)
-  inspect(result.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
     result.plan.job_services.get("build").unwrap().get("postgres").unwrap().image,
-    content="postgres:16",
+    content=(
+      #|"postgres:16"
+    ),
   )
 }
 
@@ -2797,9 +3414,14 @@ test "security: malicious step name does not affect execution" {
   ])
 
   // Step name with shell metacharacters should be preserved as-is
-  inspect(workflow.jobs[0].steps[0].name, content="\"; rm -rf / #")
+  @debug.debug_inspect(
+    workflow.jobs[0].steps[0].name,
+    content=(
+      #|"\"; rm -rf / #"
+    ),
+  )
   let result = lower_push_workflow(workflow)
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
 }
 
 ///|
@@ -2808,23 +3430,23 @@ test "security: skip pattern does not match partial action names incorrectly" {
   let checkout_step = new_uses_step("checkout", "actions/checkout@v5")
   // "actions/check" is a substring of "actions/checkout", so contains-based matching
   // will match it — this documents the current behavior
-  inspect(
+  @debug.debug_inspect(
     step_matches_skip_pattern(checkout_step, ["actions/check"]),
     content="true",
   )
   // "actions/checkout" should match "actions/checkout@v5"
-  inspect(
+  @debug.debug_inspect(
     step_matches_skip_pattern(checkout_step, ["actions/checkout"]),
     content="true",
   )
   // A completely different action should not match
-  inspect(
+  @debug.debug_inspect(
     step_matches_skip_pattern(checkout_step, ["actions/setup-node"]),
     content="false",
   )
   // A run step (no uses) should never match any pattern
   let run_step = new_run_step("build", "echo hello", shell=Some("bash"))
-  inspect(
+  @debug.debug_inspect(
     step_matches_skip_pattern(run_step, ["actions/checkout"]),
     content="false",
   )
@@ -2841,7 +3463,7 @@ test "parser: post-if !cancelled() is accepted" {
     #|  post-if: '!cancelled()'
   let parsed = parse_local_action_yaml(src)
   // Only the composite restriction error, not a post-if error
-  inspect(
+  @debug.debug_inspect(
     parsed.errors,
     content="[\"only composite local actions are supported in MVP\"]",
   )
@@ -2858,7 +3480,7 @@ test "parser: pre-if !cancelled() is accepted" {
     #|  pre-if: '!cancelled()'
   let parsed = parse_local_action_yaml(src)
   // Only the composite restriction error, not a pre-if error
-  inspect(
+  @debug.debug_inspect(
     parsed.errors,
     content="[\"only composite local actions are supported in MVP\"]",
   )
@@ -2875,7 +3497,7 @@ test "parser: post-if failure() is rejected" {
     #|  post-if: failure()
   let parsed = parse_local_action_yaml(src)
   // Both post-if error and composite restriction error
-  inspect(
+  @debug.debug_inspect(
     parsed.errors.iter().any(fn(e) { e.contains("post-if") }),
     content="true",
   )

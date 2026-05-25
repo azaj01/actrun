@@ -90,13 +90,13 @@ fn find_if_substring(text : String, pattern : String, start : Int) -> Int? {
 
 ///|
 fn unwrap_if_expression(text : String) -> String {
-  let trimmed = text.trim(chars=" \t\n\r").to_string()
+  let trimmed = text.trim(chars=" \t\n\r").to_owned()
   if trimmed.has_prefix("${{") &&
     trimmed.has_suffix("}}") &&
     trimmed.length() >= 5 {
     if_text_slice(trimmed, 3, trimmed.length() - 2)
     .trim(chars=" \t\n\r")
-    .to_string()
+    .to_owned()
   } else {
     trimmed
   }
@@ -146,7 +146,7 @@ fn strip_if_outer_parens(text : String) -> String {
   while if_expression_has_outer_parens(current) {
     current = if_text_slice(current, 1, current.length() - 1)
       .trim(chars=" \t\n\r")
-      .to_string()
+      .to_owned()
   }
   current
 }
@@ -387,7 +387,7 @@ fn split_top_level_if_arguments(text : String) -> Array[String]? {
         depth -= 1
       } else if ch == ',' && depth == 0 {
         args.push(
-          if_text_slice(text, start, idx).trim(chars=" \t\n\r").to_string(),
+          if_text_slice(text, start, idx).trim(chars=" \t\n\r").to_owned(),
         )
         start = idx + 1
       }
@@ -398,7 +398,7 @@ fn split_top_level_if_arguments(text : String) -> Array[String]? {
     return None
   }
   args.push(
-    if_text_slice(text, start, text.length()).trim(chars=" \t\n\r").to_string(),
+    if_text_slice(text, start, text.length()).trim(chars=" \t\n\r").to_owned(),
   )
   Some(args)
 }
@@ -555,7 +555,7 @@ fn if_expression_function_supported(text : String) -> Bool {
 
 ///|
 fn if_number_literal(text : String) -> Bool {
-  let trimmed = text.trim(chars=" \t\n\r").to_string()
+  let trimmed = text.trim(chars=" \t\n\r").to_owned()
   if trimmed.length() == 0 {
     return false
   }
@@ -971,7 +971,7 @@ fn if_condition_atom_value(
     None => ()
   }
   if if_number_literal(text) {
-    let trimmed = text.trim(chars=" \t\n\r").to_string()
+    let trimmed = text.trim(chars=" \t\n\r").to_owned()
     return if_condition_value_from_json(Json::string(trimmed))
   }
   match if_expression_function_value(text, ctx) {

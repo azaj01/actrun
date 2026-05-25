@@ -6,7 +6,7 @@ pub struct StepResult {
   stderr : String
   outputs : Map[String, String]
   env_updates : Map[String, String]
-} derive(ToJson, Show)
+} derive(ToJson, Debug)
 
 ///|
 pub fn execute_shell_step(

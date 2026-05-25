@@ -7,14 +7,24 @@ pub enum ExprType {
   TyString
   TyArray(ExprType)
   TyObject(ObjectKind)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub enum ObjectKind {
   Strict(Map[String, ExprType])
   Loose(Map[String, ExprType], ExprType)
   MapObj(ExprType)
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for ExprType with fn output(self, logger) {
+  logger.write_string(@debug.to_string(self))
+}
+
+///|
+pub impl Show for ObjectKind with fn output(self, logger) {
+  logger.write_string(@debug.to_string(self))
+}
 
 ///|
 fn ExprType::is_assignable_to(self : ExprType, target : ExprType) -> Bool {
@@ -41,7 +51,12 @@ fn ExprType::property_type(
         Option::Some(t) => (t, Option::None)
         Option::None => {
           let known = fields.keys().collect()
-          (TyAny, Option::Some("unknown property '\{name}', known: \{known}"))
+          (
+            TyAny,
+            Option::Some(
+              "unknown property '\{name}', known: \{@debug.to_string(known)}",
+            ),
+          )
         }
       }
     }

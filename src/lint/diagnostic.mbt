@@ -2,7 +2,7 @@
 pub enum Severity {
   Error
   Warning
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub struct LintDiagnostic {
@@ -12,7 +12,17 @@ pub struct LintDiagnostic {
   job_id : String
   step_index : Int
   field : String
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for Severity with fn output(self, logger) {
+  logger.write_string(@debug.to_string(self))
+}
+
+///|
+pub impl Show for LintDiagnostic with fn output(self, logger) {
+  logger.write_string(@debug.to_string(self))
+}
 
 ///|
 pub fn LintDiagnostic::format(self : LintDiagnostic) -> String {

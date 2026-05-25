@@ -1,11 +1,11 @@
 ///|
 pub(open) trait Fs {
-  write(Self, String, String, Bool) -> Unit // path, content, append
-  read(Self, String) -> String?
-  exists(Self, String) -> Bool
-  is_dir(Self, String) -> Bool
-  mkdir(Self, String) -> Bool
-  remove(Self, String) -> Bool
+  fn write(Self, String, String, Bool) -> Unit // path, content, append
+  fn read(Self, String) -> String?
+  fn exists(Self, String) -> Bool
+  fn is_dir(Self, String) -> Bool
+  fn mkdir(Self, String) -> Bool
+  fn remove(Self, String) -> Bool
 }
 
 ///|
@@ -18,13 +18,13 @@ pub fn parse_key_values(fs : &Fs, path : String) -> Map[String, String] {
   }
   let lines = content.split("\n")
   for line_view in lines {
-    let line = line_view.to_string()
+    let line = line_view.to_owned()
     if line.length() == 0 {
       continue
     }
     let eq = find_eq_index(line)
     if eq > 0 {
-      result[line[:eq].to_string()] = line[eq + 1:].to_string()
+      result[line[:eq].to_owned()] = line[eq + 1:].to_owned()
     }
   }
   result

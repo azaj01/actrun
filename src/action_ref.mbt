@@ -68,7 +68,7 @@ fn split_action_version(text : String) -> (String, String) {
 fn split_path_segments(text : String) -> Array[String] {
   let parts : Array[String] = []
   for part in text.split("/") {
-    parts.push(part.to_string())
+    parts.push(part.to_owned())
   }
   parts
 }
@@ -116,7 +116,7 @@ fn action_parse_error(text : String, msg : String) -> ActionRefParseResult {
 
 ///|
 pub fn parse_action_ref(text : String) -> ActionRefParseResult {
-  let uses = text.trim(chars=" ").to_string()
+  let uses = text.trim(chars=" ").to_owned()
   if uses.length() == 0 {
     return { action: None, errors: ["action ref is empty"] }
   }

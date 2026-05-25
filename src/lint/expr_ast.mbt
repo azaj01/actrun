@@ -7,7 +7,7 @@ pub enum Expr {
   UnaryOp(UnaryOp, Expr)
   BinaryOp(BinaryOp, Expr, Expr)
   FunctionCall(String, Array[Expr])
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub enum ExprLiteral {
@@ -15,12 +15,12 @@ pub enum ExprLiteral {
   LitNumber(String)
   LitBool(Bool)
   LitNull
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub enum UnaryOp {
   OpNot
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub enum BinaryOp {
@@ -32,4 +32,24 @@ pub enum BinaryOp {
   OpLe
   OpGt
   OpGe
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+pub impl Show for Expr with fn output(self, logger) {
+  logger.write_string(@debug.to_string(self))
+}
+
+///|
+pub impl Show for ExprLiteral with fn output(self, logger) {
+  logger.write_string(@debug.to_string(self))
+}
+
+///|
+pub impl Show for UnaryOp with fn output(self, logger) {
+  logger.write_string(@debug.to_string(self))
+}
+
+///|
+pub impl Show for BinaryOp with fn output(self, logger) {
+  logger.write_string(@debug.to_string(self))
+}

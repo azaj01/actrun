@@ -57,7 +57,7 @@ fn if_hash_files_is_dir(path : String) -> Bool {
 
 ///|
 fn if_hash_files_normalize_pattern(pattern : String) -> String {
-  let trimmed = pattern.trim(chars=" \t\r\n").to_string()
+  let trimmed = pattern.trim(chars=" \t\r\n").to_owned()
   let without_prefix = if trimmed.has_prefix("./") {
     if_text_slice(trimmed, 2, trimmed.length())
   } else if trimmed.has_prefix("/") {
@@ -129,7 +129,7 @@ fn if_hash_files_selected_paths(
   if_hash_files_collect_files(workspace_abs, "", all_files)
   let selected : Map[String, Bool] = {}
   for raw_pattern in patterns {
-    let trimmed = raw_pattern.trim(chars=" \t\r\n").to_string()
+    let trimmed = raw_pattern.trim(chars=" \t\r\n").to_owned()
     if trimmed.length() == 0 {
       continue
     }

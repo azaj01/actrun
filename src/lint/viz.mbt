@@ -92,7 +92,7 @@ fn step_label(step : @ar.StepSpec) -> String {
 fn escape_id(id : String) -> String {
   let parts : Array[String] = []
   for ch in id.split("-") {
-    parts.push(ch.to_string())
+    parts.push(ch.to_owned())
   }
   parts.join("_")
 }
@@ -101,7 +101,7 @@ fn escape_id(id : String) -> String {
 fn escape_mermaid(text : String) -> String {
   let parts : Array[String] = []
   for ch in text.split("\"") {
-    parts.push(ch.to_string())
+    parts.push(ch.to_owned())
   }
   parts.join("#quot;")
 }
@@ -109,7 +109,7 @@ fn escape_mermaid(text : String) -> String {
 ///|
 fn first_line(text : String) -> String {
   for line in text.split("\n") {
-    let trimmed = line.trim(chars=" \t\r").to_string()
+    let trimmed = line.trim(chars=" \t\r").to_owned()
     if trimmed.length() > 0 {
       return trimmed
     }

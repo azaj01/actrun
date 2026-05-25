@@ -319,7 +319,7 @@ fn prepare_cached_github_action_root_for_executor(
   }
   let segments : Array[String] = []
   for segment in action_root.split("/") {
-    segments.push(segment.to_string())
+    segments.push(segment.to_owned())
   }
   let mut current = ""
   for segment in segments {
@@ -387,21 +387,41 @@ async test "executor: run step in working directory with env" {
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
 
   let step = expect_step_report(report, "build/write")
-  inspect(step.status, content="success")
+  @debug.debug_inspect(
+    step.status,
+    content=(
+      #|"success"
+    ),
+  )
 
   let task = expect_task_report(report, "build/write")
-  inspect(task.status, content="success")
-  assert_eq(task.cwd, workspace + "/packages/app")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.assert_eq(task.cwd, workspace + "/packages/app")
 
   let result = @xfs.read_file_to_string(workspace + "/packages/app/result.txt")
-  inspect(result, content="hello")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"hello"
+    ),
+  )
 }
 
 ///|
@@ -422,11 +442,26 @@ async test "executor: default shell runs multiline script" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let task = expect_task_report(report, "build/multi")
-  inspect(task.status, content="success")
-  inspect(task.stdout, content="a\nb\n")
-  inspect(@xfs.read_file_to_string(workspace + "/lines.txt"), content="a\nb\n")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    task.stdout,
+    content=(
+      #|"a\nb\n"
+    ),
+  )
+  @debug.debug_inspect(
+    @xfs.read_file_to_string(workspace + "/lines.txt"),
+    content=(
+      #|"a\nb\n"
+    ),
+  )
 }
 
 ///|
@@ -447,10 +482,20 @@ async test "executor: explicit sh shell runs script" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let task = expect_task_report(report, "build/sh")
-  inspect(task.status, content="success")
-  inspect(task.stdout, content="hello-sh")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    task.stdout,
+    content=(
+      #|"hello-sh"
+    ),
+  )
 }
 
 ///|
@@ -473,10 +518,20 @@ async test "executor: custom shell template runs temp script file" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let task = expect_task_report(report, "build/custom")
-  inspect(task.status, content="success")
-  inspect(task.stdout, content="custom-shell-ok")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    task.stdout,
+    content=(
+      #|"custom-shell-ok"
+    ),
+  )
 }
 
 ///|
@@ -499,10 +554,20 @@ async test "executor: injects basic github runner env" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let task = expect_task_report(report, "build/env")
-  inspect(task.status, content="success")
-  inspect(task.stdout, content=workspace + "|ci|build|true|true")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    task.stdout,
+    content=(
+      #|"/Users/mz/ghq/github.com/mizchi/actrun/_build/test-workspaces/executor-github-env|ci|build|true|true"
+    ),
+  )
 }
 
 ///|
@@ -530,10 +595,20 @@ async test "executor: env context is available in script expressions" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let task = expect_task_report(report, "build/script_expr")
-  inspect(task.status, content="success")
-  inspect(task.stdout, content="from-job|from-step")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    task.stdout,
+    content=(
+      #|"from-job|from-step"
+    ),
+  )
 }
 
 ///|
@@ -558,10 +633,20 @@ async test "executor: env context is available in env expressions" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let task = expect_task_report(report, "build/read")
-  inspect(task.status, content="success")
-  inspect(task.stdout, content="from-job-env")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    task.stdout,
+    content=(
+      #|"from-job-env"
+    ),
+  )
 }
 
 ///|
@@ -585,10 +670,20 @@ async test "executor: GITHUB_ENV updates later steps in job" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let read_task = expect_task_report(report, "build/read")
-  inspect(read_task.status, content="success")
-  inspect(read_task.stdout, content="from-env-file")
+  @debug.debug_inspect(
+    read_task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    read_task.stdout,
+    content=(
+      #|"from-env-file"
+    ),
+  )
 }
 
 ///|
@@ -616,10 +711,20 @@ async test "executor: env context sees GITHUB_ENV updates from prior steps" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let task = expect_task_report(report, "build/read")
-  inspect(task.status, content="success")
-  inspect(task.stdout, content="from-github-env")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    task.stdout,
+    content=(
+      #|"from-github-env"
+    ),
+  )
 }
 
 ///|
@@ -646,10 +751,20 @@ async test "executor: GITHUB_ENV multiline updates later steps in job" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let read_task = expect_task_report(report, "build/read")
-  inspect(read_task.status, content="success")
-  inspect(read_task.stdout, content="line-1\nline-2")
+  @debug.debug_inspect(
+    read_task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    read_task.stdout,
+    content=(
+      #|"line-1\nline-2"
+    ),
+  )
 }
 
 ///|
@@ -677,10 +792,20 @@ async test "executor: GITHUB_PATH updates later steps in job" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let read_task = expect_task_report(report, "build/read_path")
-  inspect(read_task.status, content="success")
-  inspect(read_task.stdout, content="from-path-file")
+  @debug.debug_inspect(
+    read_task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    read_task.stdout,
+    content=(
+      #|"from-path-file"
+    ),
+  )
 }
 
 ///|
@@ -708,10 +833,20 @@ async test "executor: GITHUB_OUTPUT updates later steps in job" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let consume_task = expect_task_report(report, "build/consume")
-  inspect(consume_task.status, content="success")
-  inspect(consume_task.stdout, content="from-output")
+  @debug.debug_inspect(
+    consume_task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    consume_task.stdout,
+    content=(
+      #|"from-output"
+    ),
+  )
 }
 
 ///|
@@ -742,10 +877,20 @@ async test "executor: GITHUB_OUTPUT multiline updates later steps in job" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let consume_task = expect_task_report(report, "build/consume")
-  inspect(consume_task.status, content="success")
-  inspect(consume_task.stdout, content="line-1\nline-2")
+  @debug.debug_inspect(
+    consume_task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    consume_task.stdout,
+    content=(
+      #|"line-1\nline-2"
+    ),
+  )
 }
 
 ///|
@@ -768,10 +913,20 @@ async test "executor: GITHUB_STEP_SUMMARY stores step summary content" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let task = expect_task_report(report, "build/summary")
-  inspect(task.status, content="success")
-  inspect(task.summary, content="hello summary")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    task.summary,
+    content=(
+      #|"hello summary"
+    ),
+  )
 }
 
 ///|
@@ -797,10 +952,20 @@ async test "executor: step outputs are available in env expressions" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let consume_task = expect_task_report(report, "build/consume")
-  inspect(consume_task.status, content="success")
-  inspect(consume_task.stdout, content="env-output")
+  @debug.debug_inspect(
+    consume_task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    consume_task.stdout,
+    content=(
+      #|"env-output"
+    ),
+  )
 }
 
 ///|
@@ -821,22 +986,44 @@ async test "executor: checkout step is a no-op success" {
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
 
   let checkout = expect_task_report(report, "build/checkout")
-  inspect(checkout.kind, content="action")
-  inspect(checkout.status, content="success")
-  inspect(checkout.code, content="0")
+  @debug.debug_inspect(
+    checkout.kind,
+    content=(
+      #|"action"
+    ),
+  )
+  @debug.debug_inspect(
+    checkout.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(checkout.code, content="0")
 
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.status, content="success")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="from workspace",
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"from workspace"
+    ),
   )
 }
 
@@ -869,18 +1056,30 @@ async test "executor: checkout supports path and sparse-checkout" {
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let checkout = expect_task_report(report, "build/checkout")
-  inspect(checkout.status, content="success")
+  @debug.debug_inspect(
+    checkout.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.status, content="success")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="yes|yes|yes",
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"yes|yes|yes"
+    ),
   )
 }
 
@@ -914,16 +1113,31 @@ async test "executor: checkout supports sparse-checkout cone mode false" {
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let checkout = expect_task_report(report, "build/checkout")
-  inspect(checkout.status, content="success")
+  @debug.debug_inspect(
+    checkout.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.status, content="success")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="yes|yes|no")
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"yes|yes|no"
+    ),
+  )
 }
 
 ///|
@@ -949,20 +1163,29 @@ async test "executor: checkout default fetch-depth clones shallow history" {
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(
-    expect_task_report(report, "build/checkout").status,
-    content="success",
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
+    expect_task_report(report, "build/checkout").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/verify").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="2|no",
+    .to_owned(),
+    content=(
+      #|"2|no"
+    ),
   )
 }
 
@@ -991,20 +1214,29 @@ async test "executor: checkout fetch-depth zero keeps full history" {
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(
-    expect_task_report(report, "build/checkout").status,
-    content="success",
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
+    expect_task_report(report, "build/checkout").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/verify").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="2|no",
+    .to_owned(),
+    content=(
+      #|"2|no"
+    ),
   )
 }
 
@@ -1034,20 +1266,29 @@ async test "executor: checkout ref selects requested branch" {
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(
-    expect_task_report(report, "build/checkout").status,
-    content="success",
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
+    expect_task_report(report, "build/checkout").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/verify").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="feature|feature|1|yes",
+    .to_owned(),
+    content=(
+      #|"feature|feature|1|yes"
+    ),
   )
 }
 
@@ -1075,17 +1316,24 @@ async test "executor: checkout clean default preserves untracked files in local 
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   // In local mode, untracked files are preserved to avoid data loss
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/verify").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="yes|no",
+    .to_owned(),
+    content=(
+      #|"yes|no"
+    ),
   )
 }
 
@@ -1118,16 +1366,23 @@ async test "executor: local checkout does not delete files created between check
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/verify").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="survived",
+    .to_owned(),
+    content=(
+      #|"survived"
+    ),
   )
 }
 
@@ -1157,17 +1412,19 @@ async test "executor: local checkout preserves .git directory" {
 
   let lowered = lower_push_workflow(workflow)
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
     expect_task_report(report, "build/verify").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="exists",
+    .to_owned(),
+    content=(
+      #|"exists"
+    ),
   )
   // .git should still exist after checkout
   let has_git_after = @xfs.path_exists(workspace + "/.git")
-  inspect(has_git_before, content="true")
-  inspect(has_git_after, content="true")
+  @debug.debug_inspect(has_git_before, content="true")
+  @debug.debug_inspect(has_git_after, content="true")
 }
 
 ///|
@@ -1196,16 +1453,23 @@ async test "executor: checkout clean false preserves untracked files" {
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/verify").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="second|yes|no",
+    .to_owned(),
+    content=(
+      #|"second|yes|no"
+    ),
   )
 }
 
@@ -1240,20 +1504,27 @@ async test "executor: isolated checkout clean default deletes files created betw
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(
     lowered,
     workspace_root=workspace,
     allow_destructive_checkout_clean=true,
   )
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/verify").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="deleted",
+    .to_owned(),
+    content=(
+      #|"deleted"
+    ),
   )
 }
 
@@ -1288,20 +1559,27 @@ async test "executor: isolated checkout clean false preserves files between chec
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(
     lowered,
     workspace_root=workspace,
     allow_destructive_checkout_clean=true,
   )
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/verify").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="survived",
+    .to_owned(),
+    content=(
+      #|"survived"
+    ),
   )
 }
 
@@ -1335,23 +1613,32 @@ async test "executor: checkout materialized on host is visible to job container 
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(
-    expect_task_report(report, "build/checkout").status,
-    content="success",
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
+    expect_task_report(report, "build/checkout").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/verify").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="second|no",
+    .to_owned(),
+    content=(
+      #|"second|no"
+    ),
   )
   let docker_log = @xfs.read_file_to_string(docker_log_path)
-  assert_eq(docker_log.contains("node:20-bookworm"), true)
+  @debug.assert_eq(docker_log.contains("node:20-bookworm"), true)
 }
 
 ///|
@@ -1384,12 +1671,14 @@ async test "executor: checkout submodules true initializes direct submodules" {
     lower_push_workflow(workflow),
     workspace_root=workspace,
   )
-  inspect(report.ok, content="true")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
     expect_task_report(report, "build/verify").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="yes|no",
+    .to_owned(),
+    content=(
+      #|"yes|no"
+    ),
   )
 }
 
@@ -1423,12 +1712,14 @@ async test "executor: checkout submodules recursive initializes nested submodule
     lower_push_workflow(workflow),
     workspace_root=workspace,
   )
-  inspect(report.ok, content="true")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
     expect_task_report(report, "build/verify").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="yes|yes",
+    .to_owned(),
+    content=(
+      #|"yes|yes"
+    ),
   )
 }
 
@@ -1464,16 +1755,23 @@ async test "executor: cached github repo composite action runs inner steps" {
   ])
 
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let write = expect_task_report(report, "build/remote__write")
-  inspect(write.status, content="success")
+  @debug.debug_inspect(
+    write.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "build/verify")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="write|mizchi-test/demo-action|v1|write|" + action_root,
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"write|mizchi-test/demo-action|v1|write|/Users/mz/ghq/github.com/mizchi/actrun/_build/actrun/github_actions/mizchi-test/demo-action/v1/composite"
+    ),
   )
 }
 
@@ -1520,21 +1818,26 @@ async test "executor: cached github repo node action runs main entrypoint" {
   )
 
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let remote = expect_task_report(report, "build/remote")
-  inspect(remote.status, content="success")
+  @debug.debug_inspect(
+    remote.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "build/verify")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="from-input|mizchitestnodeactionaction|" +
-      action_root +
-      "|mizchi-test/node-action|v1",
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"from-input|mizchitestnodeactionaction|/Users/mz/ghq/github.com/mizchi/actrun/_build/actrun/github_actions/mizchi-test/node-action/v1/action|mizchi-test/node-action|v1"
+    ),
   )
   let node_log = @xfs.read_file_to_string(node_log_path)
-  assert_eq(node_log.contains(action_root + "/main.sh"), true)
+  @debug.assert_eq(node_log.contains(action_root + "/main.sh"), true)
 }
 
 ///|
@@ -1581,21 +1884,28 @@ async test "executor: job container runs github repo node action via docker adap
   )
 
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let remote = expect_task_report(report, "build/remote")
-  inspect(remote.status, content="success")
-  inspect(
+  @debug.debug_inspect(
+    remote.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
     @xfs.read_file_to_string(workspace + "/node.txt"),
-    content="from-container|" + workspace + "|" + action_root,
+    content=(
+      #|"from-container|/Users/mz/ghq/github.com/mizchi/actrun/_build/test-workspaces/executor-job-container-node-action|/Users/mz/ghq/github.com/mizchi/actrun/_build/actrun/github_actions/mizchi-test/node-action-container/v1/action"
+    ),
   )
   let docker_log = @xfs.read_file_to_string(docker_log_path)
-  assert_eq(docker_log.contains("run\n--rm\n"), true)
-  assert_eq(docker_log.contains("alpine:3.21"), true)
-  assert_eq(docker_log.contains(node_bin), true)
-  assert_eq(docker_log.contains(action_root + "/main.sh"), true)
+  @debug.assert_eq(docker_log.contains("run\n--rm\n"), true)
+  @debug.assert_eq(docker_log.contains("alpine:3.21"), true)
+  @debug.assert_eq(docker_log.contains(node_bin), true)
+  @debug.assert_eq(docker_log.contains(action_root + "/main.sh"), true)
 }
 
 ///|
@@ -1636,20 +1946,25 @@ async test "executor: github repo action cache miss fetches and runs inner steps
   )
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
 
-  inspect(prefetch.errors, content="[]")
-  inspect(prefetch.fetched.length(), content="1")
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(prefetch.errors, content="[]")
+  @debug.debug_inspect(prefetch.fetched.length(), content="1")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  assert_eq(@xfs.path_exists(repo_cache_root + "/composite/action.yml"), true)
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.assert_eq(
+    @xfs.path_exists(repo_cache_root + "/composite/action.yml"),
+    true,
+  )
   let verify = expect_task_report(report, "build/verify")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="fetched-runtime",
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"fetched-runtime"
+    ),
   )
   let log = @xfs.read_file_to_string(log_path)
-  assert_eq(
+  @debug.assert_eq(
     log.contains("https://github.com/mizchi-fetch-exec/demo-action-exec.git"),
     true,
   )
@@ -1677,14 +1992,26 @@ async test "executor: builtin checkout alias works" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let checkout = expect_task_report(report, "build/checkout")
-  inspect(checkout.kind, content="action")
-  inspect(checkout.status, content="success")
+  @debug.debug_inspect(
+    checkout.kind,
+    content=(
+      #|"action"
+    ),
+  )
+  @debug.debug_inspect(
+    checkout.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "build/verify")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="from builtin",
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"from builtin"
+    ),
   )
 }
 
@@ -1726,18 +2053,38 @@ async test "executor: builtin artifact actions upload and download files" {
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let upload = expect_task_report(report, "build/upload")
-  inspect(upload.status, content="success")
+  @debug.debug_inspect(
+    upload.status,
+    content=(
+      #|"success"
+    ),
+  )
   let download = expect_task_report(report, "build/download")
-  inspect(download.status, content="success")
+  @debug.debug_inspect(
+    download.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.status, content="success")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="alpha|beta")
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"alpha|beta"
+    ),
+  )
 }
 
 ///|
@@ -1784,23 +2131,32 @@ async test "executor: builtin artifact actions roundtrip across job container ru
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(expect_task_report(report, "build/upload").status, content="success")
-  inspect(
-    expect_task_report(report, "build/download").status,
-    content="success",
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    expect_task_report(report, "build/upload").status,
+    content=(
+      #|"success"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
+    expect_task_report(report, "build/download").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/verify").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="alpha|beta",
+    .to_owned(),
+    content=(
+      #|"alpha|beta"
+    ),
   )
   let docker_log = @xfs.read_file_to_string(docker_log_path)
-  assert_eq(docker_log.contains("node:20-bookworm"), true)
+  @debug.assert_eq(docker_log.contains("node:20-bookworm"), true)
 }
 
 ///|
@@ -1850,28 +2206,41 @@ async test "executor: builtin artifact actions support directory, wildcard, and 
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build/upload_dir").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build/upload_glob").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build/download_all").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.status, content="success")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="root|child|linux|macos|no|no",
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"root|child|linux|macos|no|no"
+    ),
   )
 }
 
@@ -1920,22 +2289,44 @@ async test "executor: upload-artifact if-no-files-found supports warn ignore and
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let upload_warn = expect_task_report(report, "build/upload_warn")
-  inspect(upload_warn.status, content="success")
+  @debug.debug_inspect(
+    upload_warn.status,
+    content=(
+      #|"success"
+    ),
+  )
   let upload_ignore = expect_task_report(report, "build/upload_ignore")
-  inspect(upload_ignore.status, content="success")
+  @debug.debug_inspect(
+    upload_ignore.status,
+    content=(
+      #|"success"
+    ),
+  )
   let upload_error = expect_task_report(report, "build/upload_error")
-  inspect(upload_error.status, content="failed")
+  @debug.debug_inspect(
+    upload_error.status,
+    content=(
+      #|"failed"
+    ),
+  )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.status, content="success")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="success|success|success|success|failure|success",
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"success|success|success|success|failure|success"
+    ),
   )
 }
 
@@ -1992,28 +2383,41 @@ async test "executor: upload-artifact overwrite replaces existing artifact only 
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build/upload_first").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build/upload_again").status,
-    content="failed",
+    content=(
+      #|"failed"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build/upload_overwrite").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.status, content="success")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="failure|success|beta",
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"failure|success|beta"
+    ),
   )
 }
 
@@ -2065,20 +2469,29 @@ async test "executor: download-artifact merge-multiple flattens download-all int
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build/download_all").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.status, content="success")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="root|child|linux|macos|no|no",
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"root|child|linux|macos|no|no"
+    ),
   )
 }
 
@@ -2124,18 +2537,38 @@ async test "executor: builtin cache save and restore roundtrip across jobs" {
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let save = expect_task_report(report, "save/save")
-  inspect(save.status, content="success")
+  @debug.debug_inspect(
+    save.status,
+    content=(
+      #|"success"
+    ),
+  )
   let restore = expect_task_report(report, "restore/restore")
-  inspect(restore.status, content="success")
+  @debug.debug_inspect(
+    restore.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "restore/verify")
-  inspect(verify.status, content="success")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="true|ocean")
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"true|ocean"
+    ),
+  )
 }
 
 ///|
@@ -2185,22 +2618,52 @@ async test "executor: builtin cache action auto-saves on miss and restores on ne
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let cache = expect_task_report(report, "save/cache")
-  inspect(cache.status, content="success")
+  @debug.debug_inspect(
+    cache.status,
+    content=(
+      #|"success"
+    ),
+  )
   let cache_post = expect_task_report(report, "save/cache__post")
-  inspect(cache_post.status, content="success")
+  @debug.debug_inspect(
+    cache_post.status,
+    content=(
+      #|"success"
+    ),
+  )
   let check_miss = expect_task_report(report, "save/check_miss")
-  inspect(check_miss.status, content="success")
+  @debug.debug_inspect(
+    check_miss.status,
+    content=(
+      #|"success"
+    ),
+  )
   let restore = expect_task_report(report, "restore/restore_cache")
-  inspect(restore.status, content="success")
+  @debug.debug_inspect(
+    restore.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "restore/verify")
-  inspect(verify.status, content="success")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="true|ocean")
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"true|ocean"
+    ),
+  )
 }
 
 ///|
@@ -2258,25 +2721,39 @@ async test "executor: builtin cache action auto-saves across job container jobs"
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
-  inspect(expect_task_report(report, "save/cache").status, content="success")
-  inspect(
-    expect_task_report(report, "save/cache__post").status,
-    content="success",
+  @debug.debug_inspect(
+    expect_task_report(report, "save/cache").status,
+    content=(
+      #|"success"
+    ),
   )
-  inspect(expect_task_report(report, "restore/cache").status, content="success")
-  inspect(
+  @debug.debug_inspect(
+    expect_task_report(report, "save/cache__post").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    expect_task_report(report, "restore/cache").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "restore/verify").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="true|ocean",
+    .to_owned(),
+    content=(
+      #|"true|ocean"
+    ),
   )
   let docker_log = @xfs.read_file_to_string(docker_log_path)
-  assert_eq(docker_log.contains("alpine:3.21"), true)
+  @debug.assert_eq(docker_log.contains("alpine:3.21"), true)
 }
 
 ///|
@@ -2322,18 +2799,30 @@ async test "executor: builtin cache restore uses restore-keys fallback and repor
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let restore = expect_task_report(report, "restore/restore")
-  inspect(restore.status, content="success")
+  @debug.debug_inspect(
+    restore.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "restore/verify")
-  inspect(verify.status, content="success")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="false|ocean",
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"false|ocean"
+    ),
   )
 }
 
@@ -2397,18 +2886,38 @@ async test "executor: builtin cache action saves new primary key after restore-k
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let cache = expect_task_report(report, "restore/cache")
-  inspect(cache.status, content="success")
+  @debug.debug_inspect(
+    cache.status,
+    content=(
+      #|"success"
+    ),
+  )
   let cache_post = expect_task_report(report, "restore/cache__post")
-  inspect(cache_post.status, content="success")
+  @debug.debug_inspect(
+    cache_post.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "verify/verify")
-  inspect(verify.status, content="success")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="true|wave")
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"true|wave"
+    ),
+  )
 }
 
 ///|
@@ -2466,14 +2975,24 @@ async test "executor: builtin cache restore-keys prefers the most recent prefix 
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let verify = expect_task_report(report, "restore/verify")
-  inspect(verify.status, content="success")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="wave")
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"wave"
+    ),
+  )
 }
 
 ///|
@@ -2521,16 +3040,31 @@ async test "executor: builtin cache restore lookup-only reports exact hit withou
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let restore = expect_task_report(report, "restore/restore")
-  inspect(restore.status, content="success")
+  @debug.debug_inspect(
+    restore.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "restore/verify")
-  inspect(verify.status, content="success")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="true|no")
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"true|no"
+    ),
+  )
 }
 
 ///|
@@ -2598,22 +3132,44 @@ async test "executor: builtin cache lookup-only skips restore but still saves pr
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let verify_lookup = expect_task_report(report, "promote/verify_lookup")
-  inspect(verify_lookup.status, content="success")
-  inspect(
-    verify_lookup.stdout.trim(chars=" \n\r\t").to_string(),
-    content="false|wave",
+  @debug.debug_inspect(
+    verify_lookup.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify_lookup.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"false|wave"
+    ),
   )
   let cache_post = expect_task_report(report, "promote/cache__post")
-  inspect(cache_post.status, content="success")
+  @debug.debug_inspect(
+    cache_post.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "verify/verify")
-  inspect(verify.status, content="success")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="true|wave")
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"true|wave"
+    ),
+  )
 }
 
 ///|
@@ -2649,18 +3205,30 @@ async test "executor: builtin cache restore fail-on-cache-miss fails exact miss"
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let restore = expect_task_report(report, "restore/restore")
-  inspect(restore.status, content="failed")
+  @debug.debug_inspect(
+    restore.status,
+    content=(
+      #|"failed"
+    ),
+  )
   let verify = expect_task_report(report, "restore/verify")
-  inspect(verify.status, content="success")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="failure|success|no",
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"failure|success|no"
+    ),
   )
 }
 
@@ -2695,18 +3263,30 @@ async test "executor: builtin cache action fail-on-cache-miss fails exact miss" 
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let cache = expect_task_report(report, "restore/cache")
-  inspect(cache.status, content="failed")
+  @debug.debug_inspect(
+    cache.status,
+    content=(
+      #|"failed"
+    ),
+  )
   let verify = expect_task_report(report, "restore/verify")
-  inspect(verify.status, content="success")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="failure|success",
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"failure|success"
+    ),
   )
 }
 
@@ -2738,18 +3318,30 @@ async test "executor: builtin setup-node exposes requested node version output a
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let setup = expect_task_report(report, "build/setup")
-  inspect(setup.status, content="success")
+  @debug.debug_inspect(
+    setup.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.status, content="success")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="v20.0.0|v20.0.0",
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"v20.0.0|v20.0.0"
+    ),
   )
 }
 
@@ -2789,23 +3381,35 @@ async test "executor: builtin setup-node works in job container run step" {
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let setup = expect_task_report(report, "build/setup")
-  inspect(setup.status, content="success")
+  @debug.debug_inspect(
+    setup.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.status, content="success")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="v20.0.0|v20.0.0",
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"v20.0.0|v20.0.0"
+    ),
   )
   let docker_log = @xfs.read_file_to_string(docker_log_path)
-  assert_eq(docker_log.contains("node:20-bookworm"), true)
+  @debug.assert_eq(docker_log.contains("node:20-bookworm"), true)
   let node_log = @xfs.read_file_to_string(node_log_path)
-  assert_eq(node_log.contains("--version"), true)
+  @debug.assert_eq(node_log.contains("--version"), true)
 }
 
 ///|
@@ -2831,18 +3435,30 @@ async test "executor: builtin setup-node registry-url exports npm auth config" {
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let setup = expect_task_report(report, "build/setup")
-  inspect(setup.status, content="success")
+  @debug.debug_inspect(
+    setup.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.status, content="success")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="XXXXX-XXXXX-XXXXX-XXXXX|yes|//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN};registry=https://registry.npmjs.org/;",
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"XXXXX-XXXXX-XXXXX-XXXXX|yes|//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN};registry=https://registry.npmjs.org/;"
+    ),
   )
 }
 
@@ -2894,22 +3510,44 @@ async test "executor: builtin setup-node cache npm restores after deferred post 
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 
   let setup = expect_task_report(report, "save/setup")
-  inspect(setup.status, content="success")
+  @debug.debug_inspect(
+    setup.status,
+    content=(
+      #|"success"
+    ),
+  )
   let setup_post = expect_task_report(report, "save/setup__post")
-  inspect(setup_post.status, content="success")
+  @debug.debug_inspect(
+    setup_post.status,
+    content=(
+      #|"success"
+    ),
+  )
   let restore_setup = expect_task_report(report, "restore/setup")
-  inspect(restore_setup.status, content="success")
+  @debug.debug_inspect(
+    restore_setup.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "restore/verify")
-  inspect(verify.status, content="success")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="true|ocean|false|v20.0.0",
+  @debug.debug_inspect(
+    verify.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"true|ocean|false|v20.0.0"
+    ),
   )
 }
 
@@ -2954,24 +3592,38 @@ async test "executor: local composite action runs inner steps" {
   ])
 
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
 
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
 
   let prepare = expect_task_report(report, "build/setup__prepare")
-  inspect(prepare.status, content="success")
+  @debug.debug_inspect(
+    prepare.status,
+    content=(
+      #|"success"
+    ),
+  )
   let show = expect_task_report(report, "build/setup__show")
-  inspect(
-    show.stdout.trim(chars=" \n\r\t").to_string(),
-    content="from-local-action|" + workspace + "/.github/actions/setup",
+  @debug.debug_inspect(
+    show.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"from-local-action|/Users/mz/ghq/github.com/mizchi/actrun/_build/test-workspaces/executor-local-action/.github/actions/setup"
+    ),
   )
   let verify = expect_task_report(report, "build/verify")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="from-local-action|" + workspace + "/.github/actions/setup",
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"from-local-action|/Users/mz/ghq/github.com/mizchi/actrun/_build/test-workspaces/executor-local-action/.github/actions/setup"
+    ),
   )
 }
 
@@ -3028,22 +3680,39 @@ async test "executor: local composite action supports nested uses" {
   ])
 
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let checkout = expect_task_report(report, "build/setup__checkout")
-  inspect(checkout.status, content="success")
+  @debug.debug_inspect(
+    checkout.status,
+    content=(
+      #|"success"
+    ),
+  )
   let write = expect_task_report(report, "build/setup__child__write")
-  inspect(write.status, content="success")
+  @debug.debug_inspect(
+    write.status,
+    content=(
+      #|"success"
+    ),
+  )
   let show = expect_task_report(report, "build/setup__show")
-  inspect(
-    show.stdout.trim(chars=" \n\r\t").to_string(),
-    content="tracked-from-workspace|nested-ok",
+  @debug.debug_inspect(
+    show.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"tracked-from-workspace|nested-ok"
+    ),
   )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="nested-ok")
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"nested-ok"
+    ),
+  )
 }
 
 ///|
@@ -3110,25 +3779,37 @@ async test "executor: local composite action can build and run nested wasm actio
   ])
 
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
 
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
   let module_report = expect_task_report(report, "build/setup__module")
-  inspect(module_report.status, content="success")
-  inspect(
+  @debug.debug_inspect(
+    module_report.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
     module_report.stdout.contains("from-composite|/tmp/actrun-wasm-"),
     content="true",
   )
   let verify = expect_task_report(report, "build/verify")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="from-composite-wasm",
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"from-composite-wasm"
+    ),
   )
   let wasm_log = @xfs.read_file_to_string(wasm_log_path)
-  assert_eq(wasm_log.contains("generated/v1/main.wasm"), true)
+  @debug.assert_eq(wasm_log.contains("generated/v1/main.wasm"), true)
 }
 
 ///|
@@ -3160,16 +3841,23 @@ async test "executor: github action_path context is available in local composite
   ])
 
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let prepare = expect_task_report(report, "build/setup__prepare")
-  inspect(prepare.status, content="success")
-  inspect(
+  @debug.debug_inspect(
+    prepare.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
     @xfs.read_file_to_string(workspace + "/action-path.txt"),
-    content=workspace + "/.github/actions/setup",
+    content=(
+      #|"/Users/mz/ghq/github.com/mizchi/actrun/_build/test-workspaces/executor-local-action-github-action-path/.github/actions/setup"
+    ),
   )
 }
 
@@ -3244,24 +3932,36 @@ async test "executor: local node action prefers sibling wasm module" {
   ])
 
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let runtime = expect_task_report(report, "build/runtime")
-  inspect(
-    runtime.stdout.trim(chars=" \n\r\t").to_string(),
-    content="wasm:hello",
+  @debug.debug_inspect(
+    runtime.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"wasm:hello"
+    ),
   )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="from-wasm")
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"from-wasm"
+    ),
+  )
   let wasm_log = @xfs.read_file_to_string(wasm_log_path)
-  assert_eq(
+  @debug.assert_eq(
     wasm_log.contains(workspace + "/.github/actions/wasi/dist/index.wasm"),
     true,
   )
-  inspect(@xfs.read_file_to_string(node_log_path), content="")
+  @debug.debug_inspect(
+    @xfs.read_file_to_string(node_log_path),
+    content=(
+      #|""
+    ),
+  )
 }
 
 ///|
@@ -3336,20 +4036,27 @@ async test "executor: local node action falls back to node when wasm runner is u
   ])
 
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
 
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let runtime = expect_task_report(report, "build/runtime")
-  inspect(
-    runtime.stdout.trim(chars=" \n\r\t").to_string(),
-    content="node:hello",
+  @debug.debug_inspect(
+    runtime.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"node:hello"
+    ),
   )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="from-node")
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"from-node"
+    ),
+  )
   let node_log = @xfs.read_file_to_string(node_log_path)
-  assert_eq(
+  @debug.assert_eq(
     node_log.contains(workspace + "/.github/actions/wasi/dist/index.js"),
     true,
   )
@@ -3396,21 +4103,35 @@ async test "executor: GITHUB_STATE is scoped to local composite action inner ste
   ])
 
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
 
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
+  @debug.debug_inspect(
     @xfs.read_file_to_string(workspace + "/before.txt"),
-    content="missing",
+    content=(
+      #|"missing"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(workspace + "/inner.txt"),
-    content="from-state",
+    content=(
+      #|"from-state"
+    ),
   )
-  inspect(@xfs.read_file_to_string(workspace + "/outer.txt"), content="outside")
+  @debug.debug_inspect(
+    @xfs.read_file_to_string(workspace + "/outer.txt"),
+    content=(
+      #|"outside"
+    ),
+  )
 }
 
 ///|
@@ -3437,21 +4158,51 @@ async test "executor: failed dependency skips downstream job by default" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="false")
-  inspect(report.state, content="partial_failed")
+  @debug.debug_inspect(report.ok, content="false")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"partial_failed"
+    ),
+  )
 
   let failed = expect_task_report(report, "build/fail")
-  inspect(failed.code, content="5")
-  inspect(failed.status, content="failed")
+  @debug.debug_inspect(failed.code, content="5")
+  @debug.debug_inspect(
+    failed.status,
+    content=(
+      #|"failed"
+    ),
+  )
 
   let build_step = expect_step_report(report, "build/fail")
-  inspect(build_step.status, content="failed")
+  @debug.debug_inspect(
+    build_step.status,
+    content=(
+      #|"failed"
+    ),
+  )
 
   let lint_step = expect_step_report(report, "lint/lint")
-  inspect(lint_step.status, content="skipped")
-  inspect(lint_step.message, content="job if condition evaluated to false")
+  @debug.debug_inspect(
+    lint_step.status,
+    content=(
+      #|"skipped"
+    ),
+  )
+  @debug.debug_inspect(
+    lint_step.message,
+    content=(
+      #|"job if condition evaluated to false"
+    ),
+  )
   let lint_task = expect_task_report(report, "lint/lint")
-  inspect(lint_task.status, content="skipped")
+  @debug.debug_inspect(
+    lint_task.status,
+    content=(
+      #|"skipped"
+    ),
+  )
 }
 
 ///|
@@ -3473,13 +4224,28 @@ async test "executor: job if false skips entire job" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
 
   let step = expect_step_report(report, "skip/nope")
-  inspect(step.status, content="skipped")
+  @debug.debug_inspect(
+    step.status,
+    content=(
+      #|"skipped"
+    ),
+  )
   let task = expect_task_report(report, "skip/nope")
-  inspect(task.status, content="skipped")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"skipped"
+    ),
+  )
 }
 
 ///|
@@ -3507,14 +4273,34 @@ async test "executor: job if always runs despite failed needs" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="false")
-  inspect(report.state, content="partial_failed")
+  @debug.debug_inspect(report.ok, content="false")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"partial_failed"
+    ),
+  )
 
   let build_task = expect_task_report(report, "build/fail")
-  inspect(build_task.status, content="failed")
+  @debug.debug_inspect(
+    build_task.status,
+    content=(
+      #|"failed"
+    ),
+  )
   let cleanup_task = expect_task_report(report, "cleanup/finalize")
-  inspect(cleanup_task.status, content="success")
-  inspect(cleanup_task.stdout, content="cleanup-ran")
+  @debug.debug_inspect(
+    cleanup_task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    cleanup_task.stdout,
+    content=(
+      #|"cleanup-ran"
+    ),
+  )
 }
 
 ///|
@@ -3553,32 +4339,54 @@ async test "executor: step if status functions respect prior step results" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="false")
-  inspect(report.state, content="partial_failed")
-  inspect(expect_task_report(report, "build/fail").status, content="failed")
-  inspect(
+  @debug.debug_inspect(report.ok, content="false")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"partial_failed"
+    ),
+  )
+  @debug.debug_inspect(
+    expect_task_report(report, "build/fail").status,
+    content=(
+      #|"failed"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/default_skip").status,
-    content="skipped",
+    content=(
+      #|"skipped"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build/on_failure").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build/on_failure").stdout,
-    content="failure-ran",
+    content=(
+      #|"failure-ran"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build/always_step").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build/always_step").stdout,
-    content="always-ran",
+    content=(
+      #|"always-ran"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build/on_cancelled").status,
-    content="skipped",
+    content=(
+      #|"skipped"
+    ),
   )
 }
 
@@ -3607,18 +4415,37 @@ async test "executor: continue-on-error keeps workflow green and runs later step
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/fail_soft").status,
-    content="failed",
+    content=(
+      #|"failed"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_step_report(report, "build/fail_soft").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
-  inspect(expect_task_report(report, "build/after").status, content="success")
-  inspect(expect_task_report(report, "build/after").stdout, content="after-ran")
+  @debug.debug_inspect(
+    expect_task_report(report, "build/after").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    expect_task_report(report, "build/after").stdout,
+    content=(
+      #|"after-ran"
+    ),
+  )
 }
 
 ///|
@@ -3647,18 +4474,37 @@ async test "executor: fromJSON can drive continue-on-error expression" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/fail_soft").status,
-    content="failed",
+    content=(
+      #|"failed"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_step_report(report, "build/fail_soft").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
-  inspect(expect_task_report(report, "build/after").status, content="success")
-  inspect(expect_task_report(report, "build/after").stdout, content="after-ran")
+  @debug.debug_inspect(
+    expect_task_report(report, "build/after").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    expect_task_report(report, "build/after").stdout,
+    content=(
+      #|"after-ran"
+    ),
+  )
 }
 
 ///|
@@ -3698,13 +4544,25 @@ async test "executor: hashFiles returns a stable hex digest and empty string on 
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
     expect_task_report(report, "build/show").stdout,
-    content="yes|yes|yes",
+    content=(
+      #|"yes|yes|yes"
+    ),
   )
-  inspect(expect_task_report(report, "build/gate").status, content="success")
-  inspect(expect_task_report(report, "build/gate").stdout, content="hash-ran")
+  @debug.debug_inspect(
+    expect_task_report(report, "build/gate").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    expect_task_report(report, "build/gate").stdout,
+    content=(
+      #|"hash-ran"
+    ),
+  )
 }
 
 ///|
@@ -3751,16 +4609,30 @@ async test "executor: vars context resolves from ACTRUN_VAR prefix and missing v
   executor_test_restore_env_var("ACTRUN_VAR_COLOR", previous_color)
   executor_test_restore_env_var("ACTRUN_VAR_FEATURE_ENABLED", previous_enabled)
 
-  inspect(report.ok, content="true")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
     expect_task_report(report, "build/show").stdout,
-    content="ocean|ocean|yes|ocean",
+    content=(
+      #|"ocean|ocean|yes|ocean"
+    ),
   )
-  inspect(expect_task_report(report, "build/gate").status, content="success")
-  inspect(expect_task_report(report, "build/gate").stdout, content="vars-ran")
-  inspect(
+  @debug.debug_inspect(
+    expect_task_report(report, "build/gate").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    expect_task_report(report, "build/gate").stdout,
+    content=(
+      #|"vars-ran"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/skip_missing").status,
-    content="skipped",
+    content=(
+      #|"skipped"
+    ),
   )
 }
 
@@ -3796,10 +4668,12 @@ async test "executor: secrets context resolves from ACTRUN_SECRET prefix and mis
 
   executor_test_restore_env_var("ACTRUN_SECRET_TOKEN", previous_token)
 
-  inspect(report.ok, content="true")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
     expect_task_report(report, "build/show").stdout,
-    content="s3cr3t|s3cr3t|yes|s3cr3t",
+    content=(
+      #|"s3cr3t|s3cr3t|yes|s3cr3t"
+    ),
   )
 }
 
@@ -3837,14 +4711,31 @@ async test "executor: steps outcome and conclusion are available to later steps 
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(
-    expect_task_report(report, "build/show").stdout,
-    content="success|success|failure|success|success|success",
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
   )
-  inspect(expect_task_report(report, "build/gate").status, content="success")
-  inspect(expect_task_report(report, "build/gate").stdout, content="gate-ran")
+  @debug.debug_inspect(
+    expect_task_report(report, "build/show").stdout,
+    content=(
+      #|"success|success|failure|success|success|success"
+    ),
+  )
+  @debug.debug_inspect(
+    expect_task_report(report, "build/gate").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    expect_task_report(report, "build/gate").stdout,
+    content=(
+      #|"gate-ran"
+    ),
+  )
 }
 
 ///|
@@ -3882,33 +4773,53 @@ async test "executor: matrix fail-fast cancels later siblings" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="false")
-  inspect(report.state, content="partial_failed")
-  inspect(
+  @debug.debug_inspect(report.ok, content="false")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"partial_failed"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build__matrix_1/emit").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build__matrix_2/emit").status,
-    content="failed",
+    content=(
+      #|"failed"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build__matrix_3/emit").status,
-    content="cancelled",
+    content=(
+      #|"cancelled"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_step_report(report, "build__matrix_3/emit").status,
-    content="cancelled",
+    content=(
+      #|"cancelled"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(workspace + "/artifacts/ok.txt"),
-    content="ok",
+    content=(
+      #|"ok"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(workspace + "/artifacts/fail.txt"),
-    content="fail",
+    content=(
+      #|"fail"
+    ),
   )
-  inspect(@xfs.path_exists(workspace + "/artifacts/late.txt"), content="false")
+  @debug.debug_inspect(
+    @xfs.path_exists(workspace + "/artifacts/late.txt"),
+    content="false",
+  )
 }
 
 ///|
@@ -3946,27 +4857,42 @@ async test "executor: matrix fail-fast false keeps later siblings running" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="false")
-  inspect(report.state, content="partial_failed")
-  inspect(
+  @debug.debug_inspect(report.ok, content="false")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"partial_failed"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build__matrix_1/emit").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build__matrix_2/emit").status,
-    content="failed",
+    content=(
+      #|"failed"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build__matrix_3/emit").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     expect_step_report(report, "build__matrix_3/emit").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(workspace + "/artifacts/late.txt"),
-    content="late",
+    content=(
+      #|"late"
+    ),
   )
 }
 
@@ -4014,12 +4940,24 @@ async test "executor: matrix needs aggregate result and outputs for downstream j
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(expect_step_report(report, "consume/read").status, content="success")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
+  @debug.debug_inspect(
+    expect_step_report(report, "consume/read").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "consume/read").stdout,
-    content="success|native|js",
+    content=(
+      #|"success|native|js"
+    ),
   )
 }
 
@@ -4047,14 +4985,39 @@ async test "executor: docker actions run via docker adapter" {
     workspace_root=workspace,
   )
 
-  inspect(docker_image_report.ok, content="true")
-  inspect(docker_image_report.state, content="completed")
+  @debug.debug_inspect(docker_image_report.ok, content="true")
+  @debug.debug_inspect(
+    docker_image_report.state,
+    content=(
+      #|"completed"
+    ),
+  )
 
   let image = expect_task_report(docker_image_report, "build/image")
-  inspect(image.kind, content="action")
-  inspect(image.status, content="success")
-  inspect(image.script, content="")
-  inspect(image.stderr, content="")
+  @debug.debug_inspect(
+    image.kind,
+    content=(
+      #|"action"
+    ),
+  )
+  @debug.debug_inspect(
+    image.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    image.script,
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(
+    image.stderr,
+    content=(
+      #|""
+    ),
+  )
   let remote_workspace = prepare_workspace("executor-github-docker-action")
   let action_root = prepare_cached_github_action_root_for_executor(
     "mizchi-test",
@@ -4097,25 +5060,35 @@ async test "executor: docker actions run via docker adapter" {
   let lowered = lower_push_workflow_in_workspace(
     remote_workflow, remote_workspace,
   )
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let remote_report = execute_lowered_native(
     lowered,
     workspace_root=remote_workspace,
   )
-  inspect(remote_report.ok, content="true")
+  @debug.debug_inspect(remote_report.ok, content="true")
   let remote = expect_task_report(remote_report, "build/remote")
-  inspect(remote.status, content="success")
+  @debug.debug_inspect(
+    remote.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(remote_report, "build/verify")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="from-input")
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"from-input"
+    ),
+  )
   let docker_log = @xfs.read_file_to_string(log_path)
-  assert_eq(docker_log.contains("run\n--rm\n"), true)
-  assert_eq(docker_log.contains("alpine:3.21"), true)
-  assert_eq(
+  @debug.assert_eq(docker_log.contains("run\n--rm\n"), true)
+  @debug.assert_eq(docker_log.contains("alpine:3.21"), true)
+  @debug.assert_eq(
     docker_log.contains("build\n-f\n" + action_root + "/Dockerfile\n"),
     true,
   )
-  assert_eq(docker_log.contains("run\n--rm\n"), true)
+  @debug.assert_eq(docker_log.contains("run\n--rm\n"), true)
 }
 
 ///|
@@ -4164,21 +5137,41 @@ async test "executor: wasm actions run via configured wasm runner" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  let module_report = expect_task_report(report, "build/module")
-  inspect(module_report.kind, content="action")
-  inspect(module_report.status, content="success")
-  inspect(
-    module_report.stdout.trim(chars=" \n\r\t").to_string(),
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
     content=(
-      #|hello|/tmp/actrun-wasm-0-build_module
+      #|"completed"
+    ),
+  )
+  let module_report = expect_task_report(report, "build/module")
+  @debug.debug_inspect(
+    module_report.kind,
+    content=(
+      #|"action"
+    ),
+  )
+  @debug.debug_inspect(
+    module_report.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    module_report.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"hello|/tmp/actrun-wasm-0-build_module"
     ),
   )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="from-wasm")
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"from-wasm"
+    ),
+  )
   let wasm_log = @xfs.read_file_to_string(wasm_log_path)
-  assert_eq(wasm_log.contains("main.wasm"), true)
+  @debug.assert_eq(wasm_log.contains("main.wasm"), true)
 }
 
 ///|
@@ -4205,17 +5198,39 @@ async test "executor: wasm actions fail when module is missing" {
     workspace_root=workspace,
   )
 
-  inspect(report.ok, content="false")
-  inspect(report.state, content="partial_failed")
+  @debug.debug_inspect(report.ok, content="false")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"partial_failed"
+    ),
+  )
   let module_report = expect_task_report(report, "build/module")
-  inspect(module_report.kind, content="action")
-  inspect(module_report.status, content="failed")
-  inspect(
+  @debug.debug_inspect(
+    module_report.kind,
+    content=(
+      #|"action"
+    ),
+  )
+  @debug.debug_inspect(
+    module_report.status,
+    content=(
+      #|"failed"
+    ),
+  )
+  @debug.debug_inspect(
     module_report.stderr,
-    content="wasm module for 'std/echo@v1' was not found",
+    content=(
+      #|"wasm module for 'std/echo@v1' was not found"
+    ),
   )
   let wasm_log = @xfs.read_file_to_string(wasm_log_path)
-  inspect(wasm_log, content="")
+  @debug.debug_inspect(
+    wasm_log,
+    content=(
+      #|""
+    ),
+  )
 }
 
 ///|
@@ -4277,17 +5292,29 @@ async test "executor: custom registry node action runs via configured registry r
     "ACTRUN_ACTION_REGISTRY_ROOT", previous_registry_root,
   )
 
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
   let setup_report = expect_task_report(report, "build/setup")
-  inspect(setup_report.status, content="success")
+  @debug.debug_inspect(
+    setup_report.status,
+    content=(
+      #|"success"
+    ),
+  )
   let verify = expect_task_report(report, "build/verify")
-  inspect(
-    verify.stdout.trim(chars=" \n\r\t").to_string(),
-    content="from-registry-node|from-registry",
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"from-registry-node|from-registry"
+    ),
   )
   let node_log = @xfs.read_file_to_string(node_log_path)
-  assert_eq(node_log.contains(action_root + "/index.sh"), true)
+  @debug.assert_eq(node_log.contains(action_root + "/index.sh"), true)
 }
 
 ///|
@@ -4324,20 +5351,32 @@ async test "executor: job container runs run steps via docker adapter" {
   )
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(expect_step_report(report, "build/show").status, content="success")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
+  @debug.debug_inspect(
+    expect_step_report(report, "build/show").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/show").stdout,
-    content="from-container|from-step|" + workspace + "/nested",
+    content=(
+      #|"from-container|from-step|/Users/mz/ghq/github.com/mizchi/actrun/_build/test-workspaces/executor-job-container/nested"
+    ),
   )
   let docker_log = @xfs.read_file_to_string(docker_log_path)
-  assert_eq(docker_log.contains("run\n--rm\n"), true)
-  assert_eq(docker_log.contains("alpine:3.21"), true)
-  assert_eq(docker_log.contains("-w\n" + workspace + "/nested\n"), true)
+  @debug.assert_eq(docker_log.contains("run\n--rm\n"), true)
+  @debug.assert_eq(docker_log.contains("alpine:3.21"), true)
+  @debug.assert_eq(docker_log.contains("-w\n" + workspace + "/nested\n"), true)
 }
 
 ///|
@@ -4370,20 +5409,36 @@ async test "executor: job container shares docker network with job services" {
   )
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(expect_task_report(report, "build/show").status, content="success")
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
+  @debug.debug_inspect(
+    expect_task_report(report, "build/show").status,
+    content=(
+      #|"success"
+    ),
+  )
   let docker_log = @xfs.read_file_to_string(docker_log_path)
-  assert_eq(
+  @debug.assert_eq(
     docker_log.contains("network\ncreate\naction-runner-job-build\n"),
     true,
   )
-  assert_eq(docker_log.contains("--network\naction-runner-job-build\n"), true)
-  assert_eq(docker_log.contains("--network-alias\npostgres\n"), true)
-  assert_eq(docker_log.contains("network\nrm\naction-runner-job-build\n"), true)
+  @debug.assert_eq(
+    docker_log.contains("--network\naction-runner-job-build\n"),
+    true,
+  )
+  @debug.assert_eq(docker_log.contains("--network-alias\npostgres\n"), true)
+  @debug.assert_eq(
+    docker_log.contains("network\nrm\naction-runner-job-build\n"),
+    true,
+  )
 }
 
 ///|
@@ -4430,27 +5485,50 @@ async test "executor: job services start before steps, expose ports context, and
   )
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(report.state, content="completed")
-  inspect(expect_task_report(report, "build/show").status, content="success")
-  inspect(expect_task_report(report, "build/verify").status, content="success")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"completed"
+    ),
+  )
+  @debug.debug_inspect(
+    expect_task_report(report, "build/show").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    expect_task_report(report, "build/verify").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
     @xfs.read_file_to_string(workspace + "/out.txt"),
-    content="5432|5432|yes",
+    content=(
+      #|"5432|5432|yes"
+    ),
   )
   let docker_log = @xfs.read_file_to_string(docker_log_path)
-  assert_eq(docker_log.contains("run\n-d\n--rm\n--name\n"), true)
-  assert_eq(docker_log.contains("action-runner-service-build__postgres"), true)
-  assert_eq(docker_log.contains("postgres:16"), true)
-  assert_eq(docker_log.contains("-e\nPOSTGRES_DB=app\n"), true)
-  assert_eq(docker_log.contains("-p\n5432:5432\n"), true)
-  assert_eq(docker_log.contains("-v\ndb:/var/lib/postgresql/data\n"), true)
-  assert_eq(docker_log.contains("--health-cmd\npg_isready\n"), true)
-  assert_eq(docker_log.contains("inspect\n--format\n"), true)
-  assert_eq(
+  @debug.assert_eq(docker_log.contains("run\n-d\n--rm\n--name\n"), true)
+  @debug.assert_eq(
+    docker_log.contains("action-runner-service-build__postgres"),
+    true,
+  )
+  @debug.assert_eq(docker_log.contains("postgres:16"), true)
+  @debug.assert_eq(docker_log.contains("-e\nPOSTGRES_DB=app\n"), true)
+  @debug.assert_eq(docker_log.contains("-p\n5432:5432\n"), true)
+  @debug.assert_eq(
+    docker_log.contains("-v\ndb:/var/lib/postgresql/data\n"),
+    true,
+  )
+  @debug.assert_eq(docker_log.contains("--health-cmd\npg_isready\n"), true)
+  @debug.assert_eq(docker_log.contains("inspect\n--format\n"), true)
+  @debug.assert_eq(
     docker_log.contains("rm\n-f\naction-runner-service-build__postgres\n"),
     true,
   )
@@ -4487,19 +5565,29 @@ async test "executor: job services fail when health check becomes unhealthy" {
   )
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="false")
-  inspect(report.state, content="partial_failed")
-  inspect(expect_task_report(report, "build/show").status, content="failed")
-  inspect(
+  @debug.debug_inspect(report.ok, content="false")
+  @debug.debug_inspect(
+    report.state,
+    content=(
+      #|"partial_failed"
+    ),
+  )
+  @debug.debug_inspect(
+    expect_task_report(report, "build/show").status,
+    content=(
+      #|"failed"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/show").stderr.contains("became unhealthy"),
     content="true",
   )
   let docker_log = @xfs.read_file_to_string(docker_log_path)
-  assert_eq(docker_log.contains("inspect\n--format\n"), true)
-  assert_eq(
+  @debug.assert_eq(docker_log.contains("inspect\n--format\n"), true)
+  @debug.assert_eq(
     docker_log.contains("rm\n-f\naction-runner-service-build__postgres\n"),
     true,
   )
@@ -4554,16 +5642,26 @@ async test "executor: job container runs docker action as sibling container" {
   )
 
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let remote = expect_task_report(report, "build/remote")
-  inspect(remote.status, content="success")
-  inspect(@xfs.read_file_to_string(workspace + "/docker.txt"), content="")
+  @debug.debug_inspect(
+    remote.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    @xfs.read_file_to_string(workspace + "/docker.txt"),
+    content=(
+      #|""
+    ),
+  )
   let docker_log = @xfs.read_file_to_string(docker_log_path)
-  assert_eq(docker_log.contains("-v\ncache:/cache\n"), true)
-  assert_eq(docker_log.contains("CONTAINER_FLAG=from-container"), false)
+  @debug.assert_eq(docker_log.contains("-v\ncache:/cache\n"), true)
+  @debug.assert_eq(docker_log.contains("CONTAINER_FLAG=from-container"), false)
 }
 
 ///|
@@ -4615,24 +5713,40 @@ async test "executor: github repo node action lifecycle shares GITHUB_STATE acro
   )
 
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
     expect_task_report(report, "build/remote__pre").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
-  inspect(expect_task_report(report, "build/remote").status, content="success")
-  inspect(
+  @debug.debug_inspect(
+    expect_task_report(report, "build/remote").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/remote__post").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="pre")
-  inspect(
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"pre"
+    ),
+  )
+  @debug.debug_inspect(
     @xfs.read_file_to_string(workspace + "/post.txt"),
-    content="main|" + workspace,
+    content=(
+      #|"main|/Users/mz/ghq/github.com/mizchi/actrun/_build/test-workspaces/executor-github-node-lifecycle"
+    ),
   )
 }
 
@@ -4677,24 +5791,40 @@ async test "executor: github repo docker action lifecycle shares GITHUB_STATE ac
   )
 
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
-  inspect(
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
     expect_task_report(report, "build/remote__pre").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
-  inspect(expect_task_report(report, "build/remote").status, content="success")
-  inspect(
+  @debug.debug_inspect(
+    expect_task_report(report, "build/remote").status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
     expect_task_report(report, "build/remote__post").status,
-    content="success",
+    content=(
+      #|"success"
+    ),
   )
   let verify = expect_task_report(report, "build/verify")
-  inspect(verify.stdout.trim(chars=" \n\r\t").to_string(), content="pre")
-  inspect(
+  @debug.debug_inspect(
+    verify.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"pre"
+    ),
+  )
+  @debug.debug_inspect(
     @xfs.read_file_to_string(workspace + "/post.txt"),
-    content="main|" + workspace,
+    content=(
+      #|"main|/Users/mz/ghq/github.com/mizchi/actrun/_build/test-workspaces/executor-github-docker-lifecycle"
+    ),
   )
 }
 
@@ -4738,9 +5868,9 @@ async test "security: file_commands and runner_temp are cleaned up after run" {
     ]),
   ])
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   cleanup_run_temp_files(workspace)
   assert_true(
     check_no_workspace_entries("_build/actrun/file_commands", workspace),
@@ -4764,9 +5894,9 @@ async test "security: step script files are not world-readable" {
     ]),
   ])
   let lowered = lower_push_workflow_in_workspace(workflow, workspace)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
 }
 
 ///|
@@ -4794,16 +5924,18 @@ async test "security: permissions workflow executes without GITHUB_TOKEN" {
   )
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   // GITHUB_TOKEN should not be automatically set
-  inspect(
+  @debug.debug_inspect(
     expect_task_report(report, "build/check").stdout
     .trim(chars=" \n\r\t")
-    .to_string(),
-    content="unset",
+    .to_owned(),
+    content=(
+      #|"unset"
+    ),
   )
 }
 
@@ -4830,8 +5962,8 @@ async test "security: secrets are masked in stdout" {
   let raw_report = execute_lowered_native(lowered, workspace_root=workspace)
   let masked = mask_report_secrets(raw_report, ["super-secret-123"])
   let stdout = expect_task_report(masked, "build/leak").stdout
-  inspect(stdout.contains("super-secret-123"), content="false")
-  inspect(stdout.contains("***"), content="true")
+  @debug.debug_inspect(stdout.contains("super-secret-123"), content="false")
+  @debug.debug_inspect(stdout.contains("***"), content="true")
 }
 
 ///|
@@ -4858,17 +5990,17 @@ async test "security: path traversal in working-directory is contained" {
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let step = expect_task_report(report, "build/check-cwd")
-  let cwd = step.stdout.trim(chars=" \n\r\t").to_string()
+  let cwd = step.stdout.trim(chars=" \n\r\t").to_owned()
   // Verify the cwd is rooted inside the workspace
-  inspect(cwd.has_prefix(workspace), content="true")
-  inspect(cwd.contains("sub/deep"), content="true")
+  @debug.debug_inspect(cwd.has_prefix(workspace), content="true")
+  @debug.debug_inspect(cwd.contains("sub/deep"), content="true")
   // Verify it does not escape to a parent directory
-  inspect(cwd.contains(".."), content="false")
+  @debug.debug_inspect(cwd.contains(".."), content="false")
 }
 
 ///|
@@ -4891,8 +6023,11 @@ async test "security: secrets masked in GITHUB_ENV values" {
   let raw_report = execute_lowered_native(lowered, workspace_root=workspace)
   let masked = mask_report_secrets(raw_report, ["super-secret-456"])
   let read_stdout = expect_task_report(masked, "build/read").stdout
-  inspect(read_stdout.contains("super-secret-456"), content="false")
-  inspect(read_stdout.contains("***"), content="true")
+  @debug.debug_inspect(
+    read_stdout.contains("super-secret-456"),
+    content="false",
+  )
+  @debug.debug_inspect(read_stdout.contains("***"), content="true")
 }
 
 ///|
@@ -4914,8 +6049,8 @@ async test "security: secrets masked in step outputs" {
   let raw_report = execute_lowered_native(lowered, workspace_root=workspace)
   let masked = mask_report_secrets(raw_report, ["my-api-key-789"])
   let step = expect_task_report(masked, "build/produce")
-  inspect(step.stdout.contains("my-api-key-789"), content="false")
-  inspect(step.stderr.contains("my-api-key-789"), content="false")
+  @debug.debug_inspect(step.stdout.contains("my-api-key-789"), content="false")
+  @debug.debug_inspect(step.stderr.contains("my-api-key-789"), content="false")
 }
 
 ///|
@@ -4936,14 +6071,16 @@ async test "security: env values cannot inject shell commands" {
   ])
 
   let lowered = lower_push_workflow(workflow)
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let report = execute_lowered_native(lowered, workspace_root=workspace)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   let step = expect_task_report(report, "build/check")
   // The literal string should be used, not command-substituted
-  inspect(
-    step.stdout.trim(chars=" \n\r\t").to_string(),
-    content="$(echo pwned)",
+  @debug.debug_inspect(
+    step.stdout.trim(chars=" \n\r\t").to_owned(),
+    content=(
+      #|"$(echo pwned)"
+    ),
   )
 }

@@ -7,9 +7,11 @@ test "S001: duplicate step IDs in same job" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_structure(workflow)
   let s001 = diags.filter(fn(d) { d.code == "duplicate-step-id" })
-  inspect(
+  @debug.debug_inspect(
     s001[0].format(),
-    content="[build/step1] id: error[duplicate-step-id]: duplicate step id 'setup' (first defined at step 0)",
+    content=(
+      #|"[build/step1] id: error[duplicate-step-id]: duplicate step id 'setup' (first defined at step 0)"
+    ),
   )
 }
 
@@ -22,7 +24,7 @@ test "S001: no duplicate when step IDs are different" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_structure(workflow)
   let s001 = diags.filter(fn(d) { d.code == "duplicate-step-id" })
-  inspect(s001.length(), content="0")
+  @debug.debug_inspect(s001.length(), content="0")
 }
 
 ///|
@@ -34,7 +36,7 @@ test "S001: empty IDs do not count as duplicates" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_structure(workflow)
   let s001 = diags.filter(fn(d) { d.code == "duplicate-step-id" })
-  inspect(s001.length(), content="0")
+  @debug.debug_inspect(s001.length(), content="0")
 }
 
 ///|
@@ -43,9 +45,11 @@ test "S002: empty runs-on without reusable workflow" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_structure(workflow)
   let s002 = diags.filter(fn(d) { d.code == "missing-runs-on" })
-  inspect(
+  @debug.debug_inspect(
     s002[0].format(),
-    content="[build/step-1] runs-on: error[missing-runs-on]: job 'build' has empty runs-on and is not a reusable workflow call",
+    content=(
+      #|"[build/step-1] runs-on: error[missing-runs-on]: job 'build' has empty runs-on and is not a reusable workflow call"
+    ),
   )
 }
 
@@ -60,7 +64,7 @@ test "S002: no error when reusable workflow" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_structure(workflow)
   let s002 = diags.filter(fn(d) { d.code == "missing-runs-on" })
-  inspect(s002.length(), content="0")
+  @debug.debug_inspect(s002.length(), content="0")
 }
 
 ///|
@@ -69,9 +73,11 @@ test "S003: empty job without steps or reusable workflow" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_structure(workflow)
   let s003 = diags.filter(fn(d) { d.code == "empty-job" })
-  inspect(
+  @debug.debug_inspect(
     s003[0].format(),
-    content="[empty/step-1] steps: error[empty-job]: job 'empty' has no steps and is not a reusable workflow call",
+    content=(
+      #|"[empty/step-1] steps: error[empty-job]: job 'empty' has no steps and is not a reusable workflow call"
+    ),
   )
 }
 
@@ -86,7 +92,7 @@ test "S003: no error when reusable workflow with no steps" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_structure(workflow)
   let s003 = diags.filter(fn(d) { d.code == "empty-job" })
-  inspect(s003.length(), content="0")
+  @debug.debug_inspect(s003.length(), content="0")
 }
 
 ///|
@@ -106,12 +112,15 @@ test "S004: step has both uses and run via YAML" {
     Option::Some(workflow) => {
       let diags = check_structure(workflow)
       let s004 = diags.filter(fn(d) { d.code == "uses-and-run" })
-      inspect(
+      @debug.debug_inspect(
         s004[0].format(),
-        content="[build/step0] uses/run: error[uses-and-run]: step has both 'uses' and 'run' defined",
+        content=(
+          #|"[build/step0] uses/run: error[uses-and-run]: step has both 'uses' and 'run' defined"
+        ),
       )
     }
-    Option::None => inspect("parse failed", content="should not fail")
+    Option::None =>
+      @debug.debug_inspect("parse failed", content="should not fail")
   }
 }
 
@@ -124,7 +133,7 @@ test "S004: no error for normal steps" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_structure(workflow)
   let s004 = diags.filter(fn(d) { d.code == "uses-and-run" })
-  inspect(s004.length(), content="0")
+  @debug.debug_inspect(s004.length(), content="0")
 }
 
 ///|
@@ -137,9 +146,11 @@ test "S005: matrix with empty rows" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_structure(workflow)
   let s005 = diags.filter(fn(d) { d.code == "empty-matrix" })
-  inspect(
+  @debug.debug_inspect(
     s005[0].format(),
-    content="[build/step-1] matrix: warning[empty-matrix]: job 'build' has a matrix with no rows",
+    content=(
+      #|"[build/step-1] matrix: warning[empty-matrix]: job 'build' has a matrix with no rows"
+    ),
   )
 }
 
@@ -154,5 +165,5 @@ test "S005: no warning when matrix has rows" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_structure(workflow)
   let s005 = diags.filter(fn(d) { d.code == "empty-matrix" })
-  inspect(s005.length(), content="0")
+  @debug.debug_inspect(s005.length(), content="0")
 }

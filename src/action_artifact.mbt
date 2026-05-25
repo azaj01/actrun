@@ -2,7 +2,7 @@
 fn artifact_parent_dir(path : String) -> String {
   let parts : Array[String] = []
   for part in path.split("/") {
-    parts.push(part.to_string())
+    parts.push(part.to_owned())
   }
   if parts.length() <= 1 {
     return "."
@@ -69,7 +69,7 @@ fn artifact_has_wildcard(pattern : String) -> Bool {
 
 ///|
 fn artifact_normalize_pattern(pattern : String) -> String {
-  let trimmed = pattern.trim(chars=" \t\r\n").to_string()
+  let trimmed = pattern.trim(chars=" \t\r\n").to_owned()
   let without_prefix = if trimmed.has_prefix("./") {
     exec_text_slice(trimmed, 2, trimmed.length())
   } else if trimmed.has_prefix("/") {
@@ -115,7 +115,7 @@ fn artifact_split_path(path : String) -> Array[String] {
     return out
   }
   for part_view in path.split("/") {
-    let part = part_view.to_string()
+    let part = part_view.to_owned()
     if part.length() > 0 {
       out.push(part)
     }
@@ -353,7 +353,7 @@ fn artifact_select_upload_files(
     include_hidden~,
   )
   for raw_path in upload_paths {
-    let path = raw_path.trim(chars=" \t\r\n").to_string()
+    let path = raw_path.trim(chars=" \t\r\n").to_owned()
     if path.has_prefix("!") {
       excluded_patterns.push(exec_text_slice(path, 1, path.length()))
       continue

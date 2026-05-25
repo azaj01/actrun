@@ -53,7 +53,17 @@ async test "executor: injects runner env variables" {
   )
   let task = find_task_run_report(report, "build/env").unwrap()
 
-  inspect(report.ok, content="true")
-  inspect(task.status, content="success")
-  inspect(task.stdout, content="<ok>")
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    task.stdout,
+    content=(
+      #|"<ok>"
+    ),
+  )
 }

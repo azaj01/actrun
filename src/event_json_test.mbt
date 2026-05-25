@@ -31,13 +31,38 @@ test "push event json: parses minimal GitHub push payload" {
   let result = parse_github_push_event_json(payload)
   let event = expect_parsed_push_event(result)
 
-  inspect(result.errors, content="[]")
-  inspect(event.ref_name, content="main")
-  inspect(event.before_sha, content="def456")
-  inspect(event.after_sha, content="abc123")
-  inspect(event.repository, content="mizchi/actrun")
-  inspect(event.actor, content="octocat")
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
+    event.ref_name,
+    content=(
+      #|"main"
+    ),
+  )
+  @debug.debug_inspect(
+    event.before_sha,
+    content=(
+      #|"def456"
+    ),
+  )
+  @debug.debug_inspect(
+    event.after_sha,
+    content=(
+      #|"abc123"
+    ),
+  )
+  @debug.debug_inspect(
+    event.repository,
+    content=(
+      #|"mizchi/actrun"
+    ),
+  )
+  @debug.debug_inspect(
+    event.actor,
+    content=(
+      #|"octocat"
+    ),
+  )
+  @debug.debug_inspect(
     event.changed_paths,
     content="[\"README.md\", \"old.txt\", \"src/lib.mbt\", \"src/new.mbt\"]",
   )
@@ -59,8 +84,8 @@ test "push event json: falls back to head_commit changed paths" {
   let result = parse_github_push_event_json(payload)
   let event = expect_parsed_push_event(result)
 
-  inspect(result.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
     event.changed_paths,
     content="[\"README.md\", \"old.txt\", \"src/new.mbt\"]",
   )
@@ -70,8 +95,14 @@ test "push event json: falls back to head_commit changed paths" {
 test "push event json: reports missing required fields" {
   let result = parse_github_push_event_json("{\"repository\":{}}")
 
-  inspect(
+  @debug.debug_inspect(
     result.errors,
-    content="[\"push event JSON is missing string field `ref`\", \"push event JSON is missing string field `before`\", \"push event JSON is missing string field `after`\"]",
+    content=(
+      #|[
+      #|  "push event JSON is missing string field `ref`",
+      #|  "push event JSON is missing string field `before`",
+      #|  "push event JSON is missing string field `after`",
+      #|]
+    ),
   )
 }

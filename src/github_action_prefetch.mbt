@@ -16,7 +16,7 @@ priv struct GitHubRepoEnsureResult {
 fn prefetch_parent_dir(path : String) -> String {
   let parts : Array[String] = []
   for part in path.split("/") {
-    parts.push(part.to_string())
+    parts.push(part.to_owned())
   }
   if parts.length() <= 1 {
     return "."
@@ -37,7 +37,7 @@ fn prefetch_parent_dir(path : String) -> String {
 
 ///|
 fn prefetch_trim_output(text : String) -> String {
-  text.trim(chars=" \t\n\r").to_string()
+  text.trim(chars=" \t\n\r").to_owned()
 }
 
 ///|
@@ -57,7 +57,7 @@ fn github_action_base_url(github_base_url : String?) -> String {
         "https://github.com",
       )
   }
-  let trimmed = base.trim(chars=" \t\n\r").to_string()
+  let trimmed = base.trim(chars=" \t\n\r").to_owned()
   if trimmed.has_suffix("/") {
     String::unsafe_substring(trimmed, start=0, end=trimmed.length() - 1)
   } else {

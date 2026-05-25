@@ -1,6 +1,6 @@
 import {
   "mizchi/actrun/wasi_runner" @wr,
-  "moonbitlang/core/json" @json,
+  "moonbitlang/core/json",
 }
 
 warnings = "-0029"

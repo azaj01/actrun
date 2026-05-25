@@ -3,8 +3,13 @@ test "fs_shell_env: echo writes to stdout" {
   let fs = MemFs::new()
   let env = new_fs_shell_env(fs, {})
   let code = @actrun.shell_exec(env, "echo hello")
-  inspect(code, content="0")
-  inspect(@actrun.shell_stdout(env), content="hello\n")
+  @debug.debug_inspect(code, content="0")
+  @debug.debug_inspect(
+    @actrun.shell_stdout(env),
+    content=(
+      #|"hello\n"
+    ),
+  )
 }
 
 ///|
@@ -12,7 +17,12 @@ test "fs_shell_env: variable expansion" {
   let fs = MemFs::new()
   let env = new_fs_shell_env(fs, { "NAME": "world" })
   ignore(@actrun.shell_exec(env, "echo \"hello $NAME\""))
-  inspect(@actrun.shell_stdout(env), content="hello world\n")
+  @debug.debug_inspect(
+    @actrun.shell_stdout(env),
+    content=(
+      #|"hello world\n"
+    ),
+  )
 }
 
 ///|
@@ -20,7 +30,10 @@ test "fs_shell_env: redirect writes to fs" {
   let fs = MemFs::new()
   let env = new_fs_shell_env(fs, {})
   ignore(@actrun.shell_exec(env, "echo content > /workspace/out.txt"))
-  inspect(fs.read("/workspace/out.txt"), content="Some(\"content\\n\")")
+  @debug.debug_inspect(
+    fs.read("/workspace/out.txt"),
+    content="Some(\"content\\n\")",
+  )
 }
 
 ///|
@@ -29,7 +42,10 @@ test "fs_shell_env: append redirect" {
   let env = new_fs_shell_env(fs, {})
   ignore(@actrun.shell_exec(env, "echo a > /workspace/out.txt"))
   ignore(@actrun.shell_exec(env, "echo b >> /workspace/out.txt"))
-  inspect(fs.read("/workspace/out.txt"), content="Some(\"a\\nb\\n\")")
+  @debug.debug_inspect(
+    fs.read("/workspace/out.txt"),
+    content="Some(\"a\\nb\\n\")",
+  )
 }
 
 ///|
@@ -38,7 +54,12 @@ test "fs_shell_env: cat reads from fs" {
   fs.write("/workspace/data.txt", "file content", false)
   let env = new_fs_shell_env(fs, {})
   ignore(@actrun.shell_exec(env, "cat /workspace/data.txt"))
-  inspect(@actrun.shell_stdout(env), content="file content")
+  @debug.debug_inspect(
+    @actrun.shell_stdout(env),
+    content=(
+      #|"file content"
+    ),
+  )
 }
 
 ///|
@@ -46,10 +67,15 @@ test "fs_shell_env: mkdir and cd" {
   let fs = MemFs::new()
   let env = new_fs_shell_env(fs, {})
   ignore(@actrun.shell_exec(env, "mkdir -p /workspace/sub"))
-  inspect(fs.is_dir("/workspace/sub"), content="true")
+  @debug.debug_inspect(fs.is_dir("/workspace/sub"), content="true")
   let code = @actrun.shell_exec(env, "cd /workspace/sub && pwd")
-  inspect(code, content="0")
-  inspect(@actrun.shell_stdout(env), content="/workspace/sub\n")
+  @debug.debug_inspect(code, content="0")
+  @debug.debug_inspect(
+    @actrun.shell_stdout(env),
+    content=(
+      #|"/workspace/sub\n"
+    ),
+  )
 }
 
 ///|
@@ -62,5 +88,5 @@ test "fs_shell_env: GITHUB_OUTPUT pattern" {
   let env = new_fs_shell_env(fs, vars)
   ignore(@actrun.shell_exec(env, "echo \"key=value\" >> $GITHUB_OUTPUT"))
   let content = fs.read("/workspace/github_output").unwrap()
-  inspect(content.contains("key=value"), content="true")
+  @debug.debug_inspect(content.contains("key=value"), content="true")
 }

@@ -3,15 +3,15 @@ test "extract expressions from template" {
   let exprs = extract_expressions(
     "echo $\u007b\u007b github.ref }} and $\u007b\u007b env.FOO }}",
   )
-  assert_eq(exprs.length(), 2)
-  assert_eq(exprs[0], "github.ref")
-  assert_eq(exprs[1], "env.FOO")
+  @debug.assert_eq(exprs.length(), 2)
+  @debug.assert_eq(exprs[0], "github.ref")
+  @debug.assert_eq(exprs[1], "env.FOO")
 }
 
 ///|
 test "extract expressions empty string" {
   let exprs = extract_expressions("no expressions here")
-  assert_eq(exprs.length(), 0)
+  @debug.assert_eq(exprs.length(), 0)
 }
 
 ///|
@@ -23,7 +23,7 @@ test "detect unreachable step with if: false" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_dead_code(workflow)
   let dead_steps = diags.filter(fn(d) { d.code == "unreachable-step" })
-  assert_eq(dead_steps.length(), 1)
+  @debug.assert_eq(dead_steps.length(), 1)
 }
 
 ///|
@@ -34,7 +34,7 @@ test "detect undefined needs reference" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_dead_code(workflow)
   let undefined = diags.filter(fn(d) { d.code == "undefined-needs" })
-  assert_eq(undefined.length(), 1)
+  @debug.assert_eq(undefined.length(), 1)
 }
 
 ///|
@@ -56,7 +56,7 @@ test "no false positives for valid workflow" {
   let workflow = @ar.new_workflow("test", [build_job, test_job])
   let diags = check_dead_code(workflow)
   let errors = diags.filter(fn(d) { d.severity == Error })
-  assert_eq(errors.length(), 0)
+  @debug.assert_eq(errors.length(), 0)
 }
 
 ///|
@@ -83,5 +83,5 @@ test "valid step reference produces no error" {
   let step_errors = diags.filter(fn(d) {
     d.code == "future-step-ref" || d.code == "undefined-step-ref"
   })
-  assert_eq(step_errors.length(), 0)
+  @debug.assert_eq(step_errors.length(), 0)
 }

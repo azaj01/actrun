@@ -16,10 +16,25 @@ test "resolve_wasm_runner_command: nodejs uses wasi shim" {
     ["run", "module.wasm"],
     "",
   )
-  inspect(cmd, content="nodejs")
-  assert_eq(args[0].contains("wasi-runner.mjs"), true)
-  inspect(args[1], content="run")
-  inspect(args[2], content="module.wasm")
+  @debug.debug_inspect(
+    cmd,
+    content=(
+      #|"nodejs"
+    ),
+  )
+  @debug.assert_eq(args[0].contains("wasi-runner.mjs"), true)
+  @debug.debug_inspect(
+    args[1],
+    content=(
+      #|"run"
+    ),
+  )
+  @debug.debug_inspect(
+    args[2],
+    content=(
+      #|"module.wasm"
+    ),
+  )
 }
 
 ///|
@@ -30,10 +45,25 @@ test "resolve_wasm_runner_command: node.exe uses wasi shim" {
     ["run", "module.wasm"],
     "",
   )
-  inspect(cmd, content="/tmp/tools/node.exe")
-  assert_eq(args[0].contains("wasi-runner.mjs"), true)
-  inspect(args[1], content="run")
-  inspect(args[2], content="module.wasm")
+  @debug.debug_inspect(
+    cmd,
+    content=(
+      #|"/tmp/tools/node.exe"
+    ),
+  )
+  @debug.assert_eq(args[0].contains("wasi-runner.mjs"), true)
+  @debug.debug_inspect(
+    args[1],
+    content=(
+      #|"run"
+    ),
+  )
+  @debug.debug_inspect(
+    args[2],
+    content=(
+      #|"module.wasm"
+    ),
+  )
 }
 
 ///|
@@ -44,12 +74,37 @@ test "resolve_wasm_runner_command: explicit deno uses deno shim flags" {
     ["run", "module.wasm"],
     "",
   )
-  inspect(cmd, content="/tmp/tools/custom-wasm-runner")
-  inspect(args[0], content="run")
-  inspect(args[1], content="--allow-all")
-  assert_eq(args[2].contains("wasi-runner.mjs"), true)
-  inspect(args[3], content="run")
-  inspect(args[4], content="module.wasm")
+  @debug.debug_inspect(
+    cmd,
+    content=(
+      #|"/tmp/tools/custom-wasm-runner"
+    ),
+  )
+  @debug.debug_inspect(
+    args[0],
+    content=(
+      #|"run"
+    ),
+  )
+  @debug.debug_inspect(
+    args[1],
+    content=(
+      #|"--allow-all"
+    ),
+  )
+  @debug.assert_eq(args[2].contains("wasi-runner.mjs"), true)
+  @debug.debug_inspect(
+    args[3],
+    content=(
+      #|"run"
+    ),
+  )
+  @debug.debug_inspect(
+    args[4],
+    content=(
+      #|"module.wasm"
+    ),
+  )
 }
 
 ///|
@@ -60,20 +115,35 @@ test "resolve_wasm_runner_command: explicit v8 uses js shim without deno flags" 
     ["run", "module.wasm"],
     "",
   )
-  inspect(cmd, content="/tmp/tools/custom-wasm-runner")
-  assert_eq(args[0].contains("wasi-runner.mjs"), true)
-  inspect(args[1], content="run")
-  inspect(args[2], content="module.wasm")
+  @debug.debug_inspect(
+    cmd,
+    content=(
+      #|"/tmp/tools/custom-wasm-runner"
+    ),
+  )
+  @debug.assert_eq(args[0].contains("wasi-runner.mjs"), true)
+  @debug.debug_inspect(
+    args[1],
+    content=(
+      #|"run"
+    ),
+  )
+  @debug.debug_inspect(
+    args[2],
+    content=(
+      #|"module.wasm"
+    ),
+  )
 }
 
 ///|
 test "wasi_runner_shim_candidates: includes install path patterns" {
   let candidates = wasi_runner_shim_candidates("/tmp/actrun-workspace")
-  assert_eq(
+  @debug.assert_eq(
     wasm_sandbox_has_string(candidates, "/usr/local/lib/actrun/wasi-runner.mjs"),
     true,
   )
-  assert_eq(
+  @debug.assert_eq(
     wasm_sandbox_has_string(
       candidates, "/tmp/actrun-workspace/node_modules/@mizchi/actrun/scripts/wasi-runner.mjs",
     ),

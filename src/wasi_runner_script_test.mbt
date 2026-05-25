@@ -26,9 +26,19 @@ async test "wasi_runner script: rejects traversal outside preopen" {
     "';\n" +
     "console.log(resolvePreopenPath('/tmp/actrun-wasm-step', '../escape.txt') ?? 'null');\n"
   let (status, stdout, stderr) = wasi_runner_test_run_node(code)
-  inspect(status, content="0")
-  inspect(stderr, content="")
-  inspect(stdout, content="null\n")
+  @debug.debug_inspect(status, content="0")
+  @debug.debug_inspect(
+    stderr,
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(
+    stdout,
+    content=(
+      #|"null\n"
+    ),
+  )
 }
 
 ///|
@@ -39,9 +49,19 @@ async test "wasi_runner script: keeps writes inside preopen" {
     "';\n" +
     "console.log(resolvePreopenPath('/tmp/actrun-wasm-step', 'nested/out.txt') ?? 'null');\n"
   let (status, stdout, stderr) = wasi_runner_test_run_node(code)
-  inspect(status, content="0")
-  inspect(stderr, content="")
-  inspect(stdout, content="/tmp/actrun-wasm-step/nested/out.txt\n")
+  @debug.debug_inspect(status, content="0")
+  @debug.debug_inspect(
+    stderr,
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(
+    stdout,
+    content=(
+      #|"/tmp/actrun-wasm-step/nested/out.txt\n"
+    ),
+  )
 }
 
 ///|
@@ -68,7 +88,17 @@ async test "wasi_runner script: node fs helpers work in esm" {
     tmp_path +
     "', { force: true });\n"
   let (status, stdout, stderr) = wasi_runner_test_run_node(code)
-  inspect(status, content="0")
-  inspect(stderr, content="")
-  inspect(stdout, content="AB\n")
+  @debug.debug_inspect(status, content="0")
+  @debug.debug_inspect(
+    stderr,
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(
+    stdout,
+    content=(
+      #|"AB\n"
+    ),
+  )
 }

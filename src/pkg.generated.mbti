@@ -4,6 +4,7 @@ package "mizchi/actrun"
 import {
   "mizchi/bit/types",
   "mizchi/bitflow/workflow",
+  "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }
 
@@ -390,7 +391,7 @@ pub struct StepSpec {
 pub struct StoreEnvEntry {
   key : String
   value : String
-} derive(Show, ToJson, @json.FromJson)
+} derive(ToJson, @debug.Debug, @json.FromJson)
 
 pub enum StoreMode {
   FileStore
@@ -400,22 +401,22 @@ pub enum StoreMode {
 pub struct StoreOutputEntry {
   key : String
   value : String
-} derive(Show, ToJson, @json.FromJson)
+} derive(ToJson, @debug.Debug, @json.FromJson)
 
 pub struct StorePathEntry {
   path : String
-} derive(Show, ToJson, @json.FromJson)
+} derive(ToJson, @debug.Debug, @json.FromJson)
 
 pub struct StoreStepResult {
   outputs : Map[String, String]
   env_updates : Map[String, String]
   path_entries : Array[String]
   summary : String
-} derive(Show, ToJson, @json.FromJson)
+} derive(ToJson, @debug.Debug, @json.FromJson)
 
 pub struct StoreSummaryEntry {
   content : String
-} derive(Show, ToJson, @json.FromJson)
+} derive(ToJson, @debug.Debug, @json.FromJson)
 
 pub struct TaskPlan {
   id : String

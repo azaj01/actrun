@@ -2,7 +2,7 @@ import {
   "mizchi/bit/lib" @bitlib,
   "mizchi/bit/osfs" @bitosfs,
   "moonbitlang/async",
-  "moonbitlang/async/process" @process,
+  "moonbitlang/async/process",
   "moonbitlang/x/fs" @xfs,
   "moonbitlang/x/sys" @xsys,
 }

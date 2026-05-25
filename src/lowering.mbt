@@ -97,11 +97,11 @@ fn text_slice(text : String, start : Int, end_ : Int) -> String {
 
 ///|
 fn normalize_local_action_path(path : String) -> String {
-  let trimmed = path.trim(chars=" ").to_string()
+  let trimmed = path.trim(chars=" ").to_owned()
   let is_absolute = trimmed.has_prefix("/")
   let parts : Array[String] = []
   for part_view in trimmed.split("/") {
-    let part = part_view.to_string()
+    let part = part_view.to_owned()
     if part.length() == 0 || part == "." {
       continue
     }
@@ -162,7 +162,7 @@ fn lowering_path_segments(path : String) -> Array[String] {
   let segments : Array[String] = []
   let absolute = normalize_local_action_path(absolute_lowering_path(path))
   for part_view in absolute.split("/") {
-    let part = part_view.to_string()
+    let part = part_view.to_owned()
     if part.length() > 0 && part != "." {
       segments.push(part)
     }
@@ -391,7 +391,7 @@ fn find_substring(text : String, pattern : String, start : Int) -> Int? {
 
 ///|
 fn input_expr_name(expression : String) -> String? {
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   if trimmed.has_prefix("inputs.") && trimmed.length() > 7 {
     Some(text_slice(trimmed, 7, trimmed.length()))
   } else {
@@ -410,7 +410,7 @@ fn is_matrix_ident_code(c : UInt16) -> Bool {
 
 ///|
 fn matrix_expr_name(expression : String) -> String? {
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   if trimmed.has_prefix("matrix.") && trimmed.length() > 7 {
     let key = text_slice(trimmed, 7, trimmed.length())
     let mut i = 0
@@ -771,7 +771,7 @@ fn substitute_reusable_needs_list(
 
 ///|
 fn secret_expr_name(expression : String) -> String? {
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   if trimmed.has_prefix("secrets.") && trimmed.length() > 8 {
     Some(text_slice(trimmed, 8, trimmed.length()))
   } else {
@@ -952,7 +952,7 @@ fn workflow_call_input_value_matches_type(
   if workflow_call_input_is_dynamic(value) {
     return true
   }
-  let trimmed = value.trim(chars=" \t\r\n").to_string()
+  let trimmed = value.trim(chars=" \t\r\n").to_owned()
   match input_type {
     "boolean" => {
       let normalized = trimmed.to_lower()
@@ -2766,7 +2766,7 @@ fn resolve_composite_output_expression(
 ) -> String {
   // Parse "${{ steps.<inner_id>.outputs.<key> }}" and return "outer__inner:key"
   // as a compact representation the executor can resolve
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   let prefix = "${{"
   let suffix = "}}"
   guard trimmed.has_prefix(prefix) && trimmed.has_suffix(suffix) else {
@@ -2778,7 +2778,7 @@ fn resolve_composite_output_expression(
       trimmed.length() - suffix.length(),
     )
     .trim(chars=" \t\n\r")
-    .to_string()
+    .to_owned()
   let steps_prefix = "steps."
   guard inner.has_prefix(steps_prefix) else { return expression }
   let rest = text_slice(inner, steps_prefix.length(), inner.length())

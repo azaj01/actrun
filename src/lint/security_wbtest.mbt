@@ -7,10 +7,19 @@ test "SEC01: detect script injection with github.event.issue.title" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_security(workflow)
   let sec01 = diags.filter(fn(d) { d.code == "script-injection" })
-  inspect(
+  @debug.debug_inspect(
     sec01,
     content=(
-      #|[{severity: Warning, code: "script-injection", message: "potential script injection: untrusted input 'github.event.issue.title' used directly in run script", job_id: "test", step_index: 0, field: "run"}]
+      #|[
+      #|  {
+      #|    severity: Warning,
+      #|    code: "script-injection",
+      #|    message: "potential script injection: untrusted input 'github.event.issue.title' used directly in run script",
+      #|    job_id: "test",
+      #|    step_index: 0,
+      #|    field: "run",
+      #|  },
+      #|]
     ),
   )
 }
@@ -24,10 +33,19 @@ test "SEC01: detect script injection with github.event.pull_request.body" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_security(workflow)
   let sec01 = diags.filter(fn(d) { d.code == "script-injection" })
-  inspect(
+  @debug.debug_inspect(
     sec01,
     content=(
-      #|[{severity: Warning, code: "script-injection", message: "potential script injection: untrusted input 'github.event.pull_request.body' used directly in run script", job_id: "test", step_index: 0, field: "run"}]
+      #|[
+      #|  {
+      #|    severity: Warning,
+      #|    code: "script-injection",
+      #|    message: "potential script injection: untrusted input 'github.event.pull_request.body' used directly in run script",
+      #|    job_id: "test",
+      #|    step_index: 0,
+      #|    field: "run",
+      #|  },
+      #|]
     ),
   )
 }
@@ -39,10 +57,19 @@ test "SEC01: detect github.head_ref injection" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_security(workflow)
   let sec01 = diags.filter(fn(d) { d.code == "script-injection" })
-  inspect(
+  @debug.debug_inspect(
     sec01,
     content=(
-      #|[{severity: Warning, code: "script-injection", message: "potential script injection: untrusted input 'github.head_ref' used directly in run script", job_id: "test", step_index: 0, field: "run"}]
+      #|[
+      #|  {
+      #|    severity: Warning,
+      #|    code: "script-injection",
+      #|    message: "potential script injection: untrusted input 'github.head_ref' used directly in run script",
+      #|    job_id: "test",
+      #|    step_index: 0,
+      #|    field: "run",
+      #|  },
+      #|]
     ),
   )
 }
@@ -54,7 +81,7 @@ test "SEC01: no warning for safe expressions" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_security(workflow)
   let sec01 = diags.filter(fn(d) { d.code == "script-injection" })
-  inspect(
+  @debug.debug_inspect(
     sec01,
     content=(
       #|[]
@@ -71,10 +98,27 @@ test "SEC01: multiple dangerous expressions in one script" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_security(workflow)
   let sec01 = diags.filter(fn(d) { d.code == "script-injection" })
-  inspect(
+  @debug.debug_inspect(
     sec01,
     content=(
-      #|[{severity: Warning, code: "script-injection", message: "potential script injection: untrusted input 'github.event.issue.title' used directly in run script", job_id: "test", step_index: 0, field: "run"}, {severity: Warning, code: "script-injection", message: "potential script injection: untrusted input 'github.event.comment.body' used directly in run script", job_id: "test", step_index: 0, field: "run"}]
+      #|[
+      #|  {
+      #|    severity: Warning,
+      #|    code: "script-injection",
+      #|    message: "potential script injection: untrusted input 'github.event.issue.title' used directly in run script",
+      #|    job_id: "test",
+      #|    step_index: 0,
+      #|    field: "run",
+      #|  },
+      #|  {
+      #|    severity: Warning,
+      #|    code: "script-injection",
+      #|    message: "potential script injection: untrusted input 'github.event.comment.body' used directly in run script",
+      #|    job_id: "test",
+      #|    step_index: 0,
+      #|    field: "run",
+      #|  },
+      #|]
     ),
   )
 }
@@ -90,10 +134,19 @@ test "SEC02: detect write-all permissions" {
   )
   let diags = check_security(workflow)
   let sec02 = diags.filter(fn(d) { d.code == "permissive-permissions" })
-  inspect(
+  @debug.debug_inspect(
     sec02,
     content=(
-      #|[{severity: Warning, code: "permissive-permissions", message: "overly permissive permissions: 'write-all' grants write access to all scopes", job_id: "", step_index: -1, field: "permissions"}]
+      #|[
+      #|  {
+      #|    severity: Warning,
+      #|    code: "permissive-permissions",
+      #|    message: "overly permissive permissions: 'write-all' grants write access to all scopes",
+      #|    job_id: "",
+      #|    step_index: -1,
+      #|    field: "permissions",
+      #|  },
+      #|]
     ),
   )
 }
@@ -111,10 +164,19 @@ test "SEC02: detect all write permissions (more than 3)" {
   let workflow = @ar.new_workflow("test", [job], permissions=Some(perms))
   let diags = check_security(workflow)
   let sec02 = diags.filter(fn(d) { d.code == "permissive-permissions" })
-  inspect(
+  @debug.debug_inspect(
     sec02,
     content=(
-      #|[{severity: Warning, code: "permissive-permissions", message: "overly permissive permissions: all 4 permissions are set to 'write'", job_id: "", step_index: -1, field: "permissions"}]
+      #|[
+      #|  {
+      #|    severity: Warning,
+      #|    code: "permissive-permissions",
+      #|    message: "overly permissive permissions: all 4 permissions are set to 'write'",
+      #|    job_id: "",
+      #|    step_index: -1,
+      #|    field: "permissions",
+      #|  },
+      #|]
     ),
   )
 }
@@ -132,7 +194,7 @@ test "SEC02: no warning for mixed permissions" {
   let workflow = @ar.new_workflow("test", [job], permissions=Some(perms))
   let diags = check_security(workflow)
   let sec02 = diags.filter(fn(d) { d.code == "permissive-permissions" })
-  inspect(
+  @debug.debug_inspect(
     sec02,
     content=(
       #|[]
@@ -152,7 +214,7 @@ test "SEC02: no warning for 3 or fewer all-write permissions" {
   let workflow = @ar.new_workflow("test", [job], permissions=Some(perms))
   let diags = check_security(workflow)
   let sec02 = diags.filter(fn(d) { d.code == "permissive-permissions" })
-  inspect(
+  @debug.debug_inspect(
     sec02,
     content=(
       #|[]
@@ -171,10 +233,19 @@ test "SEC02: job-level write-all" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_security(workflow)
   let sec02 = diags.filter(fn(d) { d.code == "permissive-permissions" })
-  inspect(
+  @debug.debug_inspect(
     sec02,
     content=(
-      #|[{severity: Warning, code: "permissive-permissions", message: "overly permissive permissions: 'write-all' grants write access to all scopes", job_id: "deploy", step_index: -1, field: "permissions"}]
+      #|[
+      #|  {
+      #|    severity: Warning,
+      #|    code: "permissive-permissions",
+      #|    message: "overly permissive permissions: 'write-all' grants write access to all scopes",
+      #|    job_id: "deploy",
+      #|    step_index: -1,
+      #|    field: "permissions",
+      #|  },
+      #|]
     ),
   )
 }
@@ -186,10 +257,19 @@ test "SEC03: detect deprecated set-output command" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_security(workflow)
   let sec03 = diags.filter(fn(d) { d.code == "deprecated-command" })
-  inspect(
+  @debug.debug_inspect(
     sec03,
     content=(
-      #|[{severity: Warning, code: "deprecated-command", message: "deprecated workflow command '::set-output name=' (deprecated, use GITHUB_OUTPUT)", job_id: "test", step_index: 0, field: "run"}]
+      #|[
+      #|  {
+      #|    severity: Warning,
+      #|    code: "deprecated-command",
+      #|    message: "deprecated workflow command '::set-output name=' (deprecated, use GITHUB_OUTPUT)",
+      #|    job_id: "test",
+      #|    step_index: 0,
+      #|    field: "run",
+      #|  },
+      #|]
     ),
   )
 }
@@ -201,10 +281,19 @@ test "SEC03: detect deprecated set-env command" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_security(workflow)
   let sec03 = diags.filter(fn(d) { d.code == "deprecated-command" })
-  inspect(
+  @debug.debug_inspect(
     sec03,
     content=(
-      #|[{severity: Warning, code: "deprecated-command", message: "deprecated workflow command '::set-env name=' (deprecated and DISABLED, use GITHUB_ENV)", job_id: "test", step_index: 0, field: "run"}]
+      #|[
+      #|  {
+      #|    severity: Warning,
+      #|    code: "deprecated-command",
+      #|    message: "deprecated workflow command '::set-env name=' (deprecated and DISABLED, use GITHUB_ENV)",
+      #|    job_id: "test",
+      #|    step_index: 0,
+      #|    field: "run",
+      #|  },
+      #|]
     ),
   )
 }
@@ -216,10 +305,19 @@ test "SEC03: detect deprecated add-path command" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_security(workflow)
   let sec03 = diags.filter(fn(d) { d.code == "deprecated-command" })
-  inspect(
+  @debug.debug_inspect(
     sec03,
     content=(
-      #|[{severity: Warning, code: "deprecated-command", message: "deprecated workflow command '::add-path::' (deprecated and DISABLED, use GITHUB_PATH)", job_id: "test", step_index: 0, field: "run"}]
+      #|[
+      #|  {
+      #|    severity: Warning,
+      #|    code: "deprecated-command",
+      #|    message: "deprecated workflow command '::add-path::' (deprecated and DISABLED, use GITHUB_PATH)",
+      #|    job_id: "test",
+      #|    step_index: 0,
+      #|    field: "run",
+      #|  },
+      #|]
     ),
   )
 }
@@ -231,7 +329,7 @@ test "SEC03: no warning for modern commands" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_security(workflow)
   let sec03 = diags.filter(fn(d) { d.code == "deprecated-command" })
-  inspect(
+  @debug.debug_inspect(
     sec03,
     content=(
       #|[]
@@ -246,10 +344,19 @@ test "SEC03: detect deprecated save-state command" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_security(workflow)
   let sec03 = diags.filter(fn(d) { d.code == "deprecated-command" })
-  inspect(
+  @debug.debug_inspect(
     sec03,
     content=(
-      #|[{severity: Warning, code: "deprecated-command", message: "deprecated workflow command '::save-state name=' (deprecated, use GITHUB_STATE)", job_id: "test", step_index: 0, field: "run"}]
+      #|[
+      #|  {
+      #|    severity: Warning,
+      #|    code: "deprecated-command",
+      #|    message: "deprecated workflow command '::save-state name=' (deprecated, use GITHUB_STATE)",
+      #|    job_id: "test",
+      #|    step_index: 0,
+      #|    field: "run",
+      #|  },
+      #|]
     ),
   )
 }
@@ -268,10 +375,12 @@ test "snapshot: SEC04 pull_request_target without permissions" {
   guard parsed.workflow is Option::Some(workflow) else { fail("parse failed") }
   let diags = check_security(workflow, yaml_text=yaml)
   let prt = diags.filter(fn(d) { d.code == "missing-prt-permissions" })
-  inspect(prt.length(), content="1")
-  inspect(
+  @debug.debug_inspect(prt.length(), content="1")
+  @debug.debug_inspect(
     prt[0].message,
-    content="workflow uses 'pull_request_target' trigger without explicit 'permissions' — this runs with write access to the base repo and should have minimal permissions",
+    content=(
+      #|"workflow uses 'pull_request_target' trigger without explicit 'permissions' — this runs with write access to the base repo and should have minimal permissions"
+    ),
   )
 }
 
@@ -291,7 +400,7 @@ test "snapshot: SEC04 pull_request_target with workflow permissions is ok" {
   guard parsed.workflow is Option::Some(workflow) else { fail("parse failed") }
   let diags = check_security(workflow, yaml_text=yaml)
   let prt = diags.filter(fn(d) { d.code == "missing-prt-permissions" })
-  inspect(prt.length(), content="0")
+  @debug.debug_inspect(prt.length(), content="0")
 }
 
 ///|
@@ -310,7 +419,7 @@ test "snapshot: SEC04 pull_request_target with job permissions is ok" {
   guard parsed.workflow is Option::Some(workflow) else { fail("parse failed") }
   let diags = check_security(workflow, yaml_text=yaml)
   let prt = diags.filter(fn(d) { d.code == "missing-prt-permissions" })
-  inspect(prt.length(), content="0")
+  @debug.debug_inspect(prt.length(), content="0")
 }
 
 ///|
@@ -327,7 +436,7 @@ test "snapshot: SEC04 normal pull_request does not trigger" {
   guard parsed.workflow is Option::Some(workflow) else { fail("parse failed") }
   let diags = check_security(workflow, yaml_text=yaml)
   let prt = diags.filter(fn(d) { d.code == "missing-prt-permissions" })
-  inspect(prt.length(), content="0")
+  @debug.debug_inspect(prt.length(), content="0")
 }
 
 ///|
@@ -338,7 +447,7 @@ test "if-always: warns on bare always()" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_security(workflow)
   let found = diags.filter(fn(d) { d.code == "if-always" })
-  inspect(found.length(), content="1")
+  @debug.debug_inspect(found.length(), content="1")
 }
 
 ///|
@@ -353,7 +462,7 @@ test "if-always: no warn on always() && condition" {
   let workflow = @ar.new_workflow("test", [job])
   let diags = check_security(workflow)
   let found = diags.filter(fn(d) { d.code == "if-always" })
-  inspect(found.length(), content="0")
+  @debug.debug_inspect(found.length(), content="0")
 }
 
 ///|
@@ -372,7 +481,7 @@ test "dangerous-checkout-in-prt: detects PR head checkout" {
   guard parsed.workflow is Option::Some(workflow) else { fail("parse failed") }
   let diags = check_security(workflow, yaml_text=yaml)
   let found = diags.filter(fn(d) { d.code == "dangerous-checkout-in-prt" })
-  inspect(found.length(), content="1")
+  @debug.debug_inspect(found.length(), content="1")
 }
 
 ///|
@@ -389,7 +498,7 @@ test "dangerous-checkout-in-prt: normal checkout is ok" {
   guard parsed.workflow is Option::Some(workflow) else { fail("parse failed") }
   let diags = check_security(workflow, yaml_text=yaml)
   let found = diags.filter(fn(d) { d.code == "dangerous-checkout-in-prt" })
-  inspect(found.length(), content="0")
+  @debug.debug_inspect(found.length(), content="0")
 }
 
 ///|
@@ -408,7 +517,7 @@ test "secrets-to-third-party: detects secrets in env" {
   guard parsed.workflow is Option::Some(workflow) else { fail("parse failed") }
   let diags = check_security(workflow)
   let found = diags.filter(fn(d) { d.code == "secrets-to-third-party" })
-  inspect(found.length(), content="1")
+  @debug.debug_inspect(found.length(), content="1")
 }
 
 ///|
@@ -427,7 +536,7 @@ test "secrets-to-third-party: actions/ org is trusted" {
   guard parsed.workflow is Option::Some(workflow) else { fail("parse failed") }
   let diags = check_security(workflow)
   let found = diags.filter(fn(d) { d.code == "secrets-to-third-party" })
-  inspect(found.length(), content="0")
+  @debug.debug_inspect(found.length(), content="0")
 }
 
 ///|
@@ -436,8 +545,8 @@ test "missing-timeout: strict mode only" {
   let workflow = @ar.new_workflow("test", [job])
   let diags1 = check_structure(workflow)
   let found1 = diags1.filter(fn(d) { d.code == "missing-timeout" })
-  inspect(found1.length(), content="0")
+  @debug.debug_inspect(found1.length(), content="0")
   let diags2 = check_structure(workflow, strict=true)
   let found2 = diags2.filter(fn(d) { d.code == "missing-timeout" })
-  inspect(found2.length(), content="1")
+  @debug.debug_inspect(found2.length(), content="1")
 }

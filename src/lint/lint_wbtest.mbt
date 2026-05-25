@@ -8,7 +8,7 @@ test "lint clean workflow produces no errors" {
   ])
   let diags = lint_workflow(workflow)
   let errors = diags.filter(fn(d) { d.severity == Error })
-  assert_eq(errors.length(), 0)
+  @debug.assert_eq(errors.length(), 0)
 }
 
 ///|
@@ -37,7 +37,7 @@ test "lint detects unreachable step" {
   ])
   let diags = lint_workflow(workflow)
   let dead = diags.filter(fn(d) { d.code == "unreachable-step" })
-  assert_eq(dead.length(), 1)
+  @debug.assert_eq(dead.length(), 1)
 }
 
 ///|
@@ -60,7 +60,7 @@ test "lint valid expression in run" {
   ])
   let diags = lint_workflow(workflow)
   let errors = diags.filter(fn(d) { d.severity == Error })
-  assert_eq(errors.length(), 0)
+  @debug.assert_eq(errors.length(), 0)
 }
 
 ///|

@@ -105,14 +105,24 @@ fn expect_flow_task(ir : @wf.FlowIr, id : String) -> @wf.FlowTask {
 ///|
 test "cli: parse local workflow path" {
   let result = parse_cli_args(["actrun", ".github/workflows/ci.yml"])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
 
   let options = expect_cli_options(result)
-  inspect(options.workflow_path, content=".github/workflows/ci.yml")
-  inspect(options.changed_paths, content="[]")
-  assert_eq(options.repo_root, None)
-  assert_eq(options.workspace_root, None)
-  inspect(local_workspace_root(options.workflow_path), content=".")
+  @debug.debug_inspect(
+    options.workflow_path,
+    content=(
+      #|".github/workflows/ci.yml"
+    ),
+  )
+  @debug.debug_inspect(options.changed_paths, content="[]")
+  @debug.assert_eq(options.repo_root, None)
+  @debug.assert_eq(options.workspace_root, None)
+  @debug.debug_inspect(
+    local_workspace_root(options.workflow_path),
+    content=(
+      #|"."
+    ),
+  )
 }
 
 ///|
@@ -126,28 +136,103 @@ test "cli: parse repo mode flags" {
     "def456", "--after", "abc123", "--repository", "mizchi/actrun", "--changed",
     "src/lib.mbt", "--changed", "README.md",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
 
   let options = expect_cli_options(result)
-  inspect(options.repo_root.unwrap_or(""), content="/repo")
-  inspect(options.workspace_root.unwrap_or(""), content="/tmp/work")
-  inspect(options.run_root.unwrap_or(""), content="/tmp/runs")
-  inspect(options.artifact_root.unwrap_or(""), content="/tmp/artifacts")
-  inspect(options.cache_root.unwrap_or(""), content="/tmp/cache")
-  inspect(
-    options.github_action_cache_root.unwrap_or(""),
-    content="/tmp/gha-cache",
+  @debug.debug_inspect(
+    options.repo_root.unwrap_or(""),
+    content=(
+      #|"/repo"
+    ),
   )
-  inspect(options.registry_root.unwrap_or(""), content="/tmp/registry")
-  inspect(options.wasm_action_root.unwrap_or(""), content="/tmp/wasm")
-  inspect(options.wasm_runner, content="deno")
-  inspect(options.workspace_mode, content="tmp")
-  inspect(options.event_path.unwrap_or(""), content="push.json")
-  inspect(options.ref_name, content="feature/demo")
-  inspect(options.before_sha, content="def456")
-  inspect(options.after_sha, content="abc123")
-  inspect(options.repository, content="mizchi/actrun")
-  inspect(options.changed_paths, content="[\"src/lib.mbt\", \"README.md\"]")
+  @debug.debug_inspect(
+    options.workspace_root.unwrap_or(""),
+    content=(
+      #|"/tmp/work"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_root.unwrap_or(""),
+    content=(
+      #|"/tmp/runs"
+    ),
+  )
+  @debug.debug_inspect(
+    options.artifact_root.unwrap_or(""),
+    content=(
+      #|"/tmp/artifacts"
+    ),
+  )
+  @debug.debug_inspect(
+    options.cache_root.unwrap_or(""),
+    content=(
+      #|"/tmp/cache"
+    ),
+  )
+  @debug.debug_inspect(
+    options.github_action_cache_root.unwrap_or(""),
+    content=(
+      #|"/tmp/gha-cache"
+    ),
+  )
+  @debug.debug_inspect(
+    options.registry_root.unwrap_or(""),
+    content=(
+      #|"/tmp/registry"
+    ),
+  )
+  @debug.debug_inspect(
+    options.wasm_action_root.unwrap_or(""),
+    content=(
+      #|"/tmp/wasm"
+    ),
+  )
+  @debug.debug_inspect(
+    options.wasm_runner,
+    content=(
+      #|"deno"
+    ),
+  )
+  @debug.debug_inspect(
+    options.workspace_mode,
+    content=(
+      #|"tmp"
+    ),
+  )
+  @debug.debug_inspect(
+    options.event_path.unwrap_or(""),
+    content=(
+      #|"push.json"
+    ),
+  )
+  @debug.debug_inspect(
+    options.ref_name,
+    content=(
+      #|"feature/demo"
+    ),
+  )
+  @debug.debug_inspect(
+    options.before_sha,
+    content=(
+      #|"def456"
+    ),
+  )
+  @debug.debug_inspect(
+    options.after_sha,
+    content=(
+      #|"abc123"
+    ),
+  )
+  @debug.debug_inspect(
+    options.repository,
+    content=(
+      #|"mizchi/actrun"
+    ),
+  )
+  @debug.debug_inspect(
+    options.changed_paths,
+    content="[\"src/lib.mbt\", \"README.md\"]",
+  )
 }
 
 ///|
@@ -156,18 +241,27 @@ test "cli: parse flow cache flags" {
     "actrun", ".github/workflows/ci.yml", "--flow-cache-store", "/tmp/flow-cache.json",
     "--flow-signature", "build=sig-build", "--flow-signature", "test=sig-test",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
 
   let options = expect_cli_options(result)
-  inspect(
+  @debug.debug_inspect(
     options.flow_cache_store.unwrap_or(""),
-    content="/tmp/flow-cache.json",
+    content=(
+      #|"/tmp/flow-cache.json"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     options.flow_signatures.get("build").unwrap_or(""),
-    content="sig-build",
+    content=(
+      #|"sig-build"
+    ),
   )
-  inspect(options.flow_signatures.get("test").unwrap_or(""), content="sig-test")
+  @debug.debug_inspect(
+    options.flow_signatures.get("test").unwrap_or(""),
+    content=(
+      #|"sig-test"
+    ),
+  )
 }
 
 ///|
@@ -175,8 +269,8 @@ test "cli: flow cache flags validate signatures" {
   let result = parse_cli_args([
     "actrun", ".github/workflows/ci.yml", "--flow-cache-store", "/tmp/flow-cache.json",
   ])
-  inspect(result.errors.length() > 0, content="true")
-  inspect(
+  @debug.debug_inspect(result.errors.length() > 0, content="true")
+  @debug.debug_inspect(
     result.errors.join("\n").contains("--flow-cache-store requires"),
     content="true",
   )
@@ -185,8 +279,8 @@ test "cli: flow cache flags validate signatures" {
     "actrun", ".github/workflows/ci.yml", "--flow-cache-store", "/tmp/flow-cache.json",
     "--flow-signature", "broken",
   ])
-  inspect(invalid.errors.length() > 0, content="true")
-  inspect(
+  @debug.debug_inspect(invalid.errors.length() > 0, content="true")
+  @debug.debug_inspect(
     invalid.errors.join("\n").contains("--flow-signature expects key=value"),
     content="true",
   )
@@ -197,16 +291,31 @@ test "cli: parse run list flags" {
   let result = parse_run_read_args([
     "actrun", "run", "list", "--run-root", "/tmp/runs", "--json",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("run list parse failed")
   }
-  inspect(options.action, content="list")
-  inspect(options.run_id, content="")
-  inspect(options.run_root.unwrap_or(""), content="/tmp/runs")
-  inspect(options.json_output, content="true")
-  assert_eq(options.task_id, None)
+  @debug.debug_inspect(
+    options.action,
+    content=(
+      #|"list"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_id,
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_root.unwrap_or(""),
+    content=(
+      #|"/tmp/runs"
+    ),
+  )
+  @debug.debug_inspect(options.json_output, content="true")
+  @debug.assert_eq(options.task_id, None)
 }
 
 ///|
@@ -214,14 +323,24 @@ test "cli: parse workflow list flags" {
   let result = parse_workflow_read_args([
     "actrun", "workflow", "list", "--repo", "/repo", "--json",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("workflow list parse failed")
   }
-  inspect(options.action, content="list")
-  inspect(options.repo_root.unwrap_or(""), content="/repo")
-  inspect(options.json_output, content="true")
+  @debug.debug_inspect(
+    options.action,
+    content=(
+      #|"list"
+    ),
+  )
+  @debug.debug_inspect(
+    options.repo_root.unwrap_or(""),
+    content=(
+      #|"/repo"
+    ),
+  )
+  @debug.debug_inspect(options.json_output, content="true")
 }
 
 ///|
@@ -232,30 +351,83 @@ test "cli: parse workflow run flags" {
     "push.json", "--repository", "mizchi/actrun", "--ref", "main", "--before", "def456",
     "--after", "abc123", "--changed", "src/lib.mbt", "--dump-context",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = expect_cli_options(result)
-  inspect(options.workflow_path, content=".github/workflows/ci.yml")
-  inspect(options.repo_root.unwrap_or(""), content="/repo")
-  inspect(options.workspace_root.unwrap_or(""), content="/tmp/work")
-  inspect(options.run_root.unwrap_or(""), content="/tmp/runs")
-  inspect(options.workspace_mode, content="tmp")
-  inspect(options.event_path.unwrap_or(""), content="push.json")
-  inspect(options.repository, content="mizchi/actrun")
-  inspect(options.ref_name, content="main")
-  inspect(options.before_sha, content="def456")
-  inspect(options.after_sha, content="abc123")
-  inspect(options.changed_paths, content="[\"src/lib.mbt\"]")
-  inspect(options.dump_context, content="true")
+  @debug.debug_inspect(
+    options.workflow_path,
+    content=(
+      #|".github/workflows/ci.yml"
+    ),
+  )
+  @debug.debug_inspect(
+    options.repo_root.unwrap_or(""),
+    content=(
+      #|"/repo"
+    ),
+  )
+  @debug.debug_inspect(
+    options.workspace_root.unwrap_or(""),
+    content=(
+      #|"/tmp/work"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_root.unwrap_or(""),
+    content=(
+      #|"/tmp/runs"
+    ),
+  )
+  @debug.debug_inspect(
+    options.workspace_mode,
+    content=(
+      #|"tmp"
+    ),
+  )
+  @debug.debug_inspect(
+    options.event_path.unwrap_or(""),
+    content=(
+      #|"push.json"
+    ),
+  )
+  @debug.debug_inspect(
+    options.repository,
+    content=(
+      #|"mizchi/actrun"
+    ),
+  )
+  @debug.debug_inspect(
+    options.ref_name,
+    content=(
+      #|"main"
+    ),
+  )
+  @debug.debug_inspect(
+    options.before_sha,
+    content=(
+      #|"def456"
+    ),
+  )
+  @debug.debug_inspect(
+    options.after_sha,
+    content=(
+      #|"abc123"
+    ),
+  )
+  @debug.debug_inspect(options.changed_paths, content="[\"src/lib.mbt\"]")
+  @debug.debug_inspect(options.dump_context, content="true")
 }
 
 ///|
 test "cli: usage does not advertise dump-context" {
-  inspect(usage_text().contains("--dump-context"), content="false")
+  @debug.debug_inspect(usage_text().contains("--dump-context"), content="false")
 }
 
 ///|
 test "cli: usage does not advertise wasm-action-root" {
-  inspect(usage_text().contains("--wasm-action-root"), content="false")
+  @debug.debug_inspect(
+    usage_text().contains("--wasm-action-root"),
+    content="false",
+  )
 }
 
 ///|
@@ -263,16 +435,31 @@ test "cli: parse run view flags" {
   let result = parse_run_read_args([
     "actrun", "run", "view", "run-1", "--run-root", "/tmp/runs", "--json",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("run view parse failed")
   }
-  inspect(options.action, content="view")
-  inspect(options.run_id, content="run-1")
-  inspect(options.run_root.unwrap_or(""), content="/tmp/runs")
-  inspect(options.json_output, content="true")
-  assert_eq(options.task_id, None)
+  @debug.debug_inspect(
+    options.action,
+    content=(
+      #|"view"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_id,
+    content=(
+      #|"run-1"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_root.unwrap_or(""),
+    content=(
+      #|"/tmp/runs"
+    ),
+  )
+  @debug.debug_inspect(options.json_output, content="true")
+  @debug.assert_eq(options.task_id, None)
 }
 
 ///|
@@ -280,16 +467,31 @@ test "cli: parse run watch flags" {
   let result = parse_run_read_args([
     "actrun", "run", "watch", "run-1", "--run-root", "/tmp/runs", "--json",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("run watch parse failed")
   }
-  inspect(options.action, content="watch")
-  inspect(options.run_id, content="run-1")
-  inspect(options.run_root.unwrap_or(""), content="/tmp/runs")
-  inspect(options.json_output, content="true")
-  assert_eq(options.task_id, None)
+  @debug.debug_inspect(
+    options.action,
+    content=(
+      #|"watch"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_id,
+    content=(
+      #|"run-1"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_root.unwrap_or(""),
+    content=(
+      #|"/tmp/runs"
+    ),
+  )
+  @debug.debug_inspect(options.json_output, content="true")
+  @debug.assert_eq(options.task_id, None)
 }
 
 ///|
@@ -298,16 +500,36 @@ test "cli: parse run logs flags" {
     "actrun", "run", "logs", "run-1", "--run-root", "/tmp/runs", "--task", "build/record",
     "--json",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("run logs parse failed")
   }
-  inspect(options.action, content="logs")
-  inspect(options.run_id, content="run-1")
-  inspect(options.run_root.unwrap_or(""), content="/tmp/runs")
-  inspect(options.task_id.unwrap_or(""), content="build/record")
-  inspect(options.json_output, content="true")
+  @debug.debug_inspect(
+    options.action,
+    content=(
+      #|"logs"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_id,
+    content=(
+      #|"run-1"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_root.unwrap_or(""),
+    content=(
+      #|"/tmp/runs"
+    ),
+  )
+  @debug.debug_inspect(
+    options.task_id.unwrap_or(""),
+    content=(
+      #|"build/record"
+    ),
+  )
+  @debug.debug_inspect(options.json_output, content="true")
 }
 
 ///|
@@ -316,17 +538,42 @@ test "cli: parse run download flags" {
     "actrun", "run", "download", "run-1", "--run-root", "/tmp/runs", "--artifact-root",
     "/tmp/artifacts", "--dir", "/tmp/out", "--json",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("run download parse failed")
   }
-  inspect(options.action, content="download")
-  inspect(options.run_id, content="run-1")
-  inspect(options.run_root.unwrap_or(""), content="/tmp/runs")
-  inspect(options.artifact_root.unwrap_or(""), content="/tmp/artifacts")
-  inspect(options.download_dir, content="/tmp/out")
-  inspect(options.json_output, content="true")
+  @debug.debug_inspect(
+    options.action,
+    content=(
+      #|"download"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_id,
+    content=(
+      #|"run-1"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_root.unwrap_or(""),
+    content=(
+      #|"/tmp/runs"
+    ),
+  )
+  @debug.debug_inspect(
+    options.artifact_root.unwrap_or(""),
+    content=(
+      #|"/tmp/artifacts"
+    ),
+  )
+  @debug.debug_inspect(
+    options.download_dir,
+    content=(
+      #|"/tmp/out"
+    ),
+  )
+  @debug.debug_inspect(options.json_output, content="true")
 }
 
 ///|
@@ -334,16 +581,36 @@ test "cli: parse artifact list flags" {
   let result = parse_artifact_read_args([
     "actrun", "artifact", "list", "run-1", "--run-root", "/tmp/runs", "--json",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("artifact list parse failed")
   }
-  inspect(options.action, content="list")
-  inspect(options.run_id, content="run-1")
-  inspect(options.run_root.unwrap_or(""), content="/tmp/runs")
-  inspect(options.json_output, content="true")
-  inspect(options.artifact_name, content="")
+  @debug.debug_inspect(
+    options.action,
+    content=(
+      #|"list"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_id,
+    content=(
+      #|"run-1"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_root.unwrap_or(""),
+    content=(
+      #|"/tmp/runs"
+    ),
+  )
+  @debug.debug_inspect(options.json_output, content="true")
+  @debug.debug_inspect(
+    options.artifact_name,
+    content=(
+      #|""
+    ),
+  )
 }
 
 ///|
@@ -352,18 +619,48 @@ test "cli: parse artifact download flags" {
     "actrun", "artifact", "download", "run-1", "--run-root", "/tmp/runs", "--artifact-root",
     "/tmp/artifacts", "--name", "report", "--dir", "/tmp/out", "--json",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("artifact download parse failed")
   }
-  inspect(options.action, content="download")
-  inspect(options.run_id, content="run-1")
-  inspect(options.run_root.unwrap_or(""), content="/tmp/runs")
-  inspect(options.artifact_root.unwrap_or(""), content="/tmp/artifacts")
-  inspect(options.artifact_name, content="report")
-  inspect(options.download_dir, content="/tmp/out")
-  inspect(options.json_output, content="true")
+  @debug.debug_inspect(
+    options.action,
+    content=(
+      #|"download"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_id,
+    content=(
+      #|"run-1"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_root.unwrap_or(""),
+    content=(
+      #|"/tmp/runs"
+    ),
+  )
+  @debug.debug_inspect(
+    options.artifact_root.unwrap_or(""),
+    content=(
+      #|"/tmp/artifacts"
+    ),
+  )
+  @debug.debug_inspect(
+    options.artifact_name,
+    content=(
+      #|"report"
+    ),
+  )
+  @debug.debug_inspect(
+    options.download_dir,
+    content=(
+      #|"/tmp/out"
+    ),
+  )
+  @debug.debug_inspect(options.json_output, content="true")
 }
 
 ///|
@@ -371,16 +668,36 @@ test "cli: parse cache list flags" {
   let result = parse_cache_read_args([
     "actrun", "cache", "list", "--cache-root", "/tmp/cache", "--json",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("cache list parse failed")
   }
-  inspect(options.action, content="list")
-  inspect(options.cache_root.unwrap_or(""), content="/tmp/cache")
-  inspect(options.key_filter, content="")
-  inspect(options.workspace_key_filter, content="")
-  inspect(options.json_output, content="true")
+  @debug.debug_inspect(
+    options.action,
+    content=(
+      #|"list"
+    ),
+  )
+  @debug.debug_inspect(
+    options.cache_root.unwrap_or(""),
+    content=(
+      #|"/tmp/cache"
+    ),
+  )
+  @debug.debug_inspect(
+    options.key_filter,
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(
+    options.workspace_key_filter,
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(options.json_output, content="true")
 }
 
 ///|
@@ -389,32 +706,52 @@ test "cli: parse cache prune flags" {
     "actrun", "cache", "prune", "--cache-root", "/tmp/cache", "--key", "cache-key",
     "--workspace-key", "workspace-1", "--json",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("cache prune parse failed")
   }
-  inspect(options.action, content="prune")
-  inspect(options.cache_root.unwrap_or(""), content="/tmp/cache")
-  inspect(options.key_filter, content="cache-key")
-  inspect(options.workspace_key_filter, content="workspace-1")
-  inspect(options.json_output, content="true")
+  @debug.debug_inspect(
+    options.action,
+    content=(
+      #|"prune"
+    ),
+  )
+  @debug.debug_inspect(
+    options.cache_root.unwrap_or(""),
+    content=(
+      #|"/tmp/cache"
+    ),
+  )
+  @debug.debug_inspect(
+    options.key_filter,
+    content=(
+      #|"cache-key"
+    ),
+  )
+  @debug.debug_inspect(
+    options.workspace_key_filter,
+    content=(
+      #|"workspace-1"
+    ),
+  )
+  @debug.debug_inspect(options.json_output, content="true")
 }
 
 ///|
 test "cli: run state exit code mapping" {
-  inspect(run_state_exit_code("completed"), content="0")
-  inspect(run_state_exit_code("success"), content="0")
-  inspect(run_state_exit_code("skipped"), content="0")
-  inspect(run_state_exit_code("partial_failed"), content="1")
-  inspect(run_state_exit_code("cancelled"), content="1")
+  @debug.debug_inspect(run_state_exit_code("completed"), content="0")
+  @debug.debug_inspect(run_state_exit_code("success"), content="0")
+  @debug.debug_inspect(run_state_exit_code("skipped"), content="0")
+  @debug.debug_inspect(run_state_exit_code("partial_failed"), content="1")
+  @debug.debug_inspect(run_state_exit_code("cancelled"), content="1")
 }
 
 ///|
 test "cli: reject missing option value" {
   let result = parse_cli_args(["actrun", ".github/workflows/ci.yml", "--repo"])
 
-  inspect(result.errors, content="[\"missing value for --repo\"]")
+  @debug.debug_inspect(result.errors, content="[\"missing value for --repo\"]")
 }
 
 ///|
@@ -423,7 +760,7 @@ test "cli: reject invalid workspace mode" {
     "actrun", ".github/workflows/ci.yml", "--workspace-mode", "podman",
   ])
 
-  inspect(
+  @debug.debug_inspect(
     result.errors,
     content="[\"workspace mode must be one of: local, worktree, tmp, docker\"]",
   )
@@ -438,8 +775,18 @@ test "cli: default workspace mode depends on repo mode" {
     parse_cli_args(["actrun", ".github/workflows/ci.yml", "--repo", "/repo"]),
   )
 
-  inspect(resolved_workspace_mode(local_options), content="worktree")
-  inspect(resolved_workspace_mode(repo), content="tmp")
+  @debug.debug_inspect(
+    resolved_workspace_mode(local_options),
+    content=(
+      #|"worktree"
+    ),
+  )
+  @debug.debug_inspect(
+    resolved_workspace_mode(repo),
+    content=(
+      #|"tmp"
+    ),
+  )
 }
 
 ///|
@@ -469,27 +816,42 @@ test "cli: root override flags are exported to runner env" {
 
   apply_cli_root_overrides(options)
 
-  inspect(
+  @debug.debug_inspect(
     @xsys.get_env_var("ACTRUN_ARTIFACT_ROOT").unwrap_or(""),
-    content="/tmp/artifacts",
+    content=(
+      #|"/tmp/artifacts"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     @xsys.get_env_var("ACTRUN_CACHE_ROOT").unwrap_or(""),
-    content="/tmp/cache",
+    content=(
+      #|"/tmp/cache"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     @xsys.get_env_var("ACTRUN_GITHUB_ACTION_CACHE_ROOT").unwrap_or(""),
-    content="/tmp/gha-cache",
+    content=(
+      #|"/tmp/gha-cache"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     @xsys.get_env_var("ACTRUN_ACTION_REGISTRY_ROOT").unwrap_or(""),
-    content="/tmp/registry",
+    content=(
+      #|"/tmp/registry"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     @xsys.get_env_var("ACTRUN_WASM_ACTION_ROOT").unwrap_or(""),
-    content="/tmp/wasm",
+    content=(
+      #|"/tmp/wasm"
+    ),
   )
-  inspect(@xsys.get_env_var("ACTRUN_WASM_RUNNER").unwrap_or(""), content="v8")
+  @debug.debug_inspect(
+    @xsys.get_env_var("ACTRUN_WASM_RUNNER").unwrap_or(""),
+    content=(
+      #|"v8"
+    ),
+  )
 
   main_test_restore_env_var("ACTRUN_ARTIFACT_ROOT", prev_artifact)
   main_test_restore_env_var("ACTRUN_CACHE_ROOT", prev_cache)
@@ -504,7 +866,7 @@ test "cli: reject unknown wasm runner" {
   let result = parse_cli_args([
     "actrun", ".github/workflows/ci.yml", "--wasm-runner", "custom",
   ])
-  inspect(
+  @debug.debug_inspect(
     result.errors,
     content=(
       #|["unsupported wasm runner: custom (expected: wasmtime, deno, v8)"]
@@ -514,17 +876,21 @@ test "cli: reject unknown wasm runner" {
 
 ///|
 test "cli: parse GitHub repository from https remote url" {
-  inspect(
+  @debug.debug_inspect(
     github_repository_from_remote_url("https://github.com/mizchi/actrun.git"),
-    content="mizchi/actrun",
+    content=(
+      #|"mizchi/actrun"
+    ),
   )
 }
 
 ///|
 test "cli: parse GitHub repository from ssh remote url" {
-  inspect(
+  @debug.debug_inspect(
     github_repository_from_remote_url("git@github.com:mizchi/actrun.git"),
-    content="mizchi/actrun",
+    content=(
+      #|"mizchi/actrun"
+    ),
   )
 }
 
@@ -538,13 +904,17 @@ test "cli: extract origin remote url from git config text" {
     #|[remote "origin"]
     #|  url = git@github.com:mizchi/actrun.git
     #|  fetch = +refs/heads/*:refs/remotes/origin/*
-  inspect(
+  @debug.debug_inspect(
     origin_remote_url_from_git_config(config).unwrap_or(""),
-    content="git@github.com:mizchi/actrun.git",
+    content=(
+      #|"git@github.com:mizchi/actrun.git"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     github_repository_from_git_config(config).unwrap_or(""),
-    content="mizchi/actrun",
+    content=(
+      #|"mizchi/actrun"
+    ),
   )
 }
 
@@ -563,13 +933,17 @@ test "cli: infer GitHub repository from repo root origin config" {
   ensure_main_test_dir(git_dir)
   @xfs.write_string_to_file(git_dir + "/config", config)
 
-  inspect(
+  @debug.debug_inspect(
     origin_remote_url_from_repo_root(repo_root).unwrap_or(""),
-    content="https://github.com/mizchi/actrun.git",
+    content=(
+      #|"https://github.com/mizchi/actrun.git"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     github_repository_from_repo_root(repo_root).unwrap_or(""),
-    content="mizchi/actrun",
+    content=(
+      #|"mizchi/actrun"
+    ),
   )
 }
 
@@ -602,32 +976,57 @@ test "cli: persist run record allocates sequential run ids" {
   let first = persist_run_record(run_root, record).unwrap_or("")
   let second = persist_run_record(run_root, record).unwrap_or("")
 
-  inspect(first, content="run-1")
-  inspect(second, content="run-2")
+  @debug.debug_inspect(
+    first,
+    content=(
+      #|"run-1"
+    ),
+  )
+  @debug.debug_inspect(
+    second,
+    content=(
+      #|"run-2"
+    ),
+  )
   let first_json = @xfs.read_file_to_string(run_root + "/run-1/run.json")
-  inspect(first_json.contains("\"run_id\": \"run-1\""), content="true")
-  inspect(
+  @debug.debug_inspect(
+    first_json.contains("\"run_id\": \"run-1\""),
+    content="true",
+  )
+  @debug.debug_inspect(
     first_json.contains("\"workspace_mode\": \"worktree\""),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     first_json.contains("\"changed_paths\": [\"README.md\"]"),
     content="true",
   )
-  inspect(first_json.contains("\"started_at_ms\": 1000"), content="true")
-  inspect(first_json.contains("\"finished_at_ms\": 2000"), content="true")
-  inspect(first_json.contains("\"exit_code\": 0"), content="true")
-  inspect(
+  @debug.debug_inspect(
+    first_json.contains("\"started_at_ms\": 1000"),
+    content="true",
+  )
+  @debug.debug_inspect(
+    first_json.contains("\"finished_at_ms\": 2000"),
+    content="true",
+  )
+  @debug.debug_inspect(first_json.contains("\"exit_code\": 0"), content="true")
+  @debug.debug_inspect(
     @xfs.read_file_to_string(run_root + "/run-1/jobs.json"),
-    content="[]\n",
+    content=(
+      #|"[]\n"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(run_root + "/run-1/artifacts.json"),
-    content="[]\n",
+    content=(
+      #|"[]\n"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(run_root + "/run-1/caches.json"),
-    content="[]\n",
+    content=(
+      #|"[]\n"
+    ),
   )
 }
 
@@ -712,76 +1111,115 @@ async test "cli: persist run record stores task logs and summaries" {
     plan=Some(lowered.plan),
   ).unwrap_or("")
 
-  inspect(run_id, content="run-1")
+  @debug.debug_inspect(
+    run_id,
+    content=(
+      #|"run-1"
+    ),
+  )
   let run_json = @xfs.read_file_to_string(run_root + "/run-1/run.json")
-  inspect(run_json.contains("\"steps\": [{"), content="true")
-  inspect(run_json.contains("\"started_at_ms\": 1000"), content="true")
-  inspect(run_json.contains("\"finished_at_ms\": 2000"), content="true")
-  inspect(run_json.contains("\"duration_ms\": "), content="true")
-  inspect(
+  @debug.debug_inspect(run_json.contains("\"steps\": [{"), content="true")
+  @debug.debug_inspect(
+    run_json.contains("\"started_at_ms\": 1000"),
+    content="true",
+  )
+  @debug.debug_inspect(
+    run_json.contains("\"finished_at_ms\": 2000"),
+    content="true",
+  )
+  @debug.debug_inspect(run_json.contains("\"duration_ms\": "), content="true")
+  @debug.debug_inspect(
     run_json.contains("\"stdout_path\": \"tasks/build__record.stdout.log\""),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     run_json.contains("\"summary_path\": \"tasks/build__record.summary.md\""),
     content="true",
   )
-  inspect(run_json.contains("\"jobs\": [{"), content="true")
-  inspect(run_json.contains("\"id\": \"build\""), content="true")
-  inspect(run_json.contains("\"conclusion\": \"success\""), content="true")
-  inspect(run_json.contains("\"artifacts\": [{"), content="true")
-  inspect(run_json.contains("\"name\": \"report\""), content="true")
-  inspect(run_json.contains("\"files\": [\"result.txt\"]"), content="true")
-  inspect(run_json.contains("\"caches\": [{"), content="true")
-  inspect(run_json.contains("\"key\": \"run-store-basic-key\""), content="true")
-  inspect(
+  @debug.debug_inspect(run_json.contains("\"jobs\": [{"), content="true")
+  @debug.debug_inspect(run_json.contains("\"id\": \"build\""), content="true")
+  @debug.debug_inspect(
+    run_json.contains("\"conclusion\": \"success\""),
+    content="true",
+  )
+  @debug.debug_inspect(run_json.contains("\"artifacts\": [{"), content="true")
+  @debug.debug_inspect(
+    run_json.contains("\"name\": \"report\""),
+    content="true",
+  )
+  @debug.debug_inspect(
+    run_json.contains("\"files\": [\"result.txt\"]"),
+    content="true",
+  )
+  @debug.debug_inspect(run_json.contains("\"caches\": [{"), content="true")
+  @debug.debug_inspect(
+    run_json.contains("\"key\": \"run-store-basic-key\""),
+    content="true",
+  )
+  @debug.debug_inspect(
     run_json.contains("\"files\": [\"artifacts/result.txt\"]"),
     content="true",
   )
   let jobs_json = @xfs.read_file_to_string(run_root + "/run-1/jobs.json")
-  inspect(jobs_json.contains("\"id\": \"build\""), content="true")
-  inspect(jobs_json.contains("\"conclusion\": \"success\""), content="true")
-  inspect(jobs_json.contains("\"duration_ms\": "), content="true")
+  @debug.debug_inspect(jobs_json.contains("\"id\": \"build\""), content="true")
+  @debug.debug_inspect(
+    jobs_json.contains("\"conclusion\": \"success\""),
+    content="true",
+  )
+  @debug.debug_inspect(jobs_json.contains("\"duration_ms\": "), content="true")
   let artifacts_json = @xfs.read_file_to_string(
     run_root + "/run-1/artifacts.json",
   )
-  inspect(artifacts_json.contains("\"name\": \"report\""), content="true")
-  inspect(
+  @debug.debug_inspect(
+    artifacts_json.contains("\"name\": \"report\""),
+    content="true",
+  )
+  @debug.debug_inspect(
     artifacts_json.contains("\"files\": [\"result.txt\"]"),
     content="true",
   )
   let caches_json = @xfs.read_file_to_string(run_root + "/run-1/caches.json")
-  inspect(
+  @debug.debug_inspect(
     caches_json.contains("\"key\": \"run-store-basic-key\""),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     caches_json.contains("\"files\": [\"artifacts/result.txt\"]"),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(run_root + "/run-1/tasks/build__record.stdout.log"),
-    content="hello-run-store",
+    content=(
+      #|"hello-run-store"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(run_root + "/run-1/tasks/build__record.summary.md"),
-    content="summary-run-store",
+    content=(
+      #|"summary-run-store"
+    ),
   )
   let view_text = format_run_view_text(run_json).unwrap_or("")
-  inspect(view_text.contains("(run-1)"), content="true")
-  inspect(view_text.contains("ci"), content="true")
-  inspect(view_text.contains("success"), content="true")
-  inspect(view_text.contains("X build (success)"), content="true")
-  inspect(view_text.contains("report"), content="true")
+  @debug.debug_inspect(view_text.contains("(run-1)"), content="true")
+  @debug.debug_inspect(view_text.contains("ci"), content="true")
+  @debug.debug_inspect(view_text.contains("success"), content="true")
+  @debug.debug_inspect(view_text.contains("X build (success)"), content="true")
+  @debug.debug_inspect(view_text.contains("report"), content="true")
   let logs_text = format_run_logs_text(
     run_root + "/run-1",
     run_json,
     task_id=Some("build/record"),
   ).unwrap_or("")
-  inspect(logs_text.contains("==> build/record stdout"), content="true")
-  inspect(logs_text.contains("hello-run-store"), content="true")
-  inspect(logs_text.contains("==> build/record summary"), content="true")
-  inspect(logs_text.contains("summary-run-store"), content="true")
+  @debug.debug_inspect(
+    logs_text.contains("==> build/record stdout"),
+    content="true",
+  )
+  @debug.debug_inspect(logs_text.contains("hello-run-store"), content="true")
+  @debug.debug_inspect(
+    logs_text.contains("==> build/record summary"),
+    content="true",
+  )
+  @debug.debug_inspect(logs_text.contains("summary-run-store"), content="true")
 
   let run_root_list = "_build/test-main/run-store-list"
   remove_main_test_tree(run_root_list)
@@ -804,17 +1242,26 @@ async test "cli: persist run record stores task logs and summaries" {
   @xfs.write_string_to_file(run_root_list + "/run-1/run.json", run_json_one)
   @xfs.write_string_to_file(run_root_list + "/run-2/run.json", run_json_two)
   let list_text = format_run_list_text(run_root_list_abs).unwrap_or("")
-  inspect(list_text.contains("beta"), content="true")
-  inspect(list_text.contains("run-2"), content="true")
-  inspect(list_text.contains("alpha"), content="true")
-  inspect(list_text.contains("run-1"), content="true")
+  @debug.debug_inspect(list_text.contains("beta"), content="true")
+  @debug.debug_inspect(list_text.contains("run-2"), content="true")
+  @debug.debug_inspect(list_text.contains("alpha"), content="true")
+  @debug.debug_inspect(list_text.contains("run-1"), content="true")
   let list_json = collect_run_list_json(run_root_list_abs).unwrap_or("")
-  inspect(list_json.contains("\"run_id\": \"run-1\""), content="true")
-  inspect(list_json.contains("\"run_id\": \"run-2\""), content="true")
+  @debug.debug_inspect(
+    list_json.contains("\"run_id\": \"run-1\""),
+    content="true",
+  )
+  @debug.debug_inspect(
+    list_json.contains("\"run_id\": \"run-2\""),
+    content="true",
+  )
   let artifact_list_text = format_artifact_list_text(artifacts_json).unwrap_or(
     "",
   )
-  inspect(artifact_list_text.contains("report\tresult.txt"), content="true")
+  @debug.debug_inspect(
+    artifact_list_text.contains("report\tresult.txt"),
+    content="true",
+  )
   let run_download_dir = "_build/test-main/run-download-all"
   remove_main_test_tree(run_download_dir)
   let run_download_exit = handle_run_read_command({
@@ -838,10 +1285,12 @@ async test "cli: persist run record stores task logs and summaries" {
     branch_filter: "",
     event_filter: "",
   })
-  inspect(run_download_exit, content="0")
-  inspect(
+  @debug.debug_inspect(run_download_exit, content="0")
+  @debug.debug_inspect(
     @xfs.read_file_to_string(run_download_dir + "/report/result.txt"),
-    content="cached-run-store",
+    content=(
+      #|"cached-run-store"
+    ),
   )
   let download_dir = "_build/test-main/run-store-download"
   remove_main_test_tree(download_dir)
@@ -855,16 +1304,18 @@ async test "cli: persist run record stores task logs and summaries" {
     json_output: false,
     json_fields: [],
   })
-  inspect(download_exit, content="0")
-  inspect(
+  @debug.debug_inspect(download_exit, content="0")
+  @debug.debug_inspect(
     @xfs.read_file_to_string(download_dir + "/result.txt"),
-    content="cached-run-store",
+    content=(
+      #|"cached-run-store"
+    ),
   )
   let workspace_key = run_store_sanitize_id(workspace)
   let cache_list_text = format_cache_list_text(
     collect_cache_list_records(cache_root_abs),
   )
-  inspect(
+  @debug.debug_inspect(
     cache_list_text.contains(
       workspace_key + "\t" + "run-store-basic-key\t1\tartifacts/result.txt",
     ),
@@ -873,8 +1324,11 @@ async test "cli: persist run record stores task logs and summaries" {
   let cache_list_json_text = cache_list_json(
     collect_cache_list_records(cache_root_abs),
   )
-  inspect(cache_list_json_text.contains("\"workspace_key\": "), content="true")
-  inspect(
+  @debug.debug_inspect(
+    cache_list_json_text.contains("\"workspace_key\": "),
+    content="true",
+  )
+  @debug.debug_inspect(
     cache_list_json_text.contains("\"key\": \"run-store-basic-key\""),
     content="true",
   )
@@ -889,7 +1343,7 @@ async test "cli: persist run record stores task logs and summaries" {
     json_fields: [],
     limit: 0,
   })
-  inspect(cache_list_exit, content="0")
+  @debug.debug_inspect(cache_list_exit, content="0")
   let cache_prune_exit = handle_cache_read_command({
     action: "prune",
     cache_root: Some(cache_root_abs),
@@ -901,11 +1355,16 @@ async test "cli: persist run record stores task logs and summaries" {
     json_fields: [],
     limit: 0,
   })
-  inspect(cache_prune_exit, content="0")
+  @debug.debug_inspect(cache_prune_exit, content="0")
   let pruned_list_text = format_cache_list_text(
     collect_cache_list_records(cache_root_abs),
   )
-  inspect(pruned_list_text, content="")
+  @debug.debug_inspect(
+    pruned_list_text,
+    content=(
+      #|""
+    ),
+  )
   main_test_restore_env_var("ACTRUN_CACHE_ROOT", previous_cache_root)
 }
 
@@ -982,47 +1441,52 @@ async test "cli: persist run record stores embedded test reports as artifacts" {
     plan=Some(lowered.plan),
   ).unwrap_or("")
 
-  inspect(run_id, content="run-1")
+  @debug.debug_inspect(
+    run_id,
+    content=(
+      #|"run-1"
+    ),
+  )
   let artifacts_json = @xfs.read_file_to_string(
     run_root + "/run-1/artifacts.json",
   )
-  inspect(
+  @debug.debug_inspect(
     artifacts_json.contains("\"name\": \"playwright-report\""),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     artifacts_json.contains("\"name\": \"vitest-report\""),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     artifacts_json.contains("\"files\": [\"test__playwright.json\"]"),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     artifacts_json.contains("\"files\": [\"test__vitest.json\"]"),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(
       artifact_root +
       "/\{run_store_workspace_key(workspace)}/playwright-report/test__playwright.json",
     ).contains("\"suites\":"),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(
       artifact_root +
       "/\{run_store_workspace_key(workspace)}/vitest-report/test__vitest.json",
     ).contains("\"testResults\":"),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(
       run_root + "/run-1/artifacts/playwright-report/test__playwright.json",
     ).contains("\"logs in\""),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(
       run_root + "/run-1/artifacts/vitest-report/test__vitest.json",
     ).contains("\"math > adds numbers\""),
@@ -1051,14 +1515,20 @@ test "cli: workflow list reads .github/workflows from repo root" {
     main_test_absolute_path(repo_root),
   )
   let list_text = format_workflow_list_text(records)
-  inspect(list_text.contains("ci\t.github/workflows/ci.yml"), content="true")
-  inspect(
+  @debug.debug_inspect(
+    list_text.contains("ci\t.github/workflows/ci.yml"),
+    content="true",
+  )
+  @debug.debug_inspect(
     list_text.contains("lint\t.github/workflows/lint.yaml"),
     content="true",
   )
   let list_json_text = workflow_list_json(records)
-  inspect(list_json_text.contains("\"name\": \"ci\""), content="true")
-  inspect(
+  @debug.debug_inspect(
+    list_json_text.contains("\"name\": \"ci\""),
+    content="true",
+  )
+  @debug.debug_inspect(
     list_json_text.contains("\"path\": \".github/workflows/lint.yaml\""),
     content="true",
   )
@@ -1068,7 +1538,7 @@ test "cli: workflow list reads .github/workflows from repo root" {
     json_output: true,
     json_fields: [],
   })
-  inspect(exit_code, content="0")
+  @debug.debug_inspect(exit_code, content="0")
 }
 
 ///|
@@ -1089,12 +1559,37 @@ test "cli: explicit flags override values from event payload" {
   )
   let merged = merge_cli_push_event(base, options)
 
-  inspect(merged.ref_name, content="main")
-  inspect(merged.before_sha, content="def456")
-  inspect(merged.after_sha, content="fff999")
-  inspect(merged.repository, content="from/cli")
-  inspect(merged.actor, content="octocat")
-  inspect(merged.changed_paths, content="[\"src/lib.mbt\"]")
+  @debug.debug_inspect(
+    merged.ref_name,
+    content=(
+      #|"main"
+    ),
+  )
+  @debug.debug_inspect(
+    merged.before_sha,
+    content=(
+      #|"def456"
+    ),
+  )
+  @debug.debug_inspect(
+    merged.after_sha,
+    content=(
+      #|"fff999"
+    ),
+  )
+  @debug.debug_inspect(
+    merged.repository,
+    content=(
+      #|"from/cli"
+    ),
+  )
+  @debug.debug_inspect(
+    merged.actor,
+    content=(
+      #|"octocat"
+    ),
+  )
+  @debug.debug_inspect(merged.changed_paths, content="[\"src/lib.mbt\"]")
 }
 
 ///|
@@ -1105,7 +1600,7 @@ test "cli: event file enables trigger checks" {
     ]),
   )
 
-  inspect(should_check_trigger(options), content="true")
+  @debug.debug_inspect(should_check_trigger(options), content="true")
 }
 
 ///|
@@ -1121,32 +1616,32 @@ async fn setup_workspace_test_repo(name : String) -> String {
     ["init", "-q"],
     cwd=repo_root,
   )
-  assert_eq(code, 0)
+  @debug.assert_eq(code, 0)
   let (code2, _, _) = @process.collect_output(
     "git",
     ["config", "user.name", "test"],
     cwd=repo_root,
   )
-  assert_eq(code2, 0)
+  @debug.assert_eq(code2, 0)
   let (code3, _, _) = @process.collect_output(
     "git",
     ["config", "user.email", "test@test.com"],
     cwd=repo_root,
   )
-  assert_eq(code3, 0)
+  @debug.assert_eq(code3, 0)
   @xfs.write_string_to_file(repo_root + "/hello.txt", "hello\n")
   let (code4, _, _) = @process.collect_output(
     "git",
     ["add", "."],
     cwd=repo_root,
   )
-  assert_eq(code4, 0)
+  @debug.assert_eq(code4, 0)
   let (code5, _, _) = @process.collect_output(
     "git",
     ["commit", "-q", "-m", "init"],
     cwd=repo_root,
   )
-  assert_eq(code5, 0)
+  @debug.assert_eq(code5, 0)
   main_test_absolute_path(repo_root)
 }
 
@@ -1160,14 +1655,21 @@ async test "workspace: worktree mode creates and cleans up git worktree" {
   let (ws, errors) = setup_local_workspace(
     "worktree", repo_root, workspace_base,
   )
-  inspect(errors, content="[]")
+  @debug.debug_inspect(errors, content="[]")
   guard ws is Some(workspace) else { abort("workspace setup failed") }
-  inspect(workspace.cleanup_mode, content="worktree")
+  @debug.debug_inspect(
+    workspace.cleanup_mode,
+    content=(
+      #|"worktree"
+    ),
+  )
   assert_true(@xfs.path_exists(workspace.execution_root))
   assert_true(@xfs.path_exists(workspace.execution_root + "/hello.txt"))
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(workspace.execution_root + "/hello.txt"),
-    content="hello\n",
+    content=(
+      #|"hello\n"
+    ),
   )
   cleanup_local_workspace(workspace)
   assert_false(@xfs.path_exists(workspace.execution_root))
@@ -1181,14 +1683,21 @@ async test "workspace: tmp mode creates and cleans up cloned directory" {
   remove_main_test_tree(workspace_base)
   ensure_main_test_dir(workspace_base)
   let (ws, errors) = setup_local_workspace("tmp", repo_root, workspace_base)
-  inspect(errors, content="[]")
+  @debug.debug_inspect(errors, content="[]")
   guard ws is Some(workspace) else { abort("workspace setup failed") }
-  inspect(workspace.cleanup_mode, content="tmp")
+  @debug.debug_inspect(
+    workspace.cleanup_mode,
+    content=(
+      #|"tmp"
+    ),
+  )
   assert_true(@xfs.path_exists(workspace.execution_root))
   assert_true(@xfs.path_exists(workspace.execution_root + "/hello.txt"))
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(workspace.execution_root + "/hello.txt"),
-    content="hello\n",
+    content=(
+      #|"hello\n"
+    ),
   )
   assert_true(@xfs.path_exists(workspace.execution_root + "/.git"))
   cleanup_local_workspace(workspace)
@@ -1199,10 +1708,20 @@ async test "workspace: tmp mode creates and cleans up cloned directory" {
 #cfg(target="native")
 async test "workspace: local mode uses source root directly" {
   let (ws, errors) = setup_local_workspace("local", "/some/path", "/unused")
-  inspect(errors, content="[]")
+  @debug.debug_inspect(errors, content="[]")
   guard ws is Some(workspace) else { abort("workspace setup failed") }
-  inspect(workspace.execution_root, content="/some/path")
-  inspect(workspace.cleanup_mode, content="none")
+  @debug.debug_inspect(
+    workspace.execution_root,
+    content=(
+      #|"/some/path"
+    ),
+  )
+  @debug.debug_inspect(
+    workspace.cleanup_mode,
+    content=(
+      #|"none"
+    ),
+  )
 }
 
 ///|
@@ -1221,7 +1740,12 @@ async test "workspace: copied workflow under .github/workflows falls back to loc
   let options = expect_cli_options(
     parse_cli_args(["actrun", copied_root + "/.github/workflows/ci.yml"]),
   )
-  inspect(effective_workspace_mode(options), content="local")
+  @debug.debug_inspect(
+    effective_workspace_mode(options),
+    content=(
+      #|"local"
+    ),
+  )
 }
 
 ///|
@@ -1235,7 +1759,12 @@ async test "workspace: repo root workflow keeps worktree mode" {
   let options = expect_cli_options(
     parse_cli_args(["actrun", repo_root + "/workflow.yml"]),
   )
-  inspect(effective_workspace_mode(options), content="worktree")
+  @debug.debug_inspect(
+    effective_workspace_mode(options),
+    content=(
+      #|"worktree"
+    ),
+  )
 }
 
 ///|
@@ -1331,42 +1860,45 @@ test "cli: parse run view with --json fields" {
   let result = parse_run_read_args([
     "actrun", "run", "view", "run-1", "--json", "status,conclusion,jobs",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("run view parse failed")
   }
-  inspect(options.json_output, content="true")
-  inspect(options.json_fields, content="[\"status\", \"conclusion\", \"jobs\"]")
+  @debug.debug_inspect(options.json_output, content="true")
+  @debug.debug_inspect(
+    options.json_fields,
+    content="[\"status\", \"conclusion\", \"jobs\"]",
+  )
 }
 
 ///|
 test "cli: parse run view with --json (no fields)" {
   let result = parse_run_read_args(["actrun", "run", "view", "run-1", "--json"])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("run view parse failed")
   }
-  inspect(options.json_output, content="true")
-  inspect(options.json_fields, content="[]")
+  @debug.debug_inspect(options.json_output, content="true")
+  @debug.debug_inspect(options.json_fields, content="[]")
 }
 
 ///|
 test "cli: filter_json_fields returns selected fields only" {
   let json_text = "{\"status\": \"completed\", \"conclusion\": \"success\", \"jobs\": []}"
   let filtered = filter_json_fields(json_text, ["status", "conclusion"]).unwrap()
-  inspect(filtered.contains("\"status\""), content="true")
-  inspect(filtered.contains("\"conclusion\""), content="true")
-  inspect(filtered.contains("\"jobs\""), content="false")
+  @debug.debug_inspect(filtered.contains("\"status\""), content="true")
+  @debug.debug_inspect(filtered.contains("\"conclusion\""), content="true")
+  @debug.debug_inspect(filtered.contains("\"jobs\""), content="false")
 }
 
 ///|
 test "cli: filter_json_fields with empty fields returns all" {
   let json_text = "{\"status\": \"completed\", \"conclusion\": \"success\"}"
   let filtered = filter_json_fields(json_text, []).unwrap()
-  inspect(filtered.contains("\"status\""), content="true")
-  inspect(filtered.contains("\"conclusion\""), content="true")
+  @debug.debug_inspect(filtered.contains("\"status\""), content="true")
+  @debug.debug_inspect(filtered.contains("\"conclusion\""), content="true")
 }
 
 ///|
@@ -1374,15 +1906,23 @@ test "cli: parse run list with --limit and --status" {
   let result = parse_run_read_args([
     "actrun", "run", "list", "--limit", "5", "--status", "failure", "--json", "status,conclusion",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("run list parse failed")
   }
-  inspect(options.limit, content="5")
-  inspect(options.status_filter, content="failure")
-  inspect(options.json_output, content="true")
-  inspect(options.json_fields, content="[\"status\", \"conclusion\"]")
+  @debug.debug_inspect(options.limit, content="5")
+  @debug.debug_inspect(
+    options.status_filter,
+    content=(
+      #|"failure"
+    ),
+  )
+  @debug.debug_inspect(options.json_output, content="true")
+  @debug.debug_inspect(
+    options.json_fields,
+    content="[\"status\", \"conclusion\"]",
+  )
 }
 
 ///|
@@ -1390,13 +1930,18 @@ test "cli: parse run list with -L and -s shorthand" {
   let result = parse_run_read_args([
     "actrun", "run", "list", "-L", "3", "-s", "success",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("run list parse failed")
   }
-  inspect(options.limit, content="3")
-  inspect(options.status_filter, content="success")
+  @debug.debug_inspect(options.limit, content="3")
+  @debug.debug_inspect(
+    options.status_filter,
+    content=(
+      #|"success"
+    ),
+  )
 }
 
 ///|
@@ -1404,12 +1949,12 @@ test "cli: parse run view with --exit-status" {
   let result = parse_run_read_args([
     "actrun", "run", "view", "run-1", "--exit-status",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("run view parse failed")
   }
-  inspect(options.exit_status, content="true")
+  @debug.debug_inspect(options.exit_status, content="true")
 }
 
 ///|
@@ -1420,44 +1965,57 @@ async test "cli: run_command reports missing command without aborting" {
     [],
     cwd=".",
   )
-  inspect(code, content="-1")
-  inspect(stdout, content="")
-  inspect(
+  @debug.debug_inspect(code, content="-1")
+  @debug.debug_inspect(
+    stdout,
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(
     stderr,
-    content="failed to run command: __actrun_missing_command_for_test__",
+    content=(
+      #|"failed to run command: __actrun_missing_command_for_test__"
+    ),
   )
 }
 
 ///|
 test "cli: run_view_exit_code returns 0 for success" {
   let json = "{\"conclusion\": \"success\", \"status\": \"completed\"}"
-  inspect(run_view_exit_code(json), content="0")
+  @debug.debug_inspect(run_view_exit_code(json), content="0")
 }
 
 ///|
 test "cli: run_view_exit_code returns 1 for failure" {
   let json = "{\"conclusion\": \"failure\", \"status\": \"completed\"}"
-  inspect(run_view_exit_code(json), content="1")
+  @debug.debug_inspect(run_view_exit_code(json), content="1")
 }
 
 ///|
 test "cli: run_json_matches_status filters by conclusion" {
   let json = "{\"status\": \"completed\", \"conclusion\": \"failure\", \"state\": \"completed\"}"
-  inspect(run_json_matches_status(json, "failure"), content="true")
-  inspect(run_json_matches_status(json, "success"), content="false")
-  inspect(run_json_matches_status(json, "completed"), content="true")
-  inspect(run_json_matches_status(json, ""), content="true")
+  @debug.debug_inspect(run_json_matches_status(json, "failure"), content="true")
+  @debug.debug_inspect(
+    run_json_matches_status(json, "success"),
+    content="false",
+  )
+  @debug.debug_inspect(
+    run_json_matches_status(json, "completed"),
+    content="true",
+  )
+  @debug.debug_inspect(run_json_matches_status(json, ""), content="true")
 }
 
 ///|
 test "cli: parse run view with --verbose" {
   let result = parse_run_read_args(["actrun", "run", "view", "run-1", "-v"])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("run view parse failed")
   }
-  inspect(options.verbose, content="true")
+  @debug.debug_inspect(options.verbose, content="true")
 }
 
 ///|
@@ -1465,13 +2023,18 @@ test "cli: parse run logs with --log-failed and --job" {
   let result = parse_run_read_args([
     "actrun", "run", "logs", "run-1", "--log-failed", "--job", "build",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("run logs parse failed")
   }
-  inspect(options.log_failed, content="true")
-  inspect(options.job_id, content="build")
+  @debug.debug_inspect(options.log_failed, content="true")
+  @debug.debug_inspect(
+    options.job_id,
+    content=(
+      #|"build"
+    ),
+  )
 }
 
 ///|
@@ -1479,12 +2042,17 @@ test "cli: parse run logs with -j shorthand" {
   let result = parse_run_read_args([
     "actrun", "run", "logs", "run-1", "-j", "test",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("run logs parse failed")
   }
-  inspect(options.job_id, content="test")
+  @debug.debug_inspect(
+    options.job_id,
+    content=(
+      #|"test"
+    ),
+  )
 }
 
 ///|
@@ -1492,42 +2060,54 @@ test "cli: format_run_view_text gh-style output" {
   let json = "{\"run_id\": \"run-1\", \"workflow_name\": \"ci\", \"status\": \"completed\", \"conclusion\": \"success\", \"state\": \"completed\", \"started_at_ms\": 1000, \"finished_at_ms\": 3000, \"jobs\": [{\"id\": \"build\", \"name\": \"build\", \"status\": \"completed\", \"conclusion\": \"success\", \"steps\": [{\"name\": \"Checkout\", \"number\": 1, \"status\": \"completed\", \"conclusion\": \"success\"}]}]}"
   let text = format_run_view_text(json).unwrap()
   // Header line
-  inspect(text.contains("X ci (run-1) success in 2s"), content="true")
+  @debug.debug_inspect(
+    text.contains("X ci (run-1) success in 2s"),
+    content="true",
+  )
   // Job line
-  inspect(text.contains("  X build (success)"), content="true")
+  @debug.debug_inspect(text.contains("  X build (success)"), content="true")
   // Steps should NOT show without verbose
-  inspect(text.contains("Checkout"), content="false")
+  @debug.debug_inspect(text.contains("Checkout"), content="false")
 }
 
 ///|
 test "cli: format_run_view_text verbose shows steps" {
   let json = "{\"run_id\": \"run-1\", \"workflow_name\": \"ci\", \"status\": \"completed\", \"conclusion\": \"success\", \"state\": \"completed\", \"jobs\": [{\"id\": \"build\", \"name\": \"build\", \"status\": \"completed\", \"conclusion\": \"success\", \"steps\": [{\"name\": \"Checkout\", \"number\": 1, \"status\": \"completed\", \"conclusion\": \"success\"}, {\"name\": \"Test\", \"number\": 2, \"status\": \"completed\", \"conclusion\": \"failure\"}]}]}"
   let text = format_run_view_text(json, verbose=true).unwrap()
-  inspect(text.contains("    X Checkout (success)"), content="true")
-  inspect(text.contains("    ! Test (failure)"), content="true")
+  @debug.debug_inspect(
+    text.contains("    X Checkout (success)"),
+    content="true",
+  )
+  @debug.debug_inspect(text.contains("    ! Test (failure)"), content="true")
 }
 
 ///|
 test "cli: format_run_view_text job_id filters jobs" {
   let json = "{\"run_id\": \"run-1\", \"workflow_name\": \"ci\", \"status\": \"completed\", \"conclusion\": \"success\", \"state\": \"completed\", \"jobs\": [{\"id\": \"build\", \"name\": \"build\", \"status\": \"completed\", \"conclusion\": \"success\", \"steps\": []}, {\"id\": \"test\", \"name\": \"test\", \"status\": \"completed\", \"conclusion\": \"failure\", \"steps\": []}]}"
   let text = format_run_view_text(json, job_id="build").unwrap()
-  inspect(text.contains("build"), content="true")
-  inspect(text.contains("test"), content="false")
+  @debug.debug_inspect(text.contains("build"), content="true")
+  @debug.debug_inspect(text.contains("test"), content="false")
 }
 
 ///|
 test "cli: format_run_view_text failure mark" {
   let json = "{\"run_id\": \"run-1\", \"workflow_name\": \"ci\", \"status\": \"completed\", \"conclusion\": \"failure\", \"state\": \"completed\", \"jobs\": [{\"id\": \"build\", \"name\": \"build\", \"status\": \"completed\", \"conclusion\": \"failure\", \"steps\": []}]}"
   let text = format_run_view_text(json).unwrap()
-  inspect(text.contains("! ci (run-1) failure"), content="true")
-  inspect(text.contains("  ! build (failure)"), content="true")
+  @debug.debug_inspect(text.contains("! ci (run-1) failure"), content="true")
+  @debug.debug_inspect(text.contains("  ! build (failure)"), content="true")
 }
 
 ///|
 test "cli: task_matches_job filters by job prefix" {
-  inspect(task_matches_job("build/step_1", "build"), content="true")
-  inspect(task_matches_job("test/step_1", "build"), content="false")
-  inspect(task_matches_job("build/step_1", ""), content="true")
+  @debug.debug_inspect(
+    task_matches_job("build/step_1", "build"),
+    content="true",
+  )
+  @debug.debug_inspect(
+    task_matches_job("test/step_1", "build"),
+    content="false",
+  )
+  @debug.debug_inspect(task_matches_job("build/step_1", ""), content="true")
 }
 
 ///|
@@ -1535,26 +2115,41 @@ test "cli: parse run list with --workflow and --branch" {
   let result = parse_run_read_args([
     "actrun", "run", "list", "-w", "ci", "-b", "main", "-e", "push",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("parse failed")
   }
-  inspect(options.workflow_filter, content="ci")
-  inspect(options.branch_filter, content="main")
-  inspect(options.event_filter, content="push")
+  @debug.debug_inspect(
+    options.workflow_filter,
+    content=(
+      #|"ci"
+    ),
+  )
+  @debug.debug_inspect(
+    options.branch_filter,
+    content=(
+      #|"main"
+    ),
+  )
+  @debug.debug_inspect(
+    options.event_filter,
+    content=(
+      #|"push"
+    ),
+  )
 }
 
 ///|
 test "cli: parse run view with --log" {
   let result = parse_run_read_args(["actrun", "run", "view", "run-1", "--log"])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("parse failed")
   }
-  inspect(options.show_log, content="true")
-  inspect(options.log_failed, content="false")
+  @debug.debug_inspect(options.show_log, content="true")
+  @debug.debug_inspect(options.log_failed, content="false")
 }
 
 ///|
@@ -1562,27 +2157,37 @@ test "cli: parse run view with --log-failed" {
   let result = parse_run_read_args([
     "actrun", "run", "view", "run-1", "--log-failed",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("parse failed")
   }
-  inspect(options.show_log, content="true")
-  inspect(options.log_failed, content="true")
+  @debug.debug_inspect(options.show_log, content="true")
+  @debug.debug_inspect(options.log_failed, content="true")
 }
 
 ///|
 test "cli: ms_to_iso8601 converts correctly" {
   // 2025-01-01T00:00:00Z = 1735689600000 ms
-  inspect(ms_to_iso8601(1735689600000UL), content="2025-01-01T00:00:00Z")
-  inspect(ms_to_iso8601(0UL), content="")
+  @debug.debug_inspect(
+    ms_to_iso8601(1735689600000UL),
+    content=(
+      #|"2025-01-01T00:00:00Z"
+    ),
+  )
+  @debug.debug_inspect(
+    ms_to_iso8601(0UL),
+    content=(
+      #|""
+    ),
+  )
 }
 
 ///|
 test "cli: run_number_from_id extracts number" {
-  inspect(run_number_from_id("run-42"), content="42")
-  inspect(run_number_from_id("run-1"), content="1")
-  inspect(run_number_from_id("invalid"), content="0")
+  @debug.debug_inspect(run_number_from_id("run-42"), content="42")
+  @debug.debug_inspect(run_number_from_id("run-1"), content="1")
+  @debug.debug_inspect(run_number_from_id("invalid"), content="0")
 }
 
 ///|
@@ -1607,19 +2212,34 @@ test "cli: run_record_json includes gh alias fields" {
   }
   let json_text = run_record_json(record)
   // gh alias fields
-  inspect(json_text.contains("\"workflowName\": \"ci\""), content="true")
-  inspect(json_text.contains("\"name\": \"ci\""), content="true")
-  inspect(json_text.contains("\"displayTitle\": \"ci\""), content="true")
-  inspect(json_text.contains("\"headBranch\": \"main\""), content="true")
-  inspect(json_text.contains("\"headSha\": \"bbb\""), content="true")
-  inspect(json_text.contains("\"event\": \"push\""), content="true")
-  inspect(json_text.contains("\"number\": 3"), content="true")
-  inspect(json_text.contains("\"attempt\": 1"), content="true")
-  inspect(
+  @debug.debug_inspect(
+    json_text.contains("\"workflowName\": \"ci\""),
+    content="true",
+  )
+  @debug.debug_inspect(json_text.contains("\"name\": \"ci\""), content="true")
+  @debug.debug_inspect(
+    json_text.contains("\"displayTitle\": \"ci\""),
+    content="true",
+  )
+  @debug.debug_inspect(
+    json_text.contains("\"headBranch\": \"main\""),
+    content="true",
+  )
+  @debug.debug_inspect(
+    json_text.contains("\"headSha\": \"bbb\""),
+    content="true",
+  )
+  @debug.debug_inspect(
+    json_text.contains("\"event\": \"push\""),
+    content="true",
+  )
+  @debug.debug_inspect(json_text.contains("\"number\": 3"), content="true")
+  @debug.debug_inspect(json_text.contains("\"attempt\": 1"), content="true")
+  @debug.debug_inspect(
     json_text.contains("\"startedAt\": \"2025-01-01T00:00:00Z\""),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     json_text.contains("\"completedAt\": \"2025-01-01T00:01:00Z\""),
     content="true",
   )
@@ -1636,10 +2256,13 @@ test "cli: lowered_flow_cache_ir strips barriers and rewrites dependencies" {
   ])
   let lowered = @ar.lower_push_workflow(workflow)
   let cache_ir = lowered_flow_cache_ir(lowered)
-  inspect(cache_ir.tasks.length(), content="3")
-  inspect(cache_ir.entry_targets, content="[\"build/test\", \"lint/lint\"]")
+  @debug.debug_inspect(cache_ir.tasks.length(), content="3")
+  @debug.debug_inspect(
+    cache_ir.entry_targets,
+    content="[\"build/test\", \"lint/lint\"]",
+  )
   let lint_task = expect_flow_task(cache_ir, "lint/lint")
-  inspect(lint_task.needs, content="[\"build/test\"]")
+  @debug.debug_inspect(lint_task.needs, content="[\"build/test\"]")
 }
 
 ///|
@@ -1655,8 +2278,18 @@ test "cli: resolve_flow_cache_signatures expands matrix group keys" {
   ])
   let lowered = @ar.lower_push_workflow(workflow)
   let resolved = resolve_flow_cache_signatures(lowered, { "build": "sig-build" })
-  inspect(resolved.get("build__matrix_1").unwrap_or(""), content="sig-build")
-  inspect(resolved.get("build__matrix_2").unwrap_or(""), content="sig-build")
+  @debug.debug_inspect(
+    resolved.get("build__matrix_1").unwrap_or(""),
+    content=(
+      #|"sig-build"
+    ),
+  )
+  @debug.debug_inspect(
+    resolved.get("build__matrix_2").unwrap_or(""),
+    content=(
+      #|"sig-build"
+    ),
+  )
 }
 
 ///|
@@ -1676,13 +2309,13 @@ test "cli: render_dry_run_plan_json includes flow cache payload" {
       writeback_json: None,
     }),
   )
-  inspect(json_text.contains("\"flow_cache\""), content="true")
-  inspect(
+  @debug.debug_inspect(json_text.contains("\"flow_cache\""), content="true")
+  @debug.debug_inspect(
     json_text.contains("\"store\": \"/tmp/flow-cache.json\""),
     content="true",
   )
-  inspect(json_text.contains("\"misses\": 1"), content="true")
-  inspect(json_text.contains("\"build/test\""), content="true")
+  @debug.debug_inspect(json_text.contains("\"misses\": 1"), content="true")
+  @debug.debug_inspect(json_text.contains("\"build/test\""), content="true")
 }
 
 ///|
@@ -1717,8 +2350,8 @@ test "cli: run_record_json includes flow cache payload" {
       ),
     }),
   )
-  inspect(json_text.contains("\"flow_cache\""), content="true")
-  inspect(
+  @debug.debug_inspect(json_text.contains("\"flow_cache\""), content="true")
+  @debug.debug_inspect(
     json_text.contains("\"updated_task_ids\":[\"build/test\"]"),
     content="true",
   )
@@ -1759,8 +2392,8 @@ async test "cli: flow_cache_record_after_run writes cache store" {
     push_event=Some(@ar.new_push_event("main", ["README.md"])),
   )
   let record = flow_cache_record_after_run(context, report)
-  inspect(record.writeback_json is Some(_), content="true")
-  inspect(
+  @debug.debug_inspect(record.writeback_json is Some(_), content="true")
+  @debug.debug_inspect(
     @xfs.read_file_to_string(cache_store_rel).contains("build/test::build"),
     content="true",
   )
@@ -1769,12 +2402,27 @@ async test "cli: flow_cache_record_after_run writes cache store" {
 ///|
 test "cli: run_json_matches_filters workflow filter" {
   let json = "{\"workflow_name\": \"ci\", \"status\": \"completed\", \"conclusion\": \"success\", \"state\": \"completed\", \"ref_name\": \"main\", \"event\": \"push\"}"
-  inspect(run_json_matches_filters(json, "", "ci", "", ""), content="true")
-  inspect(run_json_matches_filters(json, "", "deploy", "", ""), content="false")
-  inspect(run_json_matches_filters(json, "", "", "main", ""), content="true")
-  inspect(run_json_matches_filters(json, "", "", "dev", ""), content="false")
-  inspect(run_json_matches_filters(json, "", "", "", "push"), content="true")
-  inspect(
+  @debug.debug_inspect(
+    run_json_matches_filters(json, "", "ci", "", ""),
+    content="true",
+  )
+  @debug.debug_inspect(
+    run_json_matches_filters(json, "", "deploy", "", ""),
+    content="false",
+  )
+  @debug.debug_inspect(
+    run_json_matches_filters(json, "", "", "main", ""),
+    content="true",
+  )
+  @debug.debug_inspect(
+    run_json_matches_filters(json, "", "", "dev", ""),
+    content="false",
+  )
+  @debug.debug_inspect(
+    run_json_matches_filters(json, "", "", "", "push"),
+    content="true",
+  )
+  @debug.debug_inspect(
     run_json_matches_filters(json, "", "", "", "pull_request"),
     content="false",
   )
@@ -1804,8 +2452,14 @@ test "gh-compat: run_record_json includes status and conclusion for completed ru
     changed_paths: [],
   }
   let json_text = run_record_json(record)
-  inspect(json_text.contains("\"status\": \"completed\""), content="true")
-  inspect(json_text.contains("\"conclusion\": \"success\""), content="true")
+  @debug.debug_inspect(
+    json_text.contains("\"status\": \"completed\""),
+    content="true",
+  )
+  @debug.debug_inspect(
+    json_text.contains("\"conclusion\": \"success\""),
+    content="true",
+  )
 }
 
 ///|
@@ -1830,8 +2484,14 @@ test "gh-compat: run_record_json conclusion is failure when ok=false" {
     changed_paths: [],
   }
   let json_text = run_record_json(record)
-  inspect(json_text.contains("\"status\": \"completed\""), content="true")
-  inspect(json_text.contains("\"conclusion\": \"failure\""), content="true")
+  @debug.debug_inspect(
+    json_text.contains("\"status\": \"completed\""),
+    content="true",
+  )
+  @debug.debug_inspect(
+    json_text.contains("\"conclusion\": \"failure\""),
+    content="true",
+  )
 }
 
 ///|
@@ -1862,15 +2522,30 @@ test "gh-compat: job record includes name, conclusion, and steps" {
     ],
   }
   let json_text = run_job_json(job)
-  inspect(json_text.contains("\"name\": \"build\""), content="true")
-  inspect(json_text.contains("\"conclusion\": \"success\""), content="true")
-  inspect(json_text.contains("\"steps\": ["), content="true")
-  inspect(json_text.contains("\"name\": \"Checkout\""), content="true")
-  inspect(json_text.contains("\"number\": 1"), content="true")
-  inspect(json_text.contains("\"duration_ms\": 15"), content="true")
-  inspect(json_text.contains("\"name\": \"Test\""), content="true")
-  inspect(json_text.contains("\"number\": 2"), content="true")
-  inspect(json_text.contains("\"duration_ms\": 27"), content="true")
+  @debug.debug_inspect(
+    json_text.contains("\"name\": \"build\""),
+    content="true",
+  )
+  @debug.debug_inspect(
+    json_text.contains("\"conclusion\": \"success\""),
+    content="true",
+  )
+  @debug.debug_inspect(json_text.contains("\"steps\": ["), content="true")
+  @debug.debug_inspect(
+    json_text.contains("\"name\": \"Checkout\""),
+    content="true",
+  )
+  @debug.debug_inspect(json_text.contains("\"number\": 1"), content="true")
+  @debug.debug_inspect(
+    json_text.contains("\"duration_ms\": 15"),
+    content="true",
+  )
+  @debug.debug_inspect(json_text.contains("\"name\": \"Test\""), content="true")
+  @debug.debug_inspect(json_text.contains("\"number\": 2"), content="true")
+  @debug.debug_inspect(
+    json_text.contains("\"duration_ms\": 27"),
+    content="true",
+  )
 }
 
 ///|
@@ -1891,25 +2566,25 @@ test "gh-compat: run list with --limit restricts results" {
   }
   let all = format_run_list_text(run_root_abs).unwrap_or("")
   let all_lines : Array[String] = []
-  for line in all.trim_end(chars="\n").to_string().split("\n") {
-    let s = line.to_string()
+  for line in all.trim_end(chars="\n").to_owned().split("\n") {
+    let s = line.to_owned()
     if s.length() > 0 {
       all_lines.push(s)
     }
   }
-  inspect(all_lines.length(), content="5")
+  @debug.debug_inspect(all_lines.length(), content="5")
   let limited = format_run_list_text(run_root_abs, limit=2).unwrap_or("")
   let limited_lines : Array[String] = []
-  for line in limited.trim_end(chars="\n").to_string().split("\n") {
-    let s = line.to_string()
+  for line in limited.trim_end(chars="\n").to_owned().split("\n") {
+    let s = line.to_owned()
     if s.length() > 0 {
       limited_lines.push(s)
     }
   }
-  inspect(limited_lines.length(), content="2")
+  @debug.debug_inspect(limited_lines.length(), content="2")
   // Most recent runs first (reverse order)
-  inspect(limited_lines[0].contains("run-5"), content="true")
-  inspect(limited_lines[1].contains("run-4"), content="true")
+  @debug.debug_inspect(limited_lines[0].contains("run-5"), content="true")
+  @debug.debug_inspect(limited_lines[1].contains("run-4"), content="true")
 }
 
 ///|
@@ -1937,15 +2612,15 @@ test "gh-compat: run list with --status filters by conclusion" {
   let failure_text = format_run_list_text(run_root_abs, status_filter="failure").unwrap_or(
     "",
   )
-  inspect(failure_text.contains("run-2"), content="true")
-  inspect(failure_text.contains("run-1"), content="false")
-  inspect(failure_text.contains("run-3"), content="false")
+  @debug.debug_inspect(failure_text.contains("run-2"), content="true")
+  @debug.debug_inspect(failure_text.contains("run-1"), content="false")
+  @debug.debug_inspect(failure_text.contains("run-3"), content="false")
   let success_text = format_run_list_text(run_root_abs, status_filter="success").unwrap_or(
     "",
   )
-  inspect(success_text.contains("run-1"), content="true")
-  inspect(success_text.contains("run-3"), content="true")
-  inspect(success_text.contains("run-2"), content="false")
+  @debug.debug_inspect(success_text.contains("run-1"), content="true")
+  @debug.debug_inspect(success_text.contains("run-3"), content="true")
+  @debug.debug_inspect(success_text.contains("run-2"), content="false")
 }
 
 ///|
@@ -1963,12 +2638,12 @@ test "gh-compat: run list --json with field selection" {
   let json = collect_run_list_json(run_root_abs, json_fields=[
     "status", "conclusion",
   ]).unwrap_or("")
-  inspect(json.contains("\"status\""), content="true")
-  inspect(json.contains("\"conclusion\""), content="true")
+  @debug.debug_inspect(json.contains("\"status\""), content="true")
+  @debug.debug_inspect(json.contains("\"conclusion\""), content="true")
   // Fields not requested should be absent
-  inspect(json.contains("\"run_id\""), content="false")
-  inspect(json.contains("\"workflow_name\""), content="false")
-  inspect(json.contains("\"ok\""), content="false")
+  @debug.debug_inspect(json.contains("\"run_id\""), content="false")
+  @debug.debug_inspect(json.contains("\"workflow_name\""), content="false")
+  @debug.debug_inspect(json.contains("\"ok\""), content="false")
 }
 
 ///|
@@ -1999,8 +2674,8 @@ test "gh-compat: run list --status with --limit combined" {
     status_filter="failure",
     limit=1,
   ).unwrap_or("")
-  inspect(filtered.contains("run-4"), content="true")
-  inspect(filtered.contains("run-2"), content="false")
+  @debug.debug_inspect(filtered.contains("run-4"), content="true")
+  @debug.debug_inspect(filtered.contains("run-2"), content="false")
 }
 
 ///|
@@ -2040,7 +2715,7 @@ test "gh-compat: handle_run_read_command view --exit-status returns 1 for failur
     branch_filter: "",
     event_filter: "",
   })
-  inspect(exit_fail, content="1")
+  @debug.debug_inspect(exit_fail, content="1")
   let exit_success = handle_run_read_command({
     action: "view",
     run_id: "run-2",
@@ -2062,7 +2737,7 @@ test "gh-compat: handle_run_read_command view --exit-status returns 1 for failur
     branch_filter: "",
     event_filter: "",
   })
-  inspect(exit_success, content="0")
+  @debug.debug_inspect(exit_success, content="0")
   // Without --exit-status, always 0
   let exit_no_flag = handle_run_read_command({
     action: "view",
@@ -2085,7 +2760,7 @@ test "gh-compat: handle_run_read_command view --exit-status returns 1 for failur
     branch_filter: "",
     event_filter: "",
   })
-  inspect(exit_no_flag, content="0")
+  @debug.debug_inspect(exit_no_flag, content="0")
 }
 
 ///|
@@ -2102,11 +2777,11 @@ test "gh-compat: handle_run_read_command view --json fields filters output" {
   // Call filter_json_fields directly to verify (handle_run_read_command prints to stdout)
   let run_json = @xfs.read_file_to_string(run_root + "/run-1/run.json")
   let filtered = filter_json_fields(run_json, ["status", "conclusion"]).unwrap()
-  inspect(filtered.contains("\"status\""), content="true")
-  inspect(filtered.contains("\"conclusion\""), content="true")
-  inspect(filtered.contains("\"run_id\""), content="false")
-  inspect(filtered.contains("\"workflow_name\""), content="false")
-  inspect(filtered.contains("\"jobs\""), content="false")
+  @debug.debug_inspect(filtered.contains("\"status\""), content="true")
+  @debug.debug_inspect(filtered.contains("\"conclusion\""), content="true")
+  @debug.debug_inspect(filtered.contains("\"run_id\""), content="false")
+  @debug.debug_inspect(filtered.contains("\"workflow_name\""), content="false")
+  @debug.debug_inspect(filtered.contains("\"jobs\""), content="false")
 }
 
 ///|
@@ -2123,9 +2798,9 @@ test "gh-compat: format_run_list_text shows conclusion instead of state" {
   )
   let text = format_run_list_text(run_root_abs).unwrap_or("")
   // Should display both status and conclusion, plus workflow name and run id
-  inspect(text.contains("success"), content="true")
-  inspect(text.contains("ci"), content="true")
-  inspect(text.contains("run-1"), content="true")
+  @debug.debug_inspect(text.contains("success"), content="true")
+  @debug.debug_inspect(text.contains("ci"), content="true")
+  @debug.debug_inspect(text.contains("run-1"), content="true")
 }
 
 ///|
@@ -2192,16 +2867,27 @@ async test "gh-compat: end-to-end workflow produces gh-compatible JSON" {
     report=Some(report),
     plan=Some(lowered.plan),
   ).unwrap_or("")
-  inspect(run_id, content="run-1")
+  @debug.debug_inspect(
+    run_id,
+    content=(
+      #|"run-1"
+    ),
+  )
   let run_json = @xfs.read_file_to_string(run_root + "/run-1/run.json")
   // Top-level gh-compat fields
-  inspect(run_json.contains("\"status\": \"completed\""), content="true")
-  inspect(run_json.contains("\"conclusion\": \"success\""), content="true")
+  @debug.debug_inspect(
+    run_json.contains("\"status\": \"completed\""),
+    content="true",
+  )
+  @debug.debug_inspect(
+    run_json.contains("\"conclusion\": \"success\""),
+    content="true",
+  )
   // Job has gh-compat fields
-  inspect(run_json.contains("\"name\": \"build\""), content="true")
+  @debug.debug_inspect(run_json.contains("\"name\": \"build\""), content="true")
   let payload = @json.parse(run_json) catch { _ => abort("parse failed") }
   let jobs = run_json_array(payload, "jobs")
-  inspect(jobs.length(), content="1")
+  @debug.debug_inspect(jobs.length(), content="1")
   guard jobs[0]
     is {
       "id": String(job_id),
@@ -2213,10 +2899,30 @@ async test "gh-compat: end-to-end workflow produces gh-compatible JSON" {
     } else {
     abort("job structure mismatch")
   }
-  inspect(job_id, content="build")
-  inspect(job_name, content="build")
-  inspect(job_status, content="completed")
-  inspect(job_conclusion, content="success")
+  @debug.debug_inspect(
+    job_id,
+    content=(
+      #|"build"
+    ),
+  )
+  @debug.debug_inspect(
+    job_name,
+    content=(
+      #|"build"
+    ),
+  )
+  @debug.debug_inspect(
+    job_status,
+    content=(
+      #|"completed"
+    ),
+  )
+  @debug.debug_inspect(
+    job_conclusion,
+    content=(
+      #|"success"
+    ),
+  )
   // Steps include the named steps
   assert_true(steps.length() >= 2)
   let step_names : Array[String] = []
@@ -2225,15 +2931,15 @@ async test "gh-compat: end-to-end workflow produces gh-compatible JSON" {
       step_names.push(name)
     }
   }
-  inspect(step_names.contains("Say Hello"), content="true")
-  inspect(step_names.contains("Say World"), content="true")
+  @debug.debug_inspect(step_names.contains("Say Hello"), content="true")
+  @debug.debug_inspect(step_names.contains("Say World"), content="true")
   // Verify field filtering works on persisted JSON
   let filtered = filter_json_fields(run_json, ["status", "conclusion", "jobs"]).unwrap()
-  inspect(filtered.contains("\"status\""), content="true")
-  inspect(filtered.contains("\"conclusion\""), content="true")
-  inspect(filtered.contains("\"jobs\""), content="true")
-  inspect(filtered.contains("\"run_id\""), content="false")
-  inspect(filtered.contains("\"tasks\""), content="false")
+  @debug.debug_inspect(filtered.contains("\"status\""), content="true")
+  @debug.debug_inspect(filtered.contains("\"conclusion\""), content="true")
+  @debug.debug_inspect(filtered.contains("\"jobs\""), content="true")
+  @debug.debug_inspect(filtered.contains("\"run_id\""), content="false")
+  @debug.debug_inspect(filtered.contains("\"tasks\""), content="false")
 }
 
 ///|
@@ -2307,28 +3013,33 @@ async test "gh-compat: --log-failed and --job filter logs" {
     report=Some(report),
     plan=Some(lowered.plan),
   ).unwrap_or("")
-  inspect(run_id, content="run-1")
+  @debug.debug_inspect(
+    run_id,
+    content=(
+      #|"run-1"
+    ),
+  )
   let run_dir = run_root + "/run-1"
   let run_json = @xfs.read_file_to_string(run_dir + "/run.json")
   // --job build: only build job logs
   let job_logs = format_run_logs_text(run_dir, run_json, job_filter="build").unwrap_or(
     "",
   )
-  inspect(job_logs.contains("build/passing"), content="true")
-  inspect(job_logs.contains("test/check"), content="false")
+  @debug.debug_inspect(job_logs.contains("build/passing"), content="true")
+  @debug.debug_inspect(job_logs.contains("test/check"), content="false")
   // --job test: only test job logs
   let test_logs = format_run_logs_text(run_dir, run_json, job_filter="test").unwrap_or(
     "",
   )
-  inspect(test_logs.contains("test/check"), content="true")
-  inspect(test_logs.contains("build/passing"), content="false")
+  @debug.debug_inspect(test_logs.contains("test/check"), content="true")
+  @debug.debug_inspect(test_logs.contains("build/passing"), content="false")
   // --log-failed: only failed tasks
   let failed_logs = format_run_logs_text(run_dir, run_json, log_failed=true).unwrap_or(
     "",
   )
-  inspect(failed_logs.contains("build/failing"), content="true")
-  inspect(failed_logs.contains("build/passing"), content="false")
-  inspect(failed_logs.contains("test/check"), content="false")
+  @debug.debug_inspect(failed_logs.contains("build/failing"), content="true")
+  @debug.debug_inspect(failed_logs.contains("build/passing"), content="false")
+  @debug.debug_inspect(failed_logs.contains("test/check"), content="false")
   // --log-failed --job build: failed tasks in build job only
   let job_failed_logs = format_run_logs_text(
     run_dir,
@@ -2336,15 +3047,21 @@ async test "gh-compat: --log-failed and --job filter logs" {
     log_failed=true,
     job_filter="build",
   ).unwrap_or("")
-  inspect(job_failed_logs.contains("build/failing"), content="true")
-  inspect(job_failed_logs.contains("build/passing"), content="false")
+  @debug.debug_inspect(
+    job_failed_logs.contains("build/failing"),
+    content="true",
+  )
+  @debug.debug_inspect(
+    job_failed_logs.contains("build/passing"),
+    content="false",
+  )
 }
 
 ///|
 test "cli: parse run rerun gives helpful error" {
   let result = parse_run_read_args(["actrun", "run", "rerun", "run-1"])
   assert_true(result.errors.length() > 0)
-  inspect(result.errors[0].contains("--retry"), content="true")
+  @debug.debug_inspect(result.errors[0].contains("--retry"), content="true")
 }
 
 ///|
@@ -2352,13 +3069,23 @@ test "cli: parse run delete" {
   let result = parse_run_read_args([
     "actrun", "run", "delete", "run-1", "--run-root", "/tmp/runs",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("run delete parse failed")
   }
-  inspect(options.action, content="delete")
-  inspect(options.run_id, content="run-1")
+  @debug.debug_inspect(
+    options.action,
+    content=(
+      #|"delete"
+    ),
+  )
+  @debug.debug_inspect(
+    options.run_id,
+    content=(
+      #|"run-1"
+    ),
+  )
 }
 
 ///|
@@ -2372,7 +3099,7 @@ test "gh-compat: run delete removes run directory" {
     run_root + "/run-1/run.json",
     "{\"run_id\": \"run-1\"}",
   )
-  inspect(@xfs.path_exists(run_root + "/run-1"), content="true")
+  @debug.debug_inspect(@xfs.path_exists(run_root + "/run-1"), content="true")
   let exit_code = handle_run_read_command({
     action: "delete",
     run_id: "run-1",
@@ -2394,8 +3121,8 @@ test "gh-compat: run delete removes run directory" {
     branch_filter: "",
     event_filter: "",
   })
-  inspect(exit_code, content="0")
-  inspect(@xfs.path_exists(run_root + "/run-1"), content="false")
+  @debug.debug_inspect(exit_code, content="0")
+  @debug.debug_inspect(@xfs.path_exists(run_root + "/run-1"), content="false")
 }
 
 ///|
@@ -2425,31 +3152,41 @@ test "gh-compat: run delete returns 1 for missing run" {
     branch_filter: "",
     event_filter: "",
   })
-  inspect(exit_code, content="1")
+  @debug.debug_inspect(exit_code, content="1")
 }
 
 ///|
 test "cli: filter_json_array_fields filters each item" {
   let json = "[{\"name\": \"a\", \"key\": \"1\"}, {\"name\": \"b\", \"key\": \"2\"}]"
   let filtered = filter_json_array_fields(json, ["name"]).unwrap()
-  inspect(filtered.contains("\"name\""), content="true")
-  inspect(filtered.contains("\"key\""), content="false")
+  @debug.debug_inspect(filtered.contains("\"name\""), content="true")
+  @debug.debug_inspect(filtered.contains("\"key\""), content="false")
 }
 
 ///|
 test "cli: filter_json_array_fields with empty fields returns all" {
   let json = "[{\"name\": \"a\", \"key\": \"1\"}]"
   let filtered = filter_json_array_fields(json, []).unwrap()
-  inspect(filtered.contains("\"name\""), content="true")
-  inspect(filtered.contains("\"key\""), content="true")
+  @debug.debug_inspect(filtered.contains("\"name\""), content="true")
+  @debug.debug_inspect(filtered.contains("\"key\""), content="true")
 }
 
 ///|
 test "cli: format_elapsed computes duration" {
   let text = format_elapsed("1000", "3000")
-  inspect(text, content="2s")
+  @debug.debug_inspect(
+    text,
+    content=(
+      #|"2s"
+    ),
+  )
   let text2 = format_elapsed("1000", "121000")
-  inspect(text2, content="2m0s")
+  @debug.debug_inspect(
+    text2,
+    content=(
+      #|"2m0s"
+    ),
+  )
 }
 
 ///|
@@ -2457,13 +3194,13 @@ test "cli: parse cache list with --limit and --json fields" {
   let result = parse_cache_read_args([
     "actrun", "cache", "list", "--limit", "5", "--json", "key,files",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("cache list parse failed")
   }
-  inspect(options.limit, content="5")
-  inspect(options.json_fields, content="[\"key\", \"files\"]")
+  @debug.debug_inspect(options.limit, content="5")
+  @debug.debug_inspect(options.json_fields, content="[\"key\", \"files\"]")
 }
 
 ///|
@@ -2471,12 +3208,12 @@ test "cli: parse workflow list with --json fields" {
   let result = parse_workflow_read_args([
     "actrun", "workflow", "list", "--json", "name",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("workflow list parse failed")
   }
-  inspect(options.json_fields, content="[\"name\"]")
+  @debug.debug_inspect(options.json_fields, content="[\"name\"]")
 }
 
 ///|
@@ -2484,14 +3221,19 @@ test "cli: parse run view with --jq" {
   let result = parse_run_read_args([
     "actrun", "run", "view", "run-1", "--json", "jobs", "--jq", ".jobs[] | .name",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("parse failed")
   }
-  inspect(options.json_output, content="true")
-  inspect(options.json_fields, content="[\"jobs\"]")
-  inspect(options.jq_expr, content=".jobs[] | .name")
+  @debug.debug_inspect(options.json_output, content="true")
+  @debug.debug_inspect(options.json_fields, content="[\"jobs\"]")
+  @debug.debug_inspect(
+    options.jq_expr,
+    content=(
+      #|".jobs[] | .name"
+    ),
+  )
 }
 
 ///|
@@ -2499,34 +3241,49 @@ test "cli: parse run view with -q shorthand" {
   let result = parse_run_read_args([
     "actrun", "run", "view", "run-1", "-q", ".status",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("parse failed")
   }
-  inspect(options.json_output, content="true")
-  inspect(options.jq_expr, content=".status")
+  @debug.debug_inspect(options.json_output, content="true")
+  @debug.debug_inspect(
+    options.jq_expr,
+    content=(
+      #|".status"
+    ),
+  )
 }
 
 ///|
 test "cli: apply_jq extracts field" {
   let json = "{\"status\": \"completed\", \"conclusion\": \"success\"}"
   let result = apply_jq(json, ".conclusion").unwrap()
-  inspect(result, content="\"success\"")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"\"success\""
+    ),
+  )
 }
 
 ///|
 test "cli: apply_jq array iteration" {
   let json = "[{\"name\": \"a\"}, {\"name\": \"b\"}]"
   let result = apply_jq(json, ".[] | .name").unwrap()
-  inspect(result, content="\"a\"\n\"b\"")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"\"a\"\n\"b\""
+    ),
+  )
 }
 
 ///|
 test "cli: apply_jq object construction" {
   let json = "{\"id\": \"build\", \"status\": \"completed\", \"conclusion\": \"success\"}"
   let result = apply_jq(json, "{id: .id, conclusion: .conclusion}").unwrap()
-  inspect(
+  @debug.debug_inspect(
     result.contains("\"id\"") && result.contains("\"conclusion\""),
     content="true",
   )
@@ -2536,7 +3293,12 @@ test "cli: apply_jq object construction" {
 test "cli: apply_jq empty expr returns input" {
   let json = "{\"x\": 1}"
   let result = apply_jq(json, "").unwrap()
-  inspect(result, content="{\"x\": 1}")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"{\"x\": 1}"
+    ),
+  )
 }
 
 ///|
@@ -2547,7 +3309,12 @@ test "cli: apply_json_pipeline combines fields and jq" {
     ["status", "conclusion"],
     ".conclusion",
   )
-  inspect(result, content="\"success\"")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"\"success\""
+    ),
+  )
 }
 
 // --- jq parser tests ---
@@ -2557,14 +3324,19 @@ test "cli: parse run list with --jq only (implies --json)" {
   let result = parse_run_read_args([
     "actrun", "run", "list", "--jq", ".[0].status",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("parse failed")
   }
-  inspect(options.json_output, content="true")
-  inspect(options.jq_expr, content=".[0].status")
-  inspect(options.json_fields, content="[]")
+  @debug.debug_inspect(options.json_output, content="true")
+  @debug.debug_inspect(
+    options.jq_expr,
+    content=(
+      #|".[0].status"
+    ),
+  )
+  @debug.debug_inspect(options.json_fields, content="[]")
 }
 
 ///|
@@ -2572,13 +3344,18 @@ test "cli: parse run view --json fields --jq combined" {
   let result = parse_run_read_args([
     "actrun", "run", "view", "run-1", "--json", "status,jobs", "--jq", ".jobs[] | .name",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = match result.options {
     Some(value) => value
     None => abort("parse failed")
   }
-  inspect(options.json_fields, content="[\"status\", \"jobs\"]")
-  inspect(options.jq_expr, content=".jobs[] | .name")
+  @debug.debug_inspect(options.json_fields, content="[\"status\", \"jobs\"]")
+  @debug.debug_inspect(
+    options.jq_expr,
+    content=(
+      #|".jobs[] | .name"
+    ),
+  )
 }
 
 ///|
@@ -2590,8 +3367,13 @@ test "cli: parse run view -q implies json_output" {
     Some(value) => value
     None => abort("parse failed")
   }
-  inspect(options.json_output, content="true")
-  inspect(options.jq_expr, content=".conclusion")
+  @debug.debug_inspect(options.json_output, content="true")
+  @debug.debug_inspect(
+    options.jq_expr,
+    content=(
+      #|".conclusion"
+    ),
+  )
 }
 
 // --- jq pure function tests ---
@@ -2600,105 +3382,175 @@ test "cli: parse run view -q implies json_output" {
 test "jq: select filter" {
   let json = "[{\"name\": \"a\", \"ok\": true}, {\"name\": \"b\", \"ok\": false}]"
   let result = apply_jq(json, ".[] | select(.ok) | .name").unwrap()
-  inspect(result, content="\"a\"")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"\"a\""
+    ),
+  )
 }
 
 ///|
 test "jq: map" {
   let json = "[1, 2, 3]"
   let result = apply_jq(json, "map(. * 2)").unwrap()
-  inspect(result, content="[2,4,6]")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"[2,4,6]"
+    ),
+  )
 }
 
 ///|
 test "jq: length" {
   let json = "[1, 2, 3, 4]"
   let result = apply_jq(json, "length").unwrap()
-  inspect(result, content="4")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"4"
+    ),
+  )
 }
 
 ///|
 test "jq: keys on object" {
   let json = "{\"b\": 2, \"a\": 1}"
   let result = apply_jq(json, "keys").unwrap()
-  inspect(result, content="[\"a\",\"b\"]")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"[\"a\",\"b\"]"
+    ),
+  )
 }
 
 ///|
 test "jq: pipe chain" {
   let json = "{\"jobs\": [{\"name\": \"build\", \"steps\": [{\"name\": \"checkout\"}, {\"name\": \"test\"}]}]}"
   let result = apply_jq(json, ".jobs[0].steps | map(.name)").unwrap()
-  inspect(result, content="[\"checkout\",\"test\"]")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"[\"checkout\",\"test\"]"
+    ),
+  )
 }
 
 ///|
 test "jq: array construction" {
   let json = "{\"a\": 1, \"b\": 2, \"c\": 3}"
   let result = apply_jq(json, "[.a, .b]").unwrap()
-  inspect(result, content="[1,2]")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"[1,2]"
+    ),
+  )
 }
 
 ///|
 test "jq: nested field access" {
   let json = "{\"jobs\": [{\"id\": \"build\", \"conclusion\": \"success\"}]}"
   let result = apply_jq(json, ".jobs[0].conclusion").unwrap()
-  inspect(result, content="\"success\"")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"\"success\""
+    ),
+  )
 }
 
 ///|
 test "jq: multiple outputs" {
   let json = "{\"a\": 1, \"b\": 2}"
   let result = apply_jq(json, ".a, .b").unwrap()
-  inspect(result, content="1\n2")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"1\n2"
+    ),
+  )
 }
 
 ///|
 test "jq: null field returns null" {
   let json = "{\"status\": \"completed\"}"
   let result = apply_jq(json, ".missing").unwrap()
-  inspect(result, content="null")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"null"
+    ),
+  )
 }
 
 ///|
 test "jq: invalid expr returns None" {
   let json = "{\"x\": 1}"
   let result = apply_jq(json, "invalid[[[")
-  inspect(result, content="None")
+  @debug.debug_inspect(result, content="None")
 }
 
 ///|
 test "jq: sort_by" {
   let json = "[{\"n\": 3}, {\"n\": 1}, {\"n\": 2}]"
   let result = apply_jq(json, "sort_by(.n) | map(.n)").unwrap()
-  inspect(result, content="[1,2,3]")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"[1,2,3]"
+    ),
+  )
 }
 
 ///|
 test "jq: to_entries" {
   let json = "{\"a\": 1}"
   let result = apply_jq(json, "to_entries | .[0].key").unwrap()
-  inspect(result, content="\"a\"")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"\"a\""
+    ),
+  )
 }
 
 ///|
 test "jq: if-then-else" {
   let json = "{\"ok\": true}"
   let result = apply_jq(json, "if .ok then \"pass\" else \"fail\" end").unwrap()
-  inspect(result, content="\"pass\"")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"\"pass\""
+    ),
+  )
 }
 
 ///|
 test "jq: string concatenation" {
   let json = "{\"name\": \"ci\", \"id\": 42}"
   let result = apply_jq(json, ".name + \"-\" + (.id | tostring)").unwrap()
-  inspect(result, content="\"ci-42\"")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"\"ci-42\""
+    ),
+  )
 }
 
 ///|
 test "jq: try-catch on error" {
   let json = "\"not-an-object\""
   let result = apply_jq(json, "try .foo catch \"caught\"").unwrap()
-  inspect(result, content="\"caught\"")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"\"caught\""
+    ),
+  )
 }
 
 // --- jq pipeline integration tests ---
@@ -2708,22 +3560,32 @@ test "jq: pipeline - fields then jq" {
   let json = "{\"status\": \"completed\", \"conclusion\": \"success\", \"jobs\": [{\"name\": \"build\"}], \"extra\": true}"
   // First filter to jobs only, then extract names
   let result = apply_json_pipeline(json, ["jobs"], ".jobs[] | .name")
-  inspect(result, content="\"build\"")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"\"build\""
+    ),
+  )
 }
 
 ///|
 test "jq: pipeline - jq only (no field filter)" {
   let json = "{\"status\": \"completed\", \"conclusion\": \"success\"}"
   let result = apply_json_pipeline(json, [], ".status")
-  inspect(result, content="\"completed\"")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"\"completed\""
+    ),
+  )
 }
 
 ///|
 test "jq: pipeline - fields only (no jq)" {
   let json = "{\"status\": \"completed\", \"conclusion\": \"success\", \"extra\": true}"
   let result = apply_json_pipeline(json, ["status"], "")
-  inspect(result.contains("\"status\""), content="true")
-  inspect(result.contains("\"extra\""), content="false")
+  @debug.debug_inspect(result.contains("\"status\""), content="true")
+  @debug.debug_inspect(result.contains("\"extra\""), content="false")
 }
 
 // --- jq gh-compat pattern tests ---
@@ -2732,8 +3594,8 @@ test "jq: pipeline - fields only (no jq)" {
 test "jq: gh pattern - jobs array extract" {
   let json = "{\"jobs\": [{\"name\": \"build\", \"conclusion\": \"success\"}, {\"name\": \"test\", \"conclusion\": \"failure\"}]}"
   let result = apply_jq(json, ".jobs[] | {name, conclusion}").unwrap()
-  inspect(result.contains("\"build\""), content="true")
-  inspect(result.contains("\"test\""), content="true")
+  @debug.debug_inspect(result.contains("\"build\""), content="true")
+  @debug.debug_inspect(result.contains("\"test\""), content="true")
 }
 
 ///|
@@ -2742,21 +3604,36 @@ test "jq: gh pattern - select failed jobs" {
   let result = apply_jq(
     json, "[.jobs[] | select(.conclusion == \"failure\") | .name]",
   ).unwrap()
-  inspect(result, content="[\"test\"]")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"[\"test\"]"
+    ),
+  )
 }
 
 ///|
 test "jq: gh pattern - count jobs" {
   let json = "{\"jobs\": [{}, {}, {}]}"
   let result = apply_jq(json, ".jobs | length").unwrap()
-  inspect(result, content="3")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"3"
+    ),
+  )
 }
 
 ///|
 test "jq: gh pattern - list array extract names" {
   let json = "[{\"workflowName\": \"ci\", \"conclusion\": \"success\"}, {\"workflowName\": \"deploy\", \"conclusion\": \"failure\"}]"
   let result = apply_jq(json, ".[] | .workflowName").unwrap()
-  inspect(result, content="\"ci\"\n\"deploy\"")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"\"ci\"\n\"deploy\""
+    ),
+  )
 }
 
 ///|
@@ -2765,7 +3642,12 @@ test "jq: gh pattern - filter list by conclusion" {
   let result = apply_jq(
     json, "[.[] | select(.conclusion == \"failure\") | .name]",
   ).unwrap()
-  inspect(result, content="[\"deploy\"]")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"[\"deploy\"]"
+    ),
+  )
 }
 
 // --- jq filesystem integration tests ---
@@ -2788,7 +3670,12 @@ test "jq: handle_run_read_command view with --jq filters output" {
     ["jobs"],
     "[.jobs[] | select(.conclusion == \"failure\") | .name]",
   )
-  inspect(result, content="[\"test\"]")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"[\"test\"]"
+    ),
+  )
 }
 
 ///|
@@ -2816,7 +3703,12 @@ test "jq: handle_run_read_command list with --jq" {
   let result = apply_jq(
     list_json, "[.[] | select(.conclusion == \"failure\") | .run_id]",
   ).unwrap()
-  inspect(result, content="[\"run-2\"]")
+  @debug.debug_inspect(
+    result,
+    content=(
+      #|"[\"run-2\"]"
+    ),
+  )
 }
 
 ///|
@@ -2886,32 +3778,52 @@ async test "jq: end-to-end workflow + jq query" {
     report=Some(report),
     plan=Some(lowered.plan),
   ).unwrap_or("")
-  inspect(run_id, content="run-1")
+  @debug.debug_inspect(
+    run_id,
+    content=(
+      #|"run-1"
+    ),
+  )
   let run_json = @xfs.read_file_to_string(run_root + "/run-1/run.json")
   // Extract job names via jq
   let job_names = apply_jq(run_json, "[.jobs[] | .name]").unwrap()
-  inspect(job_names.contains("\"build\""), content="true")
-  inspect(job_names.contains("\"test\""), content="true")
+  @debug.debug_inspect(job_names.contains("\"build\""), content="true")
+  @debug.debug_inspect(job_names.contains("\"test\""), content="true")
   // Extract step names via jq
   let step_names = apply_jq(run_json, "[.jobs[].steps[] | .name]").unwrap()
-  inspect(step_names.contains("\"Say Hello\""), content="true")
-  inspect(step_names.contains("\"Run Check\""), content="true")
+  @debug.debug_inspect(step_names.contains("\"Say Hello\""), content="true")
+  @debug.debug_inspect(step_names.contains("\"Run Check\""), content="true")
   // gh-compat: --json fields + --jq combined
   let filtered = apply_json_pipeline(
     run_json,
     ["status", "conclusion", "jobs"],
     ".jobs[] | {name: .name, conclusion: .conclusion}",
   )
-  inspect(filtered.contains("\"build\""), content="true")
-  inspect(filtered.contains("\"test\""), content="true")
+  @debug.debug_inspect(filtered.contains("\"build\""), content="true")
+  @debug.debug_inspect(filtered.contains("\"test\""), content="true")
   // Verify event field
   let event = apply_jq(run_json, ".event").unwrap()
-  inspect(event, content="\"push\"")
+  @debug.debug_inspect(
+    event,
+    content=(
+      #|"\"push\""
+    ),
+  )
   // Verify gh alias fields accessible via jq
   let wf_name = apply_jq(run_json, ".workflowName").unwrap()
-  inspect(wf_name, content="\"jq-test\"")
+  @debug.debug_inspect(
+    wf_name,
+    content=(
+      #|"\"jq-test\""
+    ),
+  )
   let started = apply_jq(run_json, ".startedAt").unwrap()
-  inspect(started, content="\"1970-01-01T00:00:01Z\"")
+  @debug.debug_inspect(
+    started,
+    content=(
+      #|"\"1970-01-01T00:00:01Z\""
+    ),
+  )
 }
 
 // --- dotenv parser tests ---
@@ -2924,7 +3836,12 @@ fn dotenv_get(content : String, key : String) -> String {
 ///|
 test "dotenv: basic key=value" {
   let r = parse_dotenv("FOO=bar")
-  inspect(r.entries.get("FOO").unwrap_or(""), content="bar")
+  @debug.debug_inspect(
+    r.entries.get("FOO").unwrap_or(""),
+    content=(
+      #|"bar"
+    ),
+  )
 }
 
 ///|
@@ -2937,110 +3854,224 @@ test "dotenv: empty lines and comments" {
     #|# another comment
     #|BAZ=qux
   let r = parse_dotenv(input)
-  inspect(r.entries.get("FOO").unwrap_or(""), content="bar")
-  inspect(r.entries.get("BAZ").unwrap_or(""), content="qux")
+  @debug.debug_inspect(
+    r.entries.get("FOO").unwrap_or(""),
+    content=(
+      #|"bar"
+    ),
+  )
+  @debug.debug_inspect(
+    r.entries.get("BAZ").unwrap_or(""),
+    content=(
+      #|"qux"
+    ),
+  )
 }
 
 ///|
 test "dotenv: double-quoted value" {
-  inspect(dotenv_get("FOO=\"hello world\"", "FOO"), content="hello world")
+  @debug.debug_inspect(
+    dotenv_get("FOO=\"hello world\"", "FOO"),
+    content=(
+      #|"hello world"
+    ),
+  )
 }
 
 ///|
 test "dotenv: single-quoted value" {
-  inspect(dotenv_get("FOO='hello world'", "FOO"), content="hello world")
+  @debug.debug_inspect(
+    dotenv_get("FOO='hello world'", "FOO"),
+    content=(
+      #|"hello world"
+    ),
+  )
 }
 
 ///|
 test "dotenv: export prefix" {
-  inspect(dotenv_get("export FOO=bar", "FOO"), content="bar")
-  inspect(dotenv_get("export FOO=\"bar\"", "FOO"), content="bar")
+  @debug.debug_inspect(
+    dotenv_get("export FOO=bar", "FOO"),
+    content=(
+      #|"bar"
+    ),
+  )
+  @debug.debug_inspect(
+    dotenv_get("export FOO=\"bar\"", "FOO"),
+    content=(
+      #|"bar"
+    ),
+  )
 }
 
 ///|
 test "dotenv: whitespace around key and value" {
-  inspect(dotenv_get("  FOO  =  bar  ", "FOO"), content="bar")
+  @debug.debug_inspect(
+    dotenv_get("  FOO  =  bar  ", "FOO"),
+    content=(
+      #|"bar"
+    ),
+  )
 }
 
 ///|
 test "dotenv: inline comment (unquoted)" {
-  inspect(dotenv_get("FOO=bar # this is a comment", "FOO"), content="bar")
+  @debug.debug_inspect(
+    dotenv_get("FOO=bar # this is a comment", "FOO"),
+    content=(
+      #|"bar"
+    ),
+  )
 }
 
 ///|
 test "dotenv: inline comment not stripped in quoted" {
-  inspect(
+  @debug.debug_inspect(
     dotenv_get("FOO=\"bar # not a comment\"", "FOO"),
-    content="bar # not a comment",
+    content=(
+      #|"bar # not a comment"
+    ),
   )
 }
 
 ///|
 test "dotenv: escape sequences in double quotes" {
-  inspect(dotenv_get("FOO=\"line1\\nline2\"", "FOO"), content="line1\nline2")
-  inspect(dotenv_get("FOO=\"tab\\there\"", "FOO"), content="tab\there")
-  inspect(dotenv_get("FOO=\"back\\\\slash\"", "FOO"), content="back\\slash")
-  inspect(
+  @debug.debug_inspect(
+    dotenv_get("FOO=\"line1\\nline2\"", "FOO"),
+    content=(
+      #|"line1\nline2"
+    ),
+  )
+  @debug.debug_inspect(
+    dotenv_get("FOO=\"tab\\there\"", "FOO"),
+    content=(
+      #|"tab\there"
+    ),
+  )
+  @debug.debug_inspect(
+    dotenv_get("FOO=\"back\\\\slash\"", "FOO"),
+    content=(
+      #|"back\\slash"
+    ),
+  )
+  @debug.debug_inspect(
     dotenv_get("FOO=\"escaped\\\"quote\"", "FOO"),
-    content="escaped\"quote",
+    content=(
+      #|"escaped\"quote"
+    ),
   )
 }
 
 ///|
 test "dotenv: no escape in single quotes" {
-  inspect(dotenv_get("FOO='hello\\nworld'", "FOO"), content="hello\\nworld")
+  @debug.debug_inspect(
+    dotenv_get("FOO='hello\\nworld'", "FOO"),
+    content=(
+      #|"hello\\nworld"
+    ),
+  )
 }
 
 ///|
 test "dotenv: multiline double-quoted value" {
   let content = "FOO=\"line1\nline2\nline3\""
-  inspect(dotenv_get(content, "FOO"), content="line1\nline2\nline3")
+  @debug.debug_inspect(
+    dotenv_get(content, "FOO"),
+    content=(
+      #|"line1\nline2\nline3"
+    ),
+  )
 }
 
 ///|
 test "dotenv: multiline single-quoted value" {
   let content = "FOO='line1\nline2'"
-  inspect(dotenv_get(content, "FOO"), content="line1\nline2")
+  @debug.debug_inspect(
+    dotenv_get(content, "FOO"),
+    content=(
+      #|"line1\nline2"
+    ),
+  )
 }
 
 ///|
 test "dotenv: variable expansion ${VAR}" {
   let r = parse_dotenv("BASE=/app\nPATH_FULL=${BASE}/bin")
-  inspect(r.entries.get("PATH_FULL").unwrap_or(""), content="/app/bin")
+  @debug.debug_inspect(
+    r.entries.get("PATH_FULL").unwrap_or(""),
+    content=(
+      #|"/app/bin"
+    ),
+  )
 }
 
 ///|
 test "dotenv: variable expansion $VAR" {
   let r = parse_dotenv("NAME=world\nGREET=hello_$NAME")
-  inspect(r.entries.get("GREET").unwrap_or(""), content="hello_world")
+  @debug.debug_inspect(
+    r.entries.get("GREET").unwrap_or(""),
+    content=(
+      #|"hello_world"
+    ),
+  )
 }
 
 ///|
 test "dotenv: no expansion in single quotes" {
   let r = parse_dotenv("NAME=world\nGREET='hello $NAME'")
-  inspect(r.entries.get("GREET").unwrap_or(""), content="hello $NAME")
+  @debug.debug_inspect(
+    r.entries.get("GREET").unwrap_or(""),
+    content=(
+      #|"hello $NAME"
+    ),
+  )
 }
 
 ///|
 test "dotenv: expansion in double quotes" {
   let r = parse_dotenv("NAME=world\nGREET=\"hello ${NAME}\"")
-  inspect(r.entries.get("GREET").unwrap_or(""), content="hello world")
+  @debug.debug_inspect(
+    r.entries.get("GREET").unwrap_or(""),
+    content=(
+      #|"hello world"
+    ),
+  )
 }
 
 ///|
 test "dotenv: empty value" {
-  inspect(dotenv_get("FOO=", "FOO"), content="")
+  @debug.debug_inspect(
+    dotenv_get("FOO=", "FOO"),
+    content=(
+      #|""
+    ),
+  )
 }
 
 ///|
 test "dotenv: empty quoted value" {
-  inspect(dotenv_get("FOO=\"\"", "FOO"), content="")
-  inspect(dotenv_get("FOO=''", "FOO"), content="")
+  @debug.debug_inspect(
+    dotenv_get("FOO=\"\"", "FOO"),
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(
+    dotenv_get("FOO=''", "FOO"),
+    content=(
+      #|""
+    ),
+  )
 }
 
 ///|
 test "dotenv: value with equals sign" {
-  inspect(dotenv_get("FOO=a=b=c", "FOO"), content="a=b=c")
+  @debug.debug_inspect(
+    dotenv_get("FOO=a=b=c", "FOO"),
+    content=(
+      #|"a=b=c"
+    ),
+  )
 }
 
 ///|
@@ -3050,64 +4081,124 @@ test "dotenv: multiple entries" {
     #|B=2
     #|C=3
   let r = parse_dotenv(input)
-  inspect(r.entries.get("A").unwrap_or(""), content="1")
-  inspect(r.entries.get("B").unwrap_or(""), content="2")
-  inspect(r.entries.get("C").unwrap_or(""), content="3")
+  @debug.debug_inspect(
+    r.entries.get("A").unwrap_or(""),
+    content=(
+      #|"1"
+    ),
+  )
+  @debug.debug_inspect(
+    r.entries.get("B").unwrap_or(""),
+    content=(
+      #|"2"
+    ),
+  )
+  @debug.debug_inspect(
+    r.entries.get("C").unwrap_or(""),
+    content=(
+      #|"3"
+    ),
+  )
 }
 
 ///|
 test "dotenv: later value overrides earlier" {
   let r = parse_dotenv("FOO=first\nFOO=second")
-  inspect(r.entries.get("FOO").unwrap_or(""), content="second")
+  @debug.debug_inspect(
+    r.entries.get("FOO").unwrap_or(""),
+    content=(
+      #|"second"
+    ),
+  )
 }
 
 ///|
 test "dotenv: hash in unquoted value without space" {
   // # without preceding space is NOT a comment
-  inspect(dotenv_get("COLOR=#ffffff", "COLOR"), content="#ffffff")
+  @debug.debug_inspect(
+    dotenv_get("COLOR=#ffffff", "COLOR"),
+    content=(
+      #|"#ffffff"
+    ),
+  )
 }
 
 ///|
 test "dotenv: lines without = are ignored" {
   let r = parse_dotenv("not_a_pair\nFOO=bar")
-  inspect(r.entries.get("FOO").unwrap_or(""), content="bar")
+  @debug.debug_inspect(
+    r.entries.get("FOO").unwrap_or(""),
+    content=(
+      #|"bar"
+    ),
+  )
   assert_true(r.entries.get("not_a_pair") is None)
 }
 
 ///|
 test "dotenv: windows line endings" {
   let r = parse_dotenv("FOO=bar\r\nBAZ=qux\r\n")
-  inspect(r.entries.get("FOO").unwrap_or(""), content="bar")
-  inspect(r.entries.get("BAZ").unwrap_or(""), content="qux")
+  @debug.debug_inspect(
+    r.entries.get("FOO").unwrap_or(""),
+    content=(
+      #|"bar"
+    ),
+  )
+  @debug.debug_inspect(
+    r.entries.get("BAZ").unwrap_or(""),
+    content=(
+      #|"qux"
+    ),
+  )
 }
 
 ///|
 test "dotenv: chained variable expansion" {
   let r = parse_dotenv("A=hello\nB=${A}_world\nC=${B}_!")
-  inspect(r.entries.get("C").unwrap_or(""), content="hello_world_!")
+  @debug.debug_inspect(
+    r.entries.get("C").unwrap_or(""),
+    content=(
+      #|"hello_world_!"
+    ),
+  )
 }
 
 ///|
 test "dotenv: undefined variable expands to empty" {
   let r = parse_dotenv("FOO=${UNDEFINED_VAR_12345}")
-  inspect(r.entries.get("FOO").unwrap_or(""), content="")
+  @debug.debug_inspect(
+    r.entries.get("FOO").unwrap_or(""),
+    content=(
+      #|""
+    ),
+  )
 }
 
 ///|
 test "cli: parse --no-nix flag" {
   let result = parse_cli_args(["actrun", "ci.yml", "--no-nix"])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = expect_cli_options(result)
-  inspect(options.nix_mode, content="off")
-  inspect(options.nix_packages, content="[]")
+  @debug.debug_inspect(
+    options.nix_mode,
+    content=(
+      #|"off"
+    ),
+  )
+  @debug.debug_inspect(options.nix_packages, content="[]")
 }
 
 ///|
 test "cli: parse --nix flag" {
   let result = parse_cli_args(["actrun", "ci.yml", "--nix"])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = expect_cli_options(result)
-  inspect(options.nix_mode, content="auto")
+  @debug.debug_inspect(
+    options.nix_mode,
+    content=(
+      #|"auto"
+    ),
+  )
 }
 
 ///|
@@ -3115,9 +4206,9 @@ test "cli: parse --nix-packages flag" {
   let result = parse_cli_args([
     "actrun", "ci.yml", "--nix-packages", "python312 nodejs",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = expect_cli_options(result)
-  inspect(
+  @debug.debug_inspect(
     options.nix_packages,
     content=(
       #|["python312", "nodejs"]
@@ -3131,8 +4222,13 @@ test "toml: parse string values" {
     "workspace_mode = \"worktree\"\ntrust_actions = true\n",
   )
   guard root is @toml.TomlTable(table) else { fail("expected table") }
-  inspect(toml_get_string(table, "workspace_mode"), content="worktree")
-  inspect(toml_get_bool(table, "trust_actions"), content="true")
+  @debug.debug_inspect(
+    toml_get_string(table, "workspace_mode"),
+    content=(
+      #|"worktree"
+    ),
+  )
+  @debug.debug_inspect(toml_get_bool(table, "trust_actions"), content="true")
 }
 
 ///|
@@ -3141,7 +4237,7 @@ test "toml: parse array values" {
     "skip_actions = [\"actions/checkout\", \"actions/setup-node\"]\n",
   )
   guard root is @toml.TomlTable(table) else { fail("expected table") }
-  inspect(
+  @debug.debug_inspect(
     toml_get_string_array(table, "skip_actions"),
     content="[\"actions/checkout\", \"actions/setup-node\"]",
   )
@@ -3151,7 +4247,12 @@ test "toml: parse array values" {
 test "toml: skip comments and empty lines" {
   let root = @toml.parse("# comment\n\nworkspace_mode = \"local\"\n")
   guard root is @toml.TomlTable(table) else { fail("expected table") }
-  inspect(toml_get_string(table, "workspace_mode"), content="local")
+  @debug.debug_inspect(
+    toml_get_string(table, "workspace_mode"),
+    content=(
+      #|"local"
+    ),
+  )
 }
 
 ///|
@@ -3159,16 +4260,31 @@ test "toml: section headers" {
   let root = @toml.parse("[section]\nkey = \"value\"\n")
   guard root is @toml.TomlTable(table) else { fail("expected table") }
   let section = toml_get_table(table, "section")
-  inspect(toml_get_string(section, "key"), content="value")
+  @debug.debug_inspect(
+    toml_get_string(section, "key"),
+    content=(
+      #|"value"
+    ),
+  )
 }
 
 ///|
 test "toml: top-level keys and sections" {
   let root = @toml.parse("top = \"val\"\n[section]\nkey = \"value\"\n")
   guard root is @toml.TomlTable(table) else { fail("expected table") }
-  inspect(toml_get_string(table, "top"), content="val")
+  @debug.debug_inspect(
+    toml_get_string(table, "top"),
+    content=(
+      #|"val"
+    ),
+  )
   let section = toml_get_table(table, "section")
-  inspect(toml_get_string(section, "key"), content="value")
+  @debug.debug_inspect(
+    toml_get_string(section, "key"),
+    content=(
+      #|"value"
+    ),
+  )
 }
 
 ///|
@@ -3194,12 +4310,22 @@ test "config: merge cli overrides config" {
   let options = expect_cli_options(cli)
   let merged = merge_config_into_options(options, config)
   // CLI --local overrides config worktree
-  inspect(merged.workspace_mode, content="local")
+  @debug.debug_inspect(
+    merged.workspace_mode,
+    content=(
+      #|"local"
+    ),
+  )
   // CLI --no-nix overrides config auto
-  inspect(merged.nix_mode, content="off")
+  @debug.debug_inspect(
+    merged.nix_mode,
+    content=(
+      #|"off"
+    ),
+  )
   // Config values used when CLI has no override
-  inspect(merged.trust_actions, content="true")
-  inspect(
+  @debug.debug_inspect(merged.trust_actions, content="true")
+  @debug.debug_inspect(
     merged.skip_actions,
     content=(
       #|["actions/checkout"]
@@ -3231,7 +4357,7 @@ test "config: cli skip_actions overrides local_skip_actions" {
   ])
   let options = expect_cli_options(cli)
   let merged = merge_config_into_options(options, config)
-  inspect(
+  @debug.debug_inspect(
     merged.skip_actions,
     content=(
       #|["actions/setup-node"]
@@ -3242,14 +4368,44 @@ test "config: cli skip_actions overrides local_skip_actions" {
 ///|
 test "config: default when no actrun.toml" {
   let config = load_actrun_config("/nonexistent/path")
-  inspect(config.workspace_mode, content="")
-  inspect(config.trust_actions, content="false")
-  inspect(config.local_skip_actions, content="[]")
-  inspect(config.local_context.repository, content="")
-  inspect(config.local_context.ref_name, content="")
-  inspect(config.local_context.before_rev, content="")
-  inspect(config.local_context.after_rev, content="")
-  inspect(config.local_context.actor, content="")
+  @debug.debug_inspect(
+    config.workspace_mode,
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(config.trust_actions, content="false")
+  @debug.debug_inspect(config.local_skip_actions, content="[]")
+  @debug.debug_inspect(
+    config.local_context.repository,
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(
+    config.local_context.ref_name,
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(
+    config.local_context.before_rev,
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(
+    config.local_context.after_rev,
+    content=(
+      #|""
+    ),
+  )
+  @debug.debug_inspect(
+    config.local_context.actor,
+    content=(
+      #|""
+    ),
+  )
 }
 
 ///|
@@ -3269,11 +4425,36 @@ test "config: local_context values loaded" {
     "actor = \"local-user\"\n",
   )
   let config = load_actrun_config(config_root)
-  inspect(config.local_context.repository, content="demo/repo")
-  inspect(config.local_context.ref_name, content="feature/demo")
-  inspect(config.local_context.before_rev, content="HEAD~2")
-  inspect(config.local_context.after_rev, content="HEAD")
-  inspect(config.local_context.actor, content="local-user")
+  @debug.debug_inspect(
+    config.local_context.repository,
+    content=(
+      #|"demo/repo"
+    ),
+  )
+  @debug.debug_inspect(
+    config.local_context.ref_name,
+    content=(
+      #|"feature/demo"
+    ),
+  )
+  @debug.debug_inspect(
+    config.local_context.before_rev,
+    content=(
+      #|"HEAD~2"
+    ),
+  )
+  @debug.debug_inspect(
+    config.local_context.after_rev,
+    content=(
+      #|"HEAD"
+    ),
+  )
+  @debug.debug_inspect(
+    config.local_context.actor,
+    content=(
+      #|"local-user"
+    ),
+  )
 }
 
 ///|
@@ -3296,12 +4477,37 @@ async test "local context: existing event values win over defaults" {
     },
     None,
   )
-  inspect(merged.ref_name, content="main")
-  inspect(merged.before_sha, content="aaa111")
-  inspect(merged.after_sha, content="bbb222")
-  inspect(merged.repository, content="from/event")
-  inspect(merged.actor, content="octocat")
-  inspect(merged.changed_paths, content="[\"README.md\"]")
+  @debug.debug_inspect(
+    merged.ref_name,
+    content=(
+      #|"main"
+    ),
+  )
+  @debug.debug_inspect(
+    merged.before_sha,
+    content=(
+      #|"aaa111"
+    ),
+  )
+  @debug.debug_inspect(
+    merged.after_sha,
+    content=(
+      #|"bbb222"
+    ),
+  )
+  @debug.debug_inspect(
+    merged.repository,
+    content=(
+      #|"from/event"
+    ),
+  )
+  @debug.debug_inspect(
+    merged.actor,
+    content=(
+      #|"octocat"
+    ),
+  )
+  @debug.debug_inspect(merged.changed_paths, content="[\"README.md\"]")
 }
 
 ///|
@@ -3320,7 +4526,7 @@ async test "dump context: includes resolved github env and masks secrets" {
   let parsed = @ar.parse_workflow_yaml(workflow_text)
   guard parsed.workflow is Some(workflow) else { fail("expected workflow") }
   let lowered = @ar.lower_push_workflow_in_workspace(workflow, ".")
-  inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.errors, content="[]")
 
   let prev_var = main_test_set_env_var("ACTRUN_VAR_REGION", "ap-northeast-1")
   let prev_secret = main_test_set_env_var(
@@ -3348,36 +4554,103 @@ async test "dump context: includes resolved github env and masks secrets" {
   main_test_restore_env_var("ACTRUN_SECRET_GITHUB_TOKEN", prev_gh_token)
 
   let payload = @json.parse(json_text)
-  inspect(test_json_string_field(payload, "workflow"), content="dump")
+  @debug.debug_inspect(
+    test_json_string_field(payload, "workflow"),
+    content=(
+      #|"dump"
+    ),
+  )
   let event = test_json_field(payload, "event").unwrap_or(Json::null())
-  inspect(test_json_string_field(event, "repository"), content="mizchi/actrun")
-  inspect(test_json_string_field(event, "after_sha"), content="abc123")
+  @debug.debug_inspect(
+    test_json_string_field(event, "repository"),
+    content=(
+      #|"mizchi/actrun"
+    ),
+  )
+  @debug.debug_inspect(
+    test_json_string_field(event, "after_sha"),
+    content=(
+      #|"abc123"
+    ),
+  )
   let vars = test_json_field(payload, "vars").unwrap_or(Json::null())
-  inspect(test_json_string_field(vars, "REGION"), content="ap-northeast-1")
+  @debug.debug_inspect(
+    test_json_string_field(vars, "REGION"),
+    content=(
+      #|"ap-northeast-1"
+    ),
+  )
   let secrets = test_json_field(payload, "secrets").unwrap_or(Json::null())
-  inspect(test_json_string_field(secrets, "API_TOKEN"), content="***")
-  inspect(test_json_string_field(secrets, "GITHUB_TOKEN"), content="***")
+  @debug.debug_inspect(
+    test_json_string_field(secrets, "API_TOKEN"),
+    content=(
+      #|"***"
+    ),
+  )
+  @debug.debug_inspect(
+    test_json_string_field(secrets, "GITHUB_TOKEN"),
+    content=(
+      #|"***"
+    ),
+  )
   let jobs = test_json_array_field(payload, "jobs")
-  inspect(jobs.length(), content="1")
+  @debug.debug_inspect(jobs.length(), content="1")
   let job = jobs[0]
-  inspect(test_json_string_field(job, "id"), content="build")
+  @debug.debug_inspect(
+    test_json_string_field(job, "id"),
+    content=(
+      #|"build"
+    ),
+  )
   let steps = test_json_array_field(job, "steps")
-  inspect(steps.length(), content="1")
+  @debug.debug_inspect(steps.length(), content="1")
   let step = steps[0]
   let github = test_json_field(step, "github").unwrap_or(Json::null())
-  inspect(test_json_string_field(github, "repository"), content="mizchi/actrun")
-  inspect(test_json_string_field(github, "sha"), content="abc123")
-  let env = test_json_field(step, "env").unwrap_or(Json::null())
-  inspect(test_json_string_field(env, "FROM_VAR"), content="ap-northeast-1")
-  inspect(test_json_string_field(env, "FROM_SECRET"), content="***")
-  let runner_env = test_json_field(step, "runner_env").unwrap_or(Json::null())
-  inspect(
-    test_json_string_field(runner_env, "GITHUB_REPOSITORY"),
-    content="mizchi/actrun",
+  @debug.debug_inspect(
+    test_json_string_field(github, "repository"),
+    content=(
+      #|"mizchi/actrun"
+    ),
   )
-  inspect(test_json_string_field(runner_env, "GITHUB_SHA"), content="abc123")
-  inspect(test_json_string_field(runner_env, "GITHUB_TOKEN"), content="***")
-  inspect(test_json_bool_field(step, "if_result"), content="true")
+  @debug.debug_inspect(
+    test_json_string_field(github, "sha"),
+    content=(
+      #|"abc123"
+    ),
+  )
+  let env = test_json_field(step, "env").unwrap_or(Json::null())
+  @debug.debug_inspect(
+    test_json_string_field(env, "FROM_VAR"),
+    content=(
+      #|"ap-northeast-1"
+    ),
+  )
+  @debug.debug_inspect(
+    test_json_string_field(env, "FROM_SECRET"),
+    content=(
+      #|"***"
+    ),
+  )
+  let runner_env = test_json_field(step, "runner_env").unwrap_or(Json::null())
+  @debug.debug_inspect(
+    test_json_string_field(runner_env, "GITHUB_REPOSITORY"),
+    content=(
+      #|"mizchi/actrun"
+    ),
+  )
+  @debug.debug_inspect(
+    test_json_string_field(runner_env, "GITHUB_SHA"),
+    content=(
+      #|"abc123"
+    ),
+  )
+  @debug.debug_inspect(
+    test_json_string_field(runner_env, "GITHUB_TOKEN"),
+    content=(
+      #|"***"
+    ),
+  )
+  @debug.debug_inspect(test_json_bool_field(step, "if_result"), content="true")
 }
 
 ///|
@@ -3389,31 +4662,61 @@ async test "local context: fills missing values from git repo" {
     ["remote", "add", "origin", "https://github.com/mizchi/actrun.git"],
     cwd=repo_root,
   )
-  inspect(remote_code, content="0")
-  inspect(remote_err.text(), content="")
+  @debug.debug_inspect(remote_code, content="0")
+  @debug.debug_inspect(
+    remote_err.text(),
+    content=(
+      #|""
+    ),
+  )
   let (branch_code, _, branch_err) = @process.collect_output(
     "git",
     ["branch", "-M", "main"],
     cwd=repo_root,
   )
-  inspect(branch_code, content="0")
-  inspect(branch_err.text(), content="")
+  @debug.debug_inspect(branch_code, content="0")
+  @debug.debug_inspect(
+    branch_err.text(),
+    content=(
+      #|""
+    ),
+  )
   @xfs.write_string_to_file(repo_root + "/hello.txt", "hello\nworld\n")
   let (commit_code, _, commit_err) = @process.collect_output(
     "git",
     ["commit", "-am", "update"],
     cwd=repo_root,
   )
-  inspect(commit_code, content="0")
-  inspect(commit_err.text(), content="")
+  @debug.debug_inspect(commit_code, content="0")
+  @debug.debug_inspect(
+    commit_err.text(),
+    content=(
+      #|""
+    ),
+  )
   let merged = apply_local_context_defaults(
     @ar.new_push_event("", []),
     default_local_context_config(),
     Some(repo_root),
   )
-  inspect(merged.repository, content="mizchi/actrun")
-  inspect(merged.ref_name, content="main")
-  inspect(merged.actor, content="test")
+  @debug.debug_inspect(
+    merged.repository,
+    content=(
+      #|"mizchi/actrun"
+    ),
+  )
+  @debug.debug_inspect(
+    merged.ref_name,
+    content=(
+      #|"main"
+    ),
+  )
+  @debug.debug_inspect(
+    merged.actor,
+    content=(
+      #|"test"
+    ),
+  )
   assert_true(merged.after_sha.length() >= 40)
   assert_true(merged.before_sha.length() >= 40)
   assert_true(merged.before_sha != merged.after_sha)
@@ -3424,9 +4727,14 @@ test "cli: parse --container-runtime flag" {
   let result = parse_cli_args([
     "actrun", "ci.yml", "--container-runtime", "podman",
   ])
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let options = expect_cli_options(result)
-  inspect(options.container_runtime, content="podman")
+  @debug.debug_inspect(
+    options.container_runtime,
+    content=(
+      #|"podman"
+    ),
+  )
 }
 
 ///|
@@ -3451,7 +4759,12 @@ test "config: container_runtime from config" {
   let cli = parse_cli_args(["actrun", "ci.yml"])
   let options = expect_cli_options(cli)
   let merged = merge_config_into_options(options, config)
-  inspect(merged.container_runtime, content="podman")
+  @debug.debug_inspect(
+    merged.container_runtime,
+    content=(
+      #|"podman"
+    ),
+  )
 }
 
 ///|
@@ -3476,25 +4789,39 @@ test "config: cli container_runtime overrides config" {
   let cli = parse_cli_args(["actrun", "ci.yml", "--container-runtime", "lima"])
   let options = expect_cli_options(cli)
   let merged = merge_config_into_options(options, config)
-  inspect(merged.container_runtime, content="lima")
+  @debug.debug_inspect(
+    merged.container_runtime,
+    content=(
+      #|"lima"
+    ),
+  )
 }
 
 ///|
 test "container runtime: resolve bin names" {
-  inspect(resolve_container_runtime_bin("docker"), content="(\"docker\", [])")
-  inspect(resolve_container_runtime_bin("podman"), content="(\"podman\", [])")
-  inspect(
+  @debug.debug_inspect(
+    resolve_container_runtime_bin("docker"),
+    content="(\"docker\", [])",
+  )
+  @debug.debug_inspect(
+    resolve_container_runtime_bin("podman"),
+    content="(\"podman\", [])",
+  )
+  @debug.debug_inspect(
     resolve_container_runtime_bin("container"),
     content="(\"container\", [])",
   )
-  inspect(resolve_container_runtime_bin("nerdctl"), content="(\"nerdctl\", [])")
-  inspect(
+  @debug.debug_inspect(
+    resolve_container_runtime_bin("nerdctl"),
+    content="(\"nerdctl\", [])",
+  )
+  @debug.debug_inspect(
     resolve_container_runtime_bin("lima"),
     content=(
       #|("lima", ["nerdctl"])
     ),
   )
-  inspect(
+  @debug.debug_inspect(
     resolve_container_runtime_bin("/usr/bin/custom"),
     content="(\"/usr/bin/custom\", [])",
   )
@@ -3505,7 +4832,7 @@ test "toml: all-comments config parses as empty" {
   let template = "# comment line\n# key = \"value\"\n\n# another\n"
   let root = @toml.parse(template)
   guard root is @toml.TomlTable(table) else { fail("expected table") }
-  inspect(table.length(), content="0")
+  @debug.debug_inspect(table.length(), content="0")
 }
 
 ///|
@@ -3516,7 +4843,7 @@ test "toml: affected section parsing" {
   guard root is @toml.TomlTable(table) else { fail("expected table") }
   let affected = toml_get_table(table, "affected")
   let ci = toml_get_table(affected, "ci.yml")
-  inspect(
+  @debug.debug_inspect(
     toml_get_string_array(ci, "patterns"),
     content="[\"src/**\", \"*.toml\"]",
   )
@@ -3539,36 +4866,36 @@ test "config: affected patterns loaded" {
       _ => ()
     }
   }
-  inspect(result.get("ci.yml"), content="Some([\"src/**\"])")
+  @debug.debug_inspect(result.get("ci.yml"), content="Some([\"src/**\"])")
 }
 
 ///|
 test "glob_match: basic patterns" {
   // Exact match
-  inspect(glob_match("README.md", "README.md"), content="true")
-  inspect(glob_match("README.md", "src/main.rs"), content="false")
+  @debug.debug_inspect(glob_match("README.md", "README.md"), content="true")
+  @debug.debug_inspect(glob_match("README.md", "src/main.rs"), content="false")
   // Wildcard extension
-  inspect(glob_match("*.rs", "main.rs"), content="true")
-  inspect(glob_match("*.rs", "main.ts"), content="false")
+  @debug.debug_inspect(glob_match("*.rs", "main.rs"), content="true")
+  @debug.debug_inspect(glob_match("*.rs", "main.ts"), content="false")
   // Directory prefix
-  inspect(glob_match("src/**", "src/main.rs"), content="true")
-  inspect(glob_match("src/**", "test/main.rs"), content="false")
+  @debug.debug_inspect(glob_match("src/**", "src/main.rs"), content="true")
+  @debug.debug_inspect(glob_match("src/**", "test/main.rs"), content="false")
   // Double-star extension
-  inspect(glob_match("**/*.rs", "src/main.rs"), content="true")
-  inspect(glob_match("**/*.rs", "main.rs"), content="true")
-  inspect(glob_match("**/*.rs", "main.ts"), content="false")
+  @debug.debug_inspect(glob_match("**/*.rs", "src/main.rs"), content="true")
+  @debug.debug_inspect(glob_match("**/*.rs", "main.rs"), content="true")
+  @debug.debug_inspect(glob_match("**/*.rs", "main.ts"), content="false")
   // Directory wildcard
-  inspect(glob_match("src/*", "src/main.rs"), content="true")
-  inspect(glob_match("src/*", "src/sub/main.rs"), content="false")
+  @debug.debug_inspect(glob_match("src/*", "src/main.rs"), content="true")
+  @debug.debug_inspect(glob_match("src/*", "src/sub/main.rs"), content="false")
 }
 
 ///|
 test "files_match_patterns: matches at least one" {
-  inspect(
+  @debug.debug_inspect(
     files_match_patterns(["src/main.rs", "README.md"], ["src/**"]),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     files_match_patterns(["README.md", "docs/guide.md"], ["src/**"]),
     content="false",
   )
@@ -3576,36 +4903,36 @@ test "files_match_patterns: matches at least one" {
 
 ///|
 test "glob_match: dir/*.ext patterns" {
-  inspect(
+  @debug.debug_inspect(
     glob_match(".github/workflows/*.yml", ".github/workflows/ci.yml"),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     glob_match(".github/workflows/*.yml", ".github/workflows/lint.yaml"),
     content="false",
   )
-  inspect(
+  @debug.debug_inspect(
     glob_match(".github/workflows/*.yml", ".github/workflows/sub/ci.yml"),
     content="false",
   )
-  inspect(glob_match("ci/*.yaml", "ci/test.yaml"), content="true")
-  inspect(glob_match("ci/*.yaml", "ci/test.yml"), content="false")
+  @debug.debug_inspect(glob_match("ci/*.yaml", "ci/test.yaml"), content="true")
+  @debug.debug_inspect(glob_match("ci/*.yaml", "ci/test.yml"), content="false")
 }
 
 ///|
 test "cli: parse --affected flag" {
   let result = parse_cli_args(["actrun", "ci.yml", "--affected"])
   let options = expect_cli_options(result)
-  inspect(options.affected, content="true")
-  inspect(options.retry, content="false")
+  @debug.debug_inspect(options.affected, content="true")
+  @debug.debug_inspect(options.retry, content="false")
 }
 
 ///|
 test "cli: parse --retry flag" {
   let result = parse_cli_args(["actrun", "ci.yml", "--retry"])
   let options = expect_cli_options(result)
-  inspect(options.retry, content="true")
-  inspect(options.affected, content="false")
+  @debug.debug_inspect(options.retry, content="true")
+  @debug.debug_inspect(options.affected, content="false")
 }
 
 ///|
@@ -3614,22 +4941,37 @@ test "cli: parse --job and --step flags" {
     "actrun", "ci.yml", "--job", "build", "--step", "test",
   ])
   let options = expect_cli_options(result)
-  inspect(options.job_filter, content="build")
-  inspect(options.step_filter, content="test")
+  @debug.debug_inspect(
+    options.job_filter,
+    content=(
+      #|"build"
+    ),
+  )
+  @debug.debug_inspect(
+    options.step_filter,
+    content=(
+      #|"test"
+    ),
+  )
 }
 
 ///|
 test "cli: parse --trigger flag" {
   let result = parse_cli_args(["actrun", "ci.yml", "--trigger", "schedule"])
   let options = expect_cli_options(result)
-  inspect(options.trigger, content="schedule")
+  @debug.debug_inspect(
+    options.trigger,
+    content=(
+      #|"schedule"
+    ),
+  )
 }
 
 ///|
 test "extract_cron_schedules: basic" {
   let yaml = "on:\n  schedule:\n    - cron: '0 2 * * *'\n    - cron: '30 5 * * 1'\njobs:\n"
   let schedules = extract_cron_schedules(yaml)
-  inspect(
+  @debug.debug_inspect(
     schedules,
     content=(
       #|["0 2 * * *", "30 5 * * 1"]
@@ -3641,94 +4983,109 @@ test "extract_cron_schedules: basic" {
 test "extract_cron_schedules: no schedule" {
   let yaml = "on: push\njobs:\n  test:\n    runs-on: ubuntu-latest\n"
   let schedules = extract_cron_schedules(yaml)
-  inspect(schedules, content="[]")
+  @debug.debug_inspect(schedules, content="[]")
 }
 
 // --- glob_match tests ---
 
 ///|
 test "glob_match: exact match" {
-  inspect(glob_match("README.md", "README.md"), content="true")
-  inspect(glob_match("README.md", "readme.md"), content="false")
-  inspect(glob_match("src/main.rs", "src/main.rs"), content="true")
+  @debug.debug_inspect(glob_match("README.md", "README.md"), content="true")
+  @debug.debug_inspect(glob_match("README.md", "readme.md"), content="false")
+  @debug.debug_inspect(glob_match("src/main.rs", "src/main.rs"), content="true")
 }
 
 ///|
 test "glob_match: wildcard all" {
-  inspect(glob_match("*", "anything"), content="true")
-  inspect(glob_match("**", "any/path"), content="true")
-  inspect(glob_match("**/*", "any/path/file"), content="true")
+  @debug.debug_inspect(glob_match("*", "anything"), content="true")
+  @debug.debug_inspect(glob_match("**", "any/path"), content="true")
+  @debug.debug_inspect(glob_match("**/*", "any/path/file"), content="true")
 }
 
 ///|
 test "glob_match: directory recursive (**)" {
-  inspect(glob_match("src/**", "src/main.rs"), content="true")
-  inspect(glob_match("src/**", "src/sub/deep/file.rs"), content="true")
-  inspect(glob_match("src/**", "src"), content="true")
-  inspect(glob_match("src/**", "tests/main.rs"), content="false")
-  inspect(glob_match("src/**", "src2/main.rs"), content="false")
+  @debug.debug_inspect(glob_match("src/**", "src/main.rs"), content="true")
+  @debug.debug_inspect(
+    glob_match("src/**", "src/sub/deep/file.rs"),
+    content="true",
+  )
+  @debug.debug_inspect(glob_match("src/**", "src"), content="true")
+  @debug.debug_inspect(glob_match("src/**", "tests/main.rs"), content="false")
+  @debug.debug_inspect(glob_match("src/**", "src2/main.rs"), content="false")
 }
 
 ///|
 test "glob_match: extension wildcard (**/*.ext)" {
-  inspect(glob_match("**/*.rs", "src/main.rs"), content="true")
-  inspect(glob_match("**/*.rs", "main.rs"), content="true")
-  inspect(glob_match("**/*.rs", "src/sub/lib.rs"), content="true")
-  inspect(glob_match("**/*.rs", "src/main.ts"), content="false")
+  @debug.debug_inspect(glob_match("**/*.rs", "src/main.rs"), content="true")
+  @debug.debug_inspect(glob_match("**/*.rs", "main.rs"), content="true")
+  @debug.debug_inspect(glob_match("**/*.rs", "src/sub/lib.rs"), content="true")
+  @debug.debug_inspect(glob_match("**/*.rs", "src/main.ts"), content="false")
 }
 
 ///|
 test "glob_match: root extension wildcard (*.ext)" {
-  inspect(glob_match("*.toml", "Cargo.toml"), content="true")
-  inspect(glob_match("*.toml", "moon.mod.toml"), content="true")
-  inspect(glob_match("*.toml", "src/config.toml"), content="true")
-  inspect(glob_match("*.md", "README.md"), content="true")
-  inspect(glob_match("*.md", "src/README.md"), content="true")
+  @debug.debug_inspect(glob_match("*.toml", "Cargo.toml"), content="true")
+  @debug.debug_inspect(glob_match("*.toml", "moon.mod.toml"), content="true")
+  @debug.debug_inspect(glob_match("*.toml", "src/config.toml"), content="true")
+  @debug.debug_inspect(glob_match("*.md", "README.md"), content="true")
+  @debug.debug_inspect(glob_match("*.md", "src/README.md"), content="true")
 }
 
 ///|
 test "glob_match: directory non-recursive (dir/*)" {
-  inspect(glob_match("src/*", "src/main.rs"), content="true")
-  inspect(glob_match("src/*", "src/lib.rs"), content="true")
-  inspect(glob_match("src/*", "src/sub/deep.rs"), content="false")
-  inspect(glob_match("src/*", "tests/main.rs"), content="false")
+  @debug.debug_inspect(glob_match("src/*", "src/main.rs"), content="true")
+  @debug.debug_inspect(glob_match("src/*", "src/lib.rs"), content="true")
+  @debug.debug_inspect(glob_match("src/*", "src/sub/deep.rs"), content="false")
+  @debug.debug_inspect(glob_match("src/*", "tests/main.rs"), content="false")
 }
 
 ///|
 test "glob_match: directory with extension (dir/*.ext)" {
-  inspect(glob_match("src/*.rs", "src/main.rs"), content="true")
-  inspect(glob_match("src/*.rs", "src/lib.rs"), content="true")
-  inspect(glob_match("src/*.rs", "src/main.ts"), content="false")
-  inspect(glob_match("src/*.rs", "src/sub/main.rs"), content="false")
+  @debug.debug_inspect(glob_match("src/*.rs", "src/main.rs"), content="true")
+  @debug.debug_inspect(glob_match("src/*.rs", "src/lib.rs"), content="true")
+  @debug.debug_inspect(glob_match("src/*.rs", "src/main.ts"), content="false")
+  @debug.debug_inspect(
+    glob_match("src/*.rs", "src/sub/main.rs"),
+    content="false",
+  )
 }
 
 ///|
 test "glob_match: prefix match (directory)" {
-  inspect(glob_match("docs", "docs/intro.md"), content="true")
-  inspect(glob_match("docs", "docs"), content="true")
-  inspect(glob_match("docs", "docs2/intro.md"), content="false")
+  @debug.debug_inspect(glob_match("docs", "docs/intro.md"), content="true")
+  @debug.debug_inspect(glob_match("docs", "docs"), content="true")
+  @debug.debug_inspect(glob_match("docs", "docs2/intro.md"), content="false")
 }
 
 ///|
 test "glob_match: path suffix match (**/filename)" {
-  inspect(glob_match("**/package.json", "package.json"), content="true")
-  inspect(glob_match("**/package.json", "sub/package.json"), content="true")
-  inspect(
+  @debug.debug_inspect(
+    glob_match("**/package.json", "package.json"),
+    content="true",
+  )
+  @debug.debug_inspect(
+    glob_match("**/package.json", "sub/package.json"),
+    content="true",
+  )
+  @debug.debug_inspect(
     glob_match("**/package.json", "deep/sub/package.json"),
     content="true",
   )
-  inspect(glob_match("**/package.json", "package.lock"), content="false")
+  @debug.debug_inspect(
+    glob_match("**/package.json", "package.lock"),
+    content="false",
+  )
 }
 
 // --- files_match_patterns tests ---
 
 ///|
 test "files_match_patterns: basic matching" {
-  inspect(
+  @debug.debug_inspect(
     files_match_patterns(["src/main.rs", "README.md"], ["src/**"]),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     files_match_patterns(["README.md", "docs/intro.md"], ["src/**"]),
     content="false",
   )
@@ -3736,15 +5093,15 @@ test "files_match_patterns: basic matching" {
 
 ///|
 test "files_match_patterns: multiple patterns" {
-  inspect(
+  @debug.debug_inspect(
     files_match_patterns(["docs/intro.md"], ["src/**", "docs/**", "*.toml"]),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     files_match_patterns(["Cargo.toml"], ["src/**", "docs/**", "*.toml"]),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     files_match_patterns(["README.md"], ["src/**", "docs/**", "*.toml"]),
     content="false",
   )
@@ -3752,20 +5109,23 @@ test "files_match_patterns: multiple patterns" {
 
 ///|
 test "files_match_patterns: empty inputs" {
-  inspect(files_match_patterns([], ["src/**"]), content="false")
-  inspect(files_match_patterns(["src/main.rs"], []), content="false")
-  inspect(files_match_patterns([], []), content="false")
+  @debug.debug_inspect(files_match_patterns([], ["src/**"]), content="false")
+  @debug.debug_inspect(
+    files_match_patterns(["src/main.rs"], []),
+    content="false",
+  )
+  @debug.debug_inspect(files_match_patterns([], []), content="false")
 }
 
 ///|
 test "files_match_patterns: exact file patterns" {
-  inspect(
+  @debug.debug_inspect(
     files_match_patterns(["package.json", "src/index.ts"], [
       "package.json", "pnpm-lock.yaml",
     ]),
     content="true",
   )
-  inspect(
+  @debug.debug_inspect(
     files_match_patterns(["src/index.ts"], ["package.json", "pnpm-lock.yaml"]),
     content="false",
   )
@@ -3775,11 +5135,23 @@ test "files_match_patterns: exact file patterns" {
 test "files_match_patterns: realistic CI patterns" {
   // Typical patterns from actrun.toml or on:push:paths
   let patterns = ["src/**", "package.json", "pnpm-lock.yaml"]
-  inspect(files_match_patterns(["src/lib/parser.ts"], patterns), content="true")
-  inspect(files_match_patterns(["package.json"], patterns), content="true")
-  inspect(files_match_patterns(["pnpm-lock.yaml"], patterns), content="true")
-  inspect(files_match_patterns(["README.md"], patterns), content="false")
-  inspect(
+  @debug.debug_inspect(
+    files_match_patterns(["src/lib/parser.ts"], patterns),
+    content="true",
+  )
+  @debug.debug_inspect(
+    files_match_patterns(["package.json"], patterns),
+    content="true",
+  )
+  @debug.debug_inspect(
+    files_match_patterns(["pnpm-lock.yaml"], patterns),
+    content="true",
+  )
+  @debug.debug_inspect(
+    files_match_patterns(["README.md"], patterns),
+    content="false",
+  )
+  @debug.debug_inspect(
     files_match_patterns(
       ["docs/guide.md", ".github/workflows/ci.yml"],
       patterns,
@@ -3798,7 +5170,7 @@ test "toml: affected with quoted key" {
   guard root is @toml.TomlTable(table) else { fail("expected table") }
   let affected = toml_get_table(table, "affected")
   let ci = toml_get_table(affected, "ci.yml")
-  inspect(
+  @debug.debug_inspect(
     toml_get_string_array(ci, "patterns"),
     content="[\"src/**\", \"*.toml\"]",
   )
@@ -3812,7 +5184,10 @@ test "toml: affected with path key" {
   guard root is @toml.TomlTable(table) else { fail("expected table") }
   let affected = toml_get_table(table, "affected")
   let ci = toml_get_table(affected, ".github/workflows/ci.yml")
-  inspect(toml_get_string_array(ci, "patterns"), content="[\"src/**\"]")
+  @debug.debug_inspect(
+    toml_get_string_array(ci, "patterns"),
+    content="[\"src/**\"]",
+  )
 }
 
 ///|
@@ -3834,8 +5209,11 @@ test "toml: affected patterns extraction" {
       _ => ()
     }
   }
-  inspect(result.get("ci.yml").unwrap(), content="[\"src/**\", \"*.toml\"]")
-  inspect(result.get("lint.yml").unwrap(), content="[\"src/**\"]")
+  @debug.debug_inspect(
+    result.get("ci.yml").unwrap(),
+    content="[\"src/**\", \"*.toml\"]",
+  )
+  @debug.debug_inspect(result.get("lint.yml").unwrap(), content="[\"src/**\"]")
 }
 
 ///|
@@ -3846,17 +5224,22 @@ test "toml: override script is isolated" {
   guard root is @toml.TomlTable(table) else { fail("expected table") }
   let override_tbl = toml_get_table(table, "override")
   let node = toml_get_table(override_tbl, "actions/setup-node")
-  inspect(toml_get_string(node, "run"), content="echo 'safe'")
+  @debug.debug_inspect(
+    toml_get_string(node, "run"),
+    content=(
+      #|"echo 'safe'"
+    ),
+  )
 }
 
 ///|
 test "security: glob_match rejects path traversal patterns" {
   // A traversal pattern matches traversal paths
-  inspect(glob_match("../**", "../../etc/passwd"), content="true")
+  @debug.debug_inspect(glob_match("../**", "../../etc/passwd"), content="true")
   // But a normal src pattern does not match traversal paths
-  inspect(glob_match("src/**", "../etc/passwd"), content="false")
+  @debug.debug_inspect(glob_match("src/**", "../etc/passwd"), content="false")
   // files_match_patterns with traversal paths should not match src patterns
-  inspect(
+  @debug.debug_inspect(
     files_match_patterns(["../../../etc/passwd"], ["src/**"]),
     content="false",
   )

@@ -70,7 +70,7 @@ pub struct WasiRunResult {
   stderr : String
   outputs : Map[String, String]
   env_updates : Map[String, String]
-} derive(ToJson, Show)
+} derive(ToJson, Debug)
 
 ///|
 pub fn WasiContext::collect_result(self : WasiContext) -> WasiRunResult {

@@ -70,7 +70,7 @@ fn resolve_event_ref_name(
   }
   let head_path = @bit.join_path(git_dir, "HEAD")
   let head_bytes = rfs.read_file(head_path) catch { _ => return "HEAD" }
-  let head_text = @utf8.decode_lossy(head_bytes[:]).trim().to_string()
+  let head_text = @utf8.decode_lossy(head_bytes[:]).trim().to_owned()
   if head_text.has_prefix("ref: refs/heads/") {
     return strip_ref_prefix(
       String::unsafe_substring(head_text, start=5, end=head_text.length()),

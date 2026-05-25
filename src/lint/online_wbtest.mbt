@@ -13,8 +13,8 @@ test "version consistency: detects mixed versions" {
     ("release.yml", refs2),
   ])
   assert_true(diags.length() > 0)
-  assert_eq(diags[0].code, "inconsistent-action-version")
-  assert_eq(diags[0].severity, Warning)
+  @debug.assert_eq(diags[0].code, "inconsistent-action-version")
+  @debug.assert_eq(diags[0].severity, Warning)
   assert_true(diags[0].message.contains("actions/checkout"))
 }
 
@@ -32,5 +32,5 @@ test "version consistency: same version no warnings" {
     ("ci.yml", refs1),
     ("release.yml", refs2),
   ])
-  assert_eq(diags.length(), 0)
+  @debug.assert_eq(diags.length(), 0)
 }

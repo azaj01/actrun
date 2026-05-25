@@ -41,7 +41,7 @@ fn action_cache_parse_int64(value : StringView) -> Int64 raise {
 ///|
 fn read_exec_int(path : String) -> Int? {
   guard read_exec_text(path) is Some(content) else { return None }
-  let trimmed = content.trim(chars=" \t\r\n").to_string()
+  let trimmed = content.trim(chars=" \t\r\n").to_owned()
   if trimmed.length() == 0 {
     return None
   }
@@ -79,7 +79,7 @@ fn read_cache_entry_key(cache_root : String) -> String? {
   let key_path = cache_key_metadata_path(cache_root)
   if @xfs.path_exists(key_path) {
     return read_exec_text(key_path).map(text => {
-      text.trim(chars=" \t\r\n").to_string()
+      text.trim(chars=" \t\r\n").to_owned()
     })
   }
   None
@@ -173,7 +173,7 @@ fn workspace_relative_store_path(
 
 ///|
 fn normalize_cache_path(path : String) -> String {
-  let trimmed = path.trim(chars=" \t\r\n").to_string()
+  let trimmed = path.trim(chars=" \t\r\n").to_owned()
   if trimmed.has_prefix("~/") {
     let home = @xsys.get_env_var("HOME").unwrap_or("")
     if home.length() > 0 {

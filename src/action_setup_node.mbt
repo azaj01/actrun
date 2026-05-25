@@ -1,6 +1,6 @@
 ///|
 fn normalize_setup_node_registry_url(value : String) -> String {
-  let trimmed = value.trim(chars=" \t\r\n").to_string()
+  let trimmed = value.trim(chars=" \t\r\n").to_owned()
   if trimmed.length() == 0 {
     ""
   } else if trimmed.has_suffix("/") {
@@ -15,7 +15,7 @@ fn normalize_setup_node_version(
   value : String,
   current_version : String,
 ) -> String {
-  let trimmed = value.trim(chars=" \t\r\n").to_string()
+  let trimmed = value.trim(chars=" \t\r\n").to_owned()
   if trimmed.length() == 0 {
     return current_version
   }
@@ -24,7 +24,7 @@ fn normalize_setup_node_version(
   } else {
     trimmed
   }
-  let first = bare.split(".").next().unwrap_or("").to_string()
+  let first = bare.split(".").next().unwrap_or("").to_owned()
   let mut digits = ""
   for c in first {
     if c >= '0' && c <= '9' {
@@ -38,7 +38,7 @@ fn normalize_setup_node_version(
   }
   let parts : Array[String] = []
   for part_view in bare.split(".") {
-    let part = part_view.to_string()
+    let part = part_view.to_owned()
     if part.length() == 0 {
       continue
     }
@@ -71,7 +71,7 @@ fn read_node_version_from_file(file_path : String) -> String {
   } noraise {
     value => value
   }
-  let trimmed = content.trim(chars=" \t\r\n").to_string()
+  let trimmed = content.trim(chars=" \t\r\n").to_owned()
   if trimmed.length() == 0 {
     return ""
   }
@@ -82,18 +82,18 @@ fn read_node_version_from_file(file_path : String) -> String {
     // .tool-versions: find "nodejs <version>" line
     if file_path.has_suffix(".tool-versions") {
       for line_view in trimmed.split("\n") {
-        let line = line_view.trim(chars=" \t\r").to_string()
+        let line = line_view.trim(chars=" \t\r").to_owned()
         if line.has_prefix("nodejs ") || line.has_prefix("nodejs\t") {
           return exec_text_slice(line, 7, line.length())
             .trim(chars=" \t\r\n")
-            .to_string()
+            .to_owned()
         }
       }
       return ""
     }
     // First non-empty line
     for line_view in trimmed.split("\n") {
-      let line = line_view.trim(chars=" \t\r").to_string()
+      let line = line_view.trim(chars=" \t\r").to_owned()
       if line.length() > 0 && !line.has_prefix("#") {
         return line
       }
@@ -329,7 +329,7 @@ async fn execute_setup_node_native(
     .unwrap_or(
       resolved_plan_env.get("INPUT_PACKAGE_MANAGER_CACHE").unwrap_or(""),
     )
-  let normalized_cache_input = cache_input.trim(chars=" \t\r\n").to_string()
+  let normalized_cache_input = cache_input.trim(chars=" \t\r\n").to_owned()
   let requested_node_file = resolved_plan_env
     .get("INPUT_NODE_VERSION_FILE")
     .unwrap_or("")
@@ -339,7 +339,7 @@ async fn execute_setup_node_native(
     0 {
     let file_path = resolve_task_cwd(
       workspace_root,
-      requested_node_file.trim(chars=" \t\r\n").to_string(),
+      requested_node_file.trim(chars=" \t\r\n").to_owned(),
     )
     read_node_version_from_file(file_path)
   } else {
@@ -373,7 +373,7 @@ async fn execute_setup_node_native(
       ),
     )
   }
-  let actual_version = version_stdout.trim(chars=" \t\r\n").to_string()
+  let actual_version = version_stdout.trim(chars=" \t\r\n").to_owned()
   let explicit_version = resolved_plan_env
     .get("INPUT_NODE_VERSION")
     .unwrap_or("")
@@ -393,7 +393,7 @@ async fn execute_setup_node_native(
     .get("INPUT_ARCHITECTURE")
     .unwrap_or("")
     .trim(chars=" \t\r\n")
-    .to_string()
+    .to_owned()
   let env_updates : Map[String, String] = {}
   let output_values : Map[String, String] = { "node-version": node_version }
   if architecture_input.length() > 0 {
@@ -465,7 +465,7 @@ async fn execute_setup_node_native(
       .get("INPUT_SCOPE")
       .unwrap_or("")
       .trim(chars=" \t\r\n")
-      .to_string()
+      .to_owned()
     let npmrc_path = prepare_runner_temp_dir(plan.job_id, workspace_root) +
       "/.npmrc"
     if !write_setup_node_npmrc(npmrc_path, registry_url, always_auth~, scope~) {
@@ -513,7 +513,7 @@ fn execute_setup_node_cache_post_native(
     .get("SETUP_NODE_CACHE_PATH")
     .unwrap_or(
       setup_node_cache_relative_path(
-        cache_name.trim(chars=" \t\r\n").to_string(),
+        cache_name.trim(chars=" \t\r\n").to_owned(),
       ),
     )
   let key = saved_state.get("SETUP_NODE_CACHE_KEY").unwrap_or("")

@@ -767,7 +767,7 @@ fn strip_add_mask_lines(text : String) -> String {
     if trimmed.has_prefix("::debug::") {
       continue
     }
-    lines.push(line_view.to_string())
+    lines.push(line_view.to_owned())
   }
   lines.join("\n")
 }
@@ -778,7 +778,7 @@ pub fn extract_add_mask_values(report : WorkflowRunReport) -> Array[String] {
   let prefix = "::add-mask::"
   for task in report.task_reports {
     for line_view in task.stdout.split("\n") {
-      let line = line_view.trim(chars=" \t\r").to_string()
+      let line = line_view.trim(chars=" \t\r").to_owned()
       if line.has_prefix(prefix) && line.length() > prefix.length() {
         let value = String::unsafe_substring(
           line,
@@ -791,7 +791,7 @@ pub fn extract_add_mask_values(report : WorkflowRunReport) -> Array[String] {
       }
     }
     for line_view in task.stderr.split("\n") {
-      let line = line_view.trim(chars=" \t\r").to_string()
+      let line = line_view.trim(chars=" \t\r").to_owned()
       if line.has_prefix(prefix) && line.length() > prefix.length() {
         let value = String::unsafe_substring(
           line,

@@ -21,7 +21,7 @@ struct E2eFakeGitRoute {
 fn e2e_parent_dir(path : String) -> String {
   let parts : Array[String] = []
   for part in path.split("/") {
-    parts.push(part.to_string())
+    parts.push(part.to_owned())
   }
   if parts.length() <= 1 {
     return "."

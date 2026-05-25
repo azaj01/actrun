@@ -36,7 +36,7 @@ fn checkout_wildcard_match(pattern : String, text : String) -> Bool {
 
 ///|
 fn normalize_checkout_pattern(pattern : String) -> String {
-  let trimmed = pattern.trim(chars=" \t\r").to_string()
+  let trimmed = pattern.trim(chars=" \t\r").to_owned()
   let no_prefix = if trimmed.has_prefix("./") {
     exec_text_slice(trimmed, 2, trimmed.length())
   } else if trimmed.has_prefix("/") {
@@ -108,7 +108,7 @@ fn exec_copy_workspace_snapshot(
     return false
   }
   let top_level = match relative_destination.split("/").next() {
-    Some(segment) => segment.to_string()
+    Some(segment) => segment.to_owned()
     None => relative_destination
   }
   if !exec_remove_tree(destination) {
@@ -169,7 +169,7 @@ fn exec_prune_sparse_checkout(
 
 ///|
 fn parse_checkout_fetch_depth(value : String) -> Int? {
-  let trimmed = value.trim(chars=" \t\r\n").to_string()
+  let trimmed = value.trim(chars=" \t\r\n").to_owned()
   if trimmed.length() == 0 {
     return Some(1)
   }
@@ -195,7 +195,7 @@ fn parse_checkout_submodules(value : String) -> String {
 
 ///|
 fn parse_checkout_ref(value : String) -> String {
-  value.trim(chars=" \t\r\n").to_string()
+  value.trim(chars=" \t\r\n").to_owned()
 }
 
 ///|
@@ -682,12 +682,12 @@ async fn execute_builtin_checkout_native(
     .get("INPUT_REPOSITORY")
     .unwrap_or("")
     .trim(chars=" \t\r\n")
-    .to_string()
+    .to_owned()
   let filter_input = resolved_plan_env
     .get("INPUT_FILTER")
     .unwrap_or("")
     .trim(chars=" \t\r\n")
-    .to_string()
+    .to_owned()
   let clone_url = if repository_input.length() > 0 {
     "https://github.com/" + repository_input + ".git"
   } else {

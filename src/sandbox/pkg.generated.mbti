@@ -3,6 +3,7 @@ package "mizchi/actrun/sandbox"
 
 import {
   "mizchi/actrun",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -30,17 +31,17 @@ pub struct StepResult {
   stderr : String
   outputs : Map[String, String]
   env_updates : Map[String, String]
-} derive(Show, ToJson)
+} derive(ToJson, @debug.Debug)
 
 // Type aliases
 
 // Traits
 pub(open) trait Fs {
-  write(Self, String, String, Bool) -> Unit
-  read(Self, String) -> String?
-  exists(Self, String) -> Bool
-  is_dir(Self, String) -> Bool
-  mkdir(Self, String) -> Bool
-  remove(Self, String) -> Bool
+  fn write(Self, String, String, Bool) -> Unit
+  fn read(Self, String) -> String?
+  fn exists(Self, String) -> Bool
+  fn is_dir(Self, String) -> Bool
+  fn mkdir(Self, String) -> Bool
+  fn remove(Self, String) -> Bool
 }
 

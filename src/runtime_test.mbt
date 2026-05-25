@@ -59,14 +59,24 @@ test "runtime: materialize push workspace from bit repo" {
   )
 
   let result = materialize_bit_push_workspace(fs, fs, "/repo", event, "/work")
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
 
   let workspace = expect_bit_workspace(result)
-  assert_eq(workspace.git_dir, "/repo/.git")
-  assert_eq(workspace.commit_sha, commit_id.to_hex())
-  inspect(fs.read_string("/work/hello.txt"), content="hello\n")
-  inspect(fs.read_string("/work/.git/HEAD"), content="ref: refs/heads/main\n")
-  assert_eq(fs.read_string("/work/.git/config").contains("/repo"), true)
+  @debug.assert_eq(workspace.git_dir, "/repo/.git")
+  @debug.assert_eq(workspace.commit_sha, commit_id.to_hex())
+  @debug.debug_inspect(
+    fs.read_string("/work/hello.txt"),
+    content=(
+      #|"hello\n"
+    ),
+  )
+  @debug.debug_inspect(
+    fs.read_string("/work/.git/HEAD"),
+    content=(
+      #|"ref: refs/heads/main\n"
+    ),
+  )
+  @debug.assert_eq(fs.read_string("/work/.git/config").contains("/repo"), true)
 }
 
 ///|
@@ -78,10 +88,15 @@ test "runtime: materialize uses HEAD when after sha is missing" {
   let event = new_push_event("", ["hello.txt"])
 
   let result = materialize_bit_push_workspace(fs, fs, "/repo", event, "/head")
-  inspect(result.errors, content="[]")
+  @debug.debug_inspect(result.errors, content="[]")
   let workspace = expect_bit_workspace(result)
-  assert_eq(workspace.commit_sha, commit_id.to_hex())
-  inspect(workspace.refname, content="main")
+  @debug.assert_eq(workspace.commit_sha, commit_id.to_hex())
+  @debug.debug_inspect(
+    workspace.refname,
+    content=(
+      #|"main"
+    ),
+  )
 }
 
 ///|
@@ -101,16 +116,26 @@ test "runtime: compute changed paths from before and after" {
   )
 
   let result = compute_bit_changed_paths(fs, "/repo", event)
-  inspect(result.errors, content="[]")
-  inspect(result.base_sha, content=before_id.to_hex())
-  inspect(result.head_sha, content=after_id.to_hex())
-  inspect(result.paths, content="[\"b.txt\"]")
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
+    result.base_sha,
+    content=(
+      #|"d5d5e130a3ea7d692382ae030f3d5bc27b4189ea"
+    ),
+  )
+  @debug.debug_inspect(
+    result.head_sha,
+    content=(
+      #|"550582505d2236563fcd8a73789aee06e5e97b7c"
+    ),
+  )
+  @debug.debug_inspect(result.paths, content="[\"b.txt\"]")
 }
 
 ///|
 test "runtime: compute changed paths falls back to first parent" {
   let fs = @bit.TestFs::new()
-  let before_id = setup_bit_repo(
+  let _ = setup_bit_repo(
     fs, fs, "/repo", "a.txt", "one\n", "Initial commit", 1700000004L,
   )
   let after_id = commit_repo_file(
@@ -119,10 +144,20 @@ test "runtime: compute changed paths falls back to first parent" {
   let event = new_push_event("main", [], after_sha=after_id.to_hex())
 
   let result = compute_bit_changed_paths(fs, "/repo", event)
-  inspect(result.errors, content="[]")
-  inspect(result.base_sha, content=before_id.to_hex())
-  inspect(result.head_sha, content=after_id.to_hex())
-  inspect(result.paths, content="[\"a.txt\"]")
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.debug_inspect(
+    result.base_sha,
+    content=(
+      #|"caab32d3219a1ee89d600dab0409a96bac54291b"
+    ),
+  )
+  @debug.debug_inspect(
+    result.head_sha,
+    content=(
+      #|"e4671aad7de72904115713780741afe6a8d56401"
+    ),
+  )
+  @debug.debug_inspect(result.paths, content="[\"a.txt\"]")
 }
 
 ///|
@@ -139,9 +174,14 @@ test "runtime: materialize clears stale workspace files" {
   )
 
   let result = materialize_bit_push_workspace(fs, fs, "/repo", event, "/work")
-  inspect(result.errors, content="[]")
-  assert_eq(fs.exists("/work/stale.txt"), false)
-  inspect(fs.read_string("/work/hello.txt"), content="fresh\n")
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.assert_eq(fs.exists("/work/stale.txt"), false)
+  @debug.debug_inspect(
+    fs.read_string("/work/hello.txt"),
+    content=(
+      #|"fresh\n"
+    ),
+  )
 }
 
 ///|
@@ -159,7 +199,7 @@ test "runtime: materialize rejects overlapping repo and workspace" {
   let result = materialize_bit_push_workspace(
     fs, fs, "/repo", event, "/repo/work",
   )
-  inspect(
+  @debug.debug_inspect(
     result.errors,
     content="[\"workspace root must not overlap repo root\"]",
   )
@@ -190,14 +230,18 @@ test "runtime: native wrapper materializes workspace on disk" {
   let result = materialize_bit_push_workspace_native(
     repo_root, event, workspace_root,
   )
-  inspect(result.errors, content="[]")
-  assert_eq(expect_bit_workspace(result).commit_sha, commit_id.to_hex())
-  inspect(
+  @debug.debug_inspect(result.errors, content="[]")
+  @debug.assert_eq(expect_bit_workspace(result).commit_sha, commit_id.to_hex())
+  @debug.debug_inspect(
     @xfs.read_file_to_string(workspace_root + "/hello.txt"),
-    content="native\n",
+    content=(
+      #|"native\n"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     @xfs.read_file_to_string(workspace_root + "/.git/HEAD"),
-    content="ref: refs/heads/main\n",
+    content=(
+      #|"ref: refs/heads/main\n"
+    ),
   )
 }

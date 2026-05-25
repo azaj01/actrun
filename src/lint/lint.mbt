@@ -3,7 +3,7 @@ pub struct LintOptions {
   strict : Bool // enables missing-timeout
   online : Bool // enables mutable-action-ref + existence check
   yaml_text : String // raw YAML for text-level checks
-} derive(Show)
+} derive(Debug)
 
 ///|
 pub fn default_lint_options() -> LintOptions {
@@ -131,7 +131,7 @@ pub fn lint_workflow(
 ///|
 /// Strip ${{ }} wrapper if present, like the existing unwrap_if_expression
 fn unwrap_expression(text : String) -> String {
-  let trimmed = text.trim(chars=" \t\n\r").to_string()
+  let trimmed = text.trim(chars=" \t\n\r").to_owned()
   let prefix = "$\u007b\u007b"
   let suffix = "}}"
   if trimmed.has_prefix(prefix) &&
@@ -139,7 +139,7 @@ fn unwrap_expression(text : String) -> String {
     trimmed.length() >= 5 {
     String::unsafe_substring(trimmed, start=3, end=trimmed.length() - 2)
     .trim(chars=" \t\n\r")
-    .to_string()
+    .to_owned()
   } else {
     trimmed
   }

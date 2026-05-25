@@ -553,22 +553,22 @@ fn emit_step(
     Option::None =>
       match step.run {
         Option::Some(script) => {
-          let resolved = resolve_expr(script.trim(chars=" \t\r\n").to_string())
+          let resolved = resolve_expr(script.trim(chars=" \t\r\n").to_owned())
           let converted = convert_github_output(resolved, step.id, job_id)
           // Add origin comments for lines that changed
           let final_script = add_origin_comments(
-            script.trim(chars=" \t\r\n").to_string(),
+            script.trim(chars=" \t\r\n").to_owned(),
             converted,
           )
           if step.continue_on_error == "true" {
             for line_view in final_script.split("\n") {
-              let line = line_view.to_string()
+              let line = line_view.to_owned()
               out.push(body_indent + line)
             }
             // Only last command gets || true
           } else {
             for line_view in final_script.split("\n") {
-              out.push(body_indent + line_view.to_string())
+              out.push(body_indent + line_view.to_owned())
             }
           }
         }
@@ -843,7 +843,7 @@ fn resolve_expr(text : String) -> String {
         end~,
       )
       .trim(chars=" \t")
-      .to_string()
+      .to_owned()
     let replacement = expr_to_shell_var(expr)
     let before = String::unsafe_substring(result, start=0, end=start)
     let after = String::unsafe_substring(
@@ -860,7 +860,7 @@ fn resolve_expr(text : String) -> String {
 /// Generate " # ← original" comment if value was transformed
 fn comment_origin(original : String) -> String {
   if original.contains("$\u007b\u007b") {
-    "  # \u2190 " + original.trim(chars=" \t\r\n").to_string()
+    "  # \u2190 " + original.trim(chars=" \t\r\n").to_owned()
   } else {
     ""
   }
@@ -871,11 +871,11 @@ fn comment_origin(original : String) -> String {
 fn add_origin_comments(original : String, resolved : String) -> String {
   let orig_lines : Array[String] = []
   for v in original.split("\n") {
-    orig_lines.push(v.to_string())
+    orig_lines.push(v.to_owned())
   }
   let res_lines : Array[String] = []
   for v in resolved.split("\n") {
-    res_lines.push(v.to_string())
+    res_lines.push(v.to_owned())
   }
   // If same number of lines, compare per-line
   if orig_lines.length() == res_lines.length() {
@@ -884,7 +884,7 @@ fn add_origin_comments(original : String, resolved : String) -> String {
       let orig_line = orig_lines[i]
       if res_line != orig_line && orig_line.contains("$\u007b\u007b") {
         out.push(
-          res_line + "  # \u2190 " + orig_line.trim(chars=" \t\r").to_string(),
+          res_line + "  # \u2190 " + orig_line.trim(chars=" \t\r").to_owned(),
         )
       } else {
         out.push(res_line)
@@ -1121,8 +1121,8 @@ fn convert_github_output(
   }
   let lines : Array[String] = []
   for line_view in script.split("\n") {
-    let line = line_view.to_string()
-    let trimmed = line.trim(chars=" \t\r").to_string()
+    let line = line_view.to_owned()
+    let trimmed = line.trim(chars=" \t\r").to_owned()
     if trimmed.contains(">>") && trimmed.contains("GITHUB_OUTPUT") {
       let kv = extract_output_kv(trimmed)
       match kv {
@@ -1204,7 +1204,7 @@ fn translate_if_condition(cond : String) -> String {
 
 ///|
 fn unwrap_expr_for_codegen(text : String) -> String {
-  let trimmed = text.trim(chars=" \t\n\r").to_string()
+  let trimmed = text.trim(chars=" \t\n\r").to_owned()
   let prefix = "$\u007b\u007b"
   let suffix = "}}"
   if trimmed.has_prefix(prefix) &&
@@ -1212,7 +1212,7 @@ fn unwrap_expr_for_codegen(text : String) -> String {
     trimmed.length() >= 5 {
     String::unsafe_substring(trimmed, start=3, end=trimmed.length() - 2)
     .trim(chars=" \t\n\r")
-    .to_string()
+    .to_owned()
   } else {
     trimmed
   }

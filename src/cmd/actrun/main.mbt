@@ -323,7 +323,7 @@ fn usage_text() -> String {
 fn parent_dir(path : String) -> String {
   let parts : Array[String] = []
   for part in path.split("/") {
-    parts.push(part.to_string())
+    parts.push(part.to_owned())
   }
   if parts.length() <= 1 {
     return "."
@@ -521,7 +521,7 @@ async fn setup_local_workspace(
       cwd=abs_source,
     )
     let git_root = if rev_code == 0 {
-      rev_stdout.trim(chars=" \t\n\r").to_string()
+      rev_stdout.trim(chars=" \t\n\r").to_owned()
     } else {
       abs_source
     }
@@ -533,7 +533,7 @@ async fn setup_local_workspace(
     if code != 0 {
       return (
         None,
-        ["git worktree add failed: " + stderr.trim(chars=" \t\n\r").to_string()],
+        ["git worktree add failed: " + stderr.trim(chars=" \t\n\r").to_owned()],
       )
     }
     return (
@@ -553,7 +553,7 @@ async fn setup_local_workspace(
       cwd=abs_source,
     )
     let clone_root = if rev_code == 0 {
-      rev_stdout.trim(chars=" \t\n\r").to_string()
+      rev_stdout.trim(chars=" \t\n\r").to_owned()
     } else {
       abs_source
     }
@@ -565,7 +565,7 @@ async fn setup_local_workspace(
     if code != 0 {
       return (
         None,
-        ["git clone failed: " + stderr.trim(chars=" \t\n\r").to_string()],
+        ["git clone failed: " + stderr.trim(chars=" \t\n\r").to_owned()],
       )
     }
     return (
@@ -615,7 +615,7 @@ fn trim_git_suffix(text : String) -> String {
 fn origin_remote_url_from_git_config(config_text : String) -> String? {
   let mut in_origin = false
   for line_view in config_text.split("\n") {
-    let line = line_view.to_string().trim(chars=" \t\r").to_string()
+    let line = line_view.to_owned().trim(chars=" \t\r").to_owned()
     if line.length() == 0 {
       continue
     }
@@ -630,7 +630,7 @@ fn origin_remote_url_from_git_config(config_text : String) -> String? {
       Some(idx) => {
         let key = String::unsafe_substring(line, start=0, end=idx)
           .trim(chars=" \t")
-          .to_string()
+          .to_owned()
         if key == "url" {
           let value = String::unsafe_substring(
               line,
@@ -638,7 +638,7 @@ fn origin_remote_url_from_git_config(config_text : String) -> String? {
               end=line.length(),
             )
             .trim(chars=" \t")
-            .to_string()
+            .to_owned()
           if value.length() > 0 {
             return Some(value)
           }
@@ -652,7 +652,7 @@ fn origin_remote_url_from_git_config(config_text : String) -> String? {
 
 ///|
 fn github_repository_from_remote_url(remote_url : String) -> String {
-  let trimmed = trim_git_suffix(remote_url.trim(chars=" \t\r\n/").to_string())
+  let trimmed = trim_git_suffix(remote_url.trim(chars=" \t\r\n/").to_owned())
   if trimmed.length() == 0 {
     return ""
   }
@@ -687,7 +687,7 @@ fn github_repository_from_remote_url(remote_url : String) -> String {
   }
   let segments : Array[String] = []
   for part_view in path.trim(chars="/").split("/") {
-    let part = part_view.to_string().trim(chars=" ").to_string()
+    let part = part_view.to_owned().trim(chars=" ").to_owned()
     if part.length() > 0 {
       segments.push(part)
     }
@@ -760,7 +760,7 @@ async fn git_trimmed_stdout(
   if code != 0 {
     return None
   }
-  let trimmed = stdout.trim(chars=" \t\r\n").to_string()
+  let trimmed = stdout.trim(chars=" \t\r\n").to_owned()
   if trimmed.length() == 0 {
     None
   } else {
@@ -780,7 +780,7 @@ async fn git_trimmed_stdout_allow_empty(
   if code != 0 {
     return None
   }
-  Some(stdout.trim(chars=" \t\r\n").to_string())
+  Some(stdout.trim(chars=" \t\r\n").to_owned())
 }
 
 ///|
@@ -1429,7 +1429,7 @@ fn ms_to_iso8601(ms : UInt64) -> String {
 ///|
 fn run_number_from_id(run_id : String) -> Int {
   if run_id.has_prefix("run-") {
-    let num_str = run_id[4:].to_string()
+    let num_str = run_id[4:].to_owned()
     let parsed = main_parse_int64(num_str) catch { _ => return 0 }
     parsed.to_int()
   } else {
@@ -1512,7 +1512,7 @@ fn sorted_dir_entries(path : String) -> Array[String] {
 fn path_file_name(path : String) -> String {
   let parts : Array[String] = []
   for part in path.split("/") {
-    parts.push(part.to_string())
+    parts.push(part.to_owned())
   }
   if parts.length() == 0 {
     ""
@@ -1524,7 +1524,7 @@ fn path_file_name(path : String) -> String {
 ///|
 fn workflow_name_from_path(path : String) -> String {
   let name = path_file_name(path)
-  name.split(".").next().unwrap_or("").to_string()
+  name.split(".").next().unwrap_or("").to_owned()
 }
 
 ///|
@@ -1704,7 +1704,7 @@ let managed_embedded_report_artifacts : Array[String] = [
 
 ///|
 fn embedded_test_report_artifact_name(text : String) -> String? {
-  let trimmed = text.trim(chars=" \t\r\n").to_string()
+  let trimmed = text.trim(chars=" \t\r\n").to_owned()
   if trimmed.length() == 0 {
     return None
   }
@@ -1744,7 +1744,7 @@ fn persist_embedded_test_report_artifacts(
     let file_name = task_file_stem(task.id) + ".json"
     @xfs.write_string_to_file(
       join_path(artifact_dir, file_name),
-      task.stdout.trim(chars=" \t\r\n").to_string() + "\n",
+      task.stdout.trim(chars=" \t\r\n").to_owned() + "\n",
     )
   }
 }
@@ -1825,7 +1825,7 @@ fn read_text_file(path : String) -> String? {
 fn read_cache_sequence(path : String) -> Int? {
   match read_text_file(path) {
     Some(content) => {
-      let trimmed = content.trim(chars=" \t\r\n").to_string()
+      let trimmed = content.trim(chars=" \t\r\n").to_owned()
       if trimmed.length() == 0 {
         return None
       }
@@ -1857,7 +1857,7 @@ fn collect_run_caches(workspace_root : String) -> Array[RunCacheRecord] {
     }
     let key = match
       read_text_file(join_path(cache_root, "__actrun_cache_key.txt")) {
-      Some(content) => content.trim(chars=" \t\r\n").to_string()
+      Some(content) => content.trim(chars=" \t\r\n").to_owned()
       None => entry
     }
     caches.push({
@@ -2860,7 +2860,7 @@ async fn git_diff_files(base : String, head : String) -> Array[String] {
   }
   let files : Array[String] = []
   for line_view in stdout.split("\n") {
-    let line = line_view.trim(chars=" \t\r\n").to_string()
+    let line = line_view.trim(chars=" \t\r\n").to_owned()
     if line.length() > 0 {
       files.push(line)
     }
@@ -2879,7 +2879,7 @@ async fn git_uncommitted_files() -> Array[String] {
   let files : Array[String] = []
   if code == 0 {
     for line_view in stdout.split("\n") {
-      let line = line_view.trim(chars=" \t\r\n").to_string()
+      let line = line_view.trim(chars=" \t\r\n").to_owned()
       if line.length() > 0 {
         files.push(line)
       }
@@ -2893,7 +2893,7 @@ async fn git_uncommitted_files() -> Array[String] {
   )
   if code2 == 0 {
     for line_view in stdout2.split("\n") {
-      let line = line_view.trim(chars=" \t\r\n").to_string()
+      let line = line_view.trim(chars=" \t\r\n").to_owned()
       if line.length() > 0 {
         files.push(line)
       }
@@ -3131,7 +3131,7 @@ async fn handle_serve_command(args : Array[String]) -> Int {
       "repo", "view", "--json", "nameWithOwner", "-q", ".nameWithOwner",
     ])
     if code == 0 {
-      repo = stdout.trim(chars=" \t\r\n").to_string()
+      repo = stdout.trim(chars=" \t\r\n").to_owned()
     } else {
       print_errors([
         "could not detect repository. Use --repo owner/repo or run from a git repo with gh configured.",
@@ -3208,17 +3208,17 @@ async fn handle_serve_command(args : Array[String]) -> Int {
                 println("serve: could not get workflow path for run #" + run_id)
                 continue
               }
-              let wf_path = dl_stdout.trim(chars=" \t\r\n").to_string()
+              let wf_path = dl_stdout.trim(chars=" \t\r\n").to_owned()
               println("serve: running " + wf_path)
               // Execute locally
               let (run_code, run_stdout, run_stderr) = run_command("actrun", [
                 "workflow", "run", wf_path, "--trust", "--worktree",
               ])
               if run_stdout.length() > 0 {
-                println(run_stdout.trim_end(chars="\n").to_string())
+                println(run_stdout.trim_end(chars="\n").to_owned())
               }
               if run_stderr.length() > 0 {
-                println(run_stderr.trim_end(chars="\n").to_string())
+                println(run_stderr.trim_end(chars="\n").to_owned())
               }
               let status = if run_code == 0 { "success" } else { "failure" }
               println(
@@ -3469,7 +3469,7 @@ fn extract_cron_schedules(text : String) -> Array[String] {
   let schedules : Array[String] = []
   let mut in_schedule = false
   for part in text.split("\n") {
-    let line = part.to_string().trim(chars=" \t\r\n").to_string()
+    let line = part.to_owned().trim(chars=" \t\r\n").to_owned()
     if line == "schedule:" {
       in_schedule = true
       continue
@@ -3482,7 +3482,7 @@ fn extract_cron_schedules(text : String) -> Array[String] {
             end=line.length(),
           )
           .trim(chars=" \t\"'")
-          .to_string()
+          .to_owned()
         if cron_part.length() > 0 {
           schedules.push(cron_part)
         }
@@ -3564,7 +3564,7 @@ async fn handle_cron_command(args : Array[String]) -> Int {
     let (code, stdout, _) = run_command("crontab", ["-l"], cwd=".")
     if code == 0 {
       for line_view in stdout.split("\n") {
-        let line = line_view.to_string()
+        let line = line_view.to_owned()
         if !line.contains("# actrun:") {
           lines.push(line)
         }
@@ -3602,7 +3602,7 @@ async fn handle_cron_command(args : Array[String]) -> Int {
     )
     ignore(run_command("rm", ["-f", tmp_path], cwd="."))
     if install_code != 0 {
-      print_errors([install_err.trim(chars=" \t\r\n").to_string()])
+      print_errors([install_err.trim(chars=" \t\r\n").to_owned()])
       return 1
     }
     println("Installed " + cron_entries.length().to_string() + " cron entries")
@@ -3619,7 +3619,7 @@ async fn handle_cron_command(args : Array[String]) -> Int {
     let lines : Array[String] = []
     let mut removed = 0
     for line_view in stdout.split("\n") {
-      let line = line_view.to_string()
+      let line = line_view.to_owned()
       if line.contains("# actrun:") {
         removed += 1
       } else {
@@ -3647,7 +3647,7 @@ async fn handle_cron_command(args : Array[String]) -> Int {
     )
     ignore(run_command("rm", ["-f", tmp_path], cwd="."))
     if install_code != 0 {
-      print_errors([install_err.trim(chars=" \t\r\n").to_string()])
+      print_errors([install_err.trim(chars=" \t\r\n").to_owned()])
       return 1
     }
     println("Removed " + removed.to_string() + " actrun cron entries")
@@ -3667,12 +3667,12 @@ fn parse_dotenv(content : String) -> DotenvParseResult {
   let errors : Array[String] = []
   let lines : Array[String] = []
   for part in content.split("\n") {
-    lines.push(part.to_string())
+    lines.push(part.to_owned())
   }
   let mut i = 0
   while i < lines.length() {
-    let raw = lines[i].trim(chars="\r").to_string()
-    let line = raw.trim(chars=" \t").to_string()
+    let raw = lines[i].trim(chars="\r").to_owned()
+    let line = raw.trim(chars=" \t").to_owned()
     if line.length() == 0 || line.has_prefix("#") {
       i += 1
       continue
@@ -3681,7 +3681,7 @@ fn parse_dotenv(content : String) -> DotenvParseResult {
     let effective = if line.has_prefix("export ") {
       String::unsafe_substring(line, start=7, end=line.length())
       .trim(chars=" \t")
-      .to_string()
+      .to_owned()
     } else {
       line
     }
@@ -3691,14 +3691,14 @@ fn parse_dotenv(content : String) -> DotenvParseResult {
     }
     let key = String::unsafe_substring(effective, start=0, end=eq_idx)
       .trim(chars=" \t")
-      .to_string()
+      .to_owned()
     let raw_value = String::unsafe_substring(
         effective,
         start=eq_idx + 1,
         end=effective.length(),
       )
       .trim(chars=" \t")
-      .to_string()
+      .to_owned()
     if key.length() == 0 {
       i += 1
       continue
@@ -3756,7 +3756,7 @@ fn parse_dotenv_double_quoted(
           let expanded = dotenv_expand_vars(dotenv_unescape_double(buf), env)
           return (expanded, line_idx)
         }
-        buf = buf + "\n" + lines[line_idx].trim(chars="\r").to_string()
+        buf = buf + "\n" + lines[line_idx].trim(chars="\r").to_owned()
       }
     }
   }
@@ -3787,7 +3787,7 @@ fn parse_dotenv_single_quoted(
         if line_idx >= lines.length() {
           return (buf, line_idx)
         }
-        buf = buf + "\n" + lines[line_idx].trim(chars="\r").to_string()
+        buf = buf + "\n" + lines[line_idx].trim(chars="\r").to_owned()
       }
     }
   }
@@ -3839,7 +3839,7 @@ fn dotenv_strip_inline_comment(text : String) -> String {
       if prev == ' '.to_int() || prev == '\t'.to_int() {
         return String::unsafe_substring(text, start=0, end=i)
           .trim(chars=" \t")
-          .to_string()
+          .to_owned()
       }
     }
     i += 1
@@ -4219,7 +4219,7 @@ fn parse_cli_args(args : Array[String]) -> CliParseResult {
         )
       } else if arg == "--nix-packages" {
         for part_view in value.split(" ") {
-          let part = part_view.trim(chars=" \t").to_string()
+          let part = part_view.trim(chars=" \t").to_owned()
           if part.length() > 0 {
             nix_packages.push(part)
           }
@@ -4390,7 +4390,7 @@ fn parse_run_read_args(args : Array[String]) -> RunReadParseResult {
       if index < args.length() && !args[index].has_prefix("--") {
         let fields_str = args[index]
         for part in fields_str.split(",") {
-          let field = part.to_string().trim(chars=" ").to_string()
+          let field = part.to_owned().trim(chars=" ").to_owned()
           if field.length() > 0 {
             json_fields.push(field)
           }
@@ -4553,7 +4553,7 @@ fn parse_artifact_read_args(args : Array[String]) -> ArtifactReadParseResult {
       index += 1
       if index < args.length() && !args[index].has_prefix("--") {
         for part in args[index].split(",") {
-          let field = part.to_string().trim(chars=" ").to_string()
+          let field = part.to_owned().trim(chars=" ").to_owned()
           if field.length() > 0 {
             json_fields.push(field)
           }
@@ -4647,7 +4647,7 @@ fn parse_cache_read_args(args : Array[String]) -> CacheReadParseResult {
       index += 1
       if index < args.length() && !args[index].has_prefix("--") {
         for part in args[index].split(",") {
-          let field = part.to_string().trim(chars=" ").to_string()
+          let field = part.to_owned().trim(chars=" ").to_owned()
           if field.length() > 0 {
             json_fields.push(field)
           }
@@ -4747,7 +4747,7 @@ fn parse_workflow_read_args(args : Array[String]) -> WorkflowReadParseResult {
       index += 1
       if index < args.length() && !args[index].has_prefix("--") {
         for part in args[index].split(",") {
-          let field = part.to_string().trim(chars=" ").to_string()
+          let field = part.to_owned().trim(chars=" ").to_owned()
           if field.length() > 0 {
             json_fields.push(field)
           }
@@ -5266,11 +5266,11 @@ async fn resolve_action_refs(
         )
         if code != 0 {
           let err = "git ls-remote failed: " +
-            stderr.trim(chars=" \t\r\n").to_string()
+            stderr.trim(chars=" \t\r\n").to_owned()
           cache[cache_key] = ("", false, err)
           ("", false, err)
         } else {
-          let trimmed = stdout.trim(chars=" \t\r\n").to_string()
+          let trimmed = stdout.trim(chars=" \t\r\n").to_owned()
           if trimmed.length() == 0 {
             // ref not found, try as a tag with full path
             let (code2, stdout2, _) = run_command(
@@ -5279,7 +5279,7 @@ async fn resolve_action_refs(
               cwd=".",
             )
             if code2 == 0 {
-              let trimmed2 = stdout2.trim(chars=" \t\r\n").to_string()
+              let trimmed2 = stdout2.trim(chars=" \t\r\n").to_owned()
               if trimmed2.length() > 0 {
                 let resolved_sha = extract_ls_remote_sha(trimmed2)
                 cache[cache_key] = (resolved_sha, true, "")
@@ -5319,7 +5319,7 @@ async fn resolve_action_refs(
 fn extract_ls_remote_sha(output : String) -> String {
   // git ls-remote output: "SHA\trefs/..."
   for ch_view in output.split("\t") {
-    let sha = ch_view.to_string().trim(chars=" \t\r\n").to_string()
+    let sha = ch_view.to_owned().trim(chars=" \t\r\n").to_owned()
     if sha.length() >= 40 {
       return String::unsafe_substring(sha, start=0, end=40)
     }
@@ -5394,7 +5394,7 @@ async fn handle_doctor_command() -> Int {
     }
     let (code, stdout, _) = run_command(bin, ["--version"], cwd=".")
     if code == 0 {
-      let version = stdout.trim(chars=" \t\r\n").to_string()
+      let version = stdout.trim(chars=" \t\r\n").to_owned()
       let short_version = match version.find("\n") {
         Some(idx) => String::unsafe_substring(version, start=0, end=idx)
         None => version
@@ -5501,7 +5501,7 @@ async fn handle_doctor_command() -> Int {
       let (bin, _) = resolve_container_runtime_bin(config.container_runtime)
       let (rt_code, rt_stdout, _) = run_command(bin, ["--version"], cwd=".")
       if rt_code == 0 {
-        let rt_ver = rt_stdout.trim(chars=" \t\r\n").to_string()
+        let rt_ver = rt_stdout.trim(chars=" \t\r\n").to_owned()
         let short_ver = match rt_ver.find("\n") {
           Some(idx) => String::unsafe_substring(rt_ver, start=0, end=idx)
           None => rt_ver
@@ -5539,11 +5539,11 @@ async fn handle_doctor_command() -> Int {
           )
           if tool_code == 0 {
             // Some tools output to stderr (java -version)
-            let out = tool_stdout.trim(chars=" \t\r\n").to_string()
+            let out = tool_stdout.trim(chars=" \t\r\n").to_owned()
             let raw = if out.length() > 0 {
               out
             } else {
-              tool_stderr.trim(chars=" \t\r\n").to_string()
+              tool_stderr.trim(chars=" \t\r\n").to_owned()
             }
             let short_ver = match raw.find("\n") {
               Some(idx) => String::unsafe_substring(raw, start=0, end=idx)
@@ -5647,10 +5647,10 @@ async fn run_in_docker_container(options : CliOptions) -> Int {
   }
   let (code, stdout, stderr) = run_command(docker_bin, args, cwd=".")
   if stdout.length() > 0 {
-    println(stdout.trim_end(chars="\n").to_string())
+    println(stdout.trim_end(chars="\n").to_owned())
   }
   if stderr.length() > 0 {
-    print_errors([stderr.trim_end(chars="\n").to_string()])
+    print_errors([stderr.trim_end(chars="\n").to_owned()])
   }
   code
 }
@@ -5767,11 +5767,11 @@ fn scan_local_action_manifest(
   }
   // Extract uses: lines from manifest text (simple grep approach)
   for line_view in text.split("\n") {
-    let line = line_view.trim(chars=" \t\r").to_string()
+    let line = line_view.trim(chars=" \t\r").to_owned()
     if line.has_prefix("uses:") {
       let uses = String::unsafe_substring(line, start=5, end=line.length())
         .trim(chars=" \t'\"")
-        .to_string()
+        .to_owned()
       if uses.length() > 0 &&
         !is_trusted_action_owner(uses) &&
         !seen.contains(uses) {
@@ -5790,7 +5790,7 @@ async fn read_stdin_line() -> String {
     cwd=".",
   )
   if code == 0 {
-    stdout.trim(chars=" \t\r\n").to_string()
+    stdout.trim(chars=" \t\r\n").to_owned()
   } else {
     ""
   }
@@ -6040,7 +6040,7 @@ fn run_json_texts_in_order(run_root : String) -> Array[String] {
     }
     let run_json_path = join_path(run_dir, "run.json")
     match read_text(run_json_path) {
-      Some(text) => run_json_texts.push(text.trim_end(chars="\n").to_string())
+      Some(text) => run_json_texts.push(text.trim_end(chars="\n").to_owned())
       None => ()
     }
   }
@@ -6289,7 +6289,7 @@ fn collect_cache_list_records(
       }
       let key = match
         read_text_file(join_path(cache_root, "__actrun_cache_key.txt")) {
-        Some(content) => content.trim(chars=" \t\r\n").to_string()
+        Some(content) => content.trim(chars=" \t\r\n").to_owned()
         None => entry
       }
       caches.push({
@@ -6516,7 +6516,7 @@ async fn sync_dirty_changes(
   )
   if code2 == 0 {
     for line in stdout2.split("\n") {
-      let file = line.trim(chars=" \t\r\n").to_string()
+      let file = line.trim(chars=" \t\r\n").to_owned()
       if file.length() > 0 {
         ignore(copy_file(source_root + "/" + file, execution_root + "/" + file))
       }
@@ -6699,7 +6699,7 @@ fn format_run_logs_text(
 ///|
 fn read_optional_text(path : String) -> String? {
   match read_text(path) {
-    Some(text) => Some(text.trim_end(chars="\n").to_string())
+    Some(text) => Some(text.trim_end(chars="\n").to_owned())
     None => None
   }
 }
@@ -6818,14 +6818,14 @@ fn handle_workflow_read_command(options : WorkflowReadOptions) -> Int {
   if options.json_output {
     let json_text = workflow_list_json(records)
     match filter_json_array_fields(json_text, options.json_fields) {
-      Some(filtered) => println(filtered.trim_end(chars="\n").to_string())
+      Some(filtered) => println(filtered.trim_end(chars="\n").to_owned())
       None => println(json_text)
     }
     return 0
   }
   let text = format_workflow_list_text(records)
   if text.length() > 0 {
-    println(text.trim_end(chars="\n").to_string())
+    println(text.trim_end(chars="\n").to_owned())
   }
   0
 }
@@ -6845,15 +6845,15 @@ fn handle_artifact_read_command(options : ArtifactReadOptions) -> Int {
   if options.action == "list" {
     if options.json_output {
       match filter_json_array_fields(artifacts_json_text, options.json_fields) {
-        Some(filtered) => println(filtered.trim_end(chars="\n").to_string())
-        None => println(artifacts_json_text.trim_end(chars="\n").to_string())
+        Some(filtered) => println(filtered.trim_end(chars="\n").to_owned())
+        None => println(artifacts_json_text.trim_end(chars="\n").to_owned())
       }
       return 0
     }
     match format_artifact_list_text(artifacts_json_text) {
       Some(text) => {
         if text.length() > 0 {
-          println(text.trim_end(chars="\n").to_string())
+          println(text.trim_end(chars="\n").to_owned())
         }
         return 0
       }
@@ -6969,14 +6969,14 @@ fn handle_cache_read_command(options : CacheReadOptions) -> Int {
   if options.json_output {
     let json_text = cache_list_json(limited)
     match filter_json_array_fields(json_text, options.json_fields) {
-      Some(result) => println(result.trim_end(chars="\n").to_string())
+      Some(result) => println(result.trim_end(chars="\n").to_owned())
       None => println(json_text)
     }
     return 0
   }
   let text = format_cache_list_text(limited)
   if text.length() > 0 {
-    println(text.trim_end(chars="\n").to_string())
+    println(text.trim_end(chars="\n").to_owned())
   }
   0
 }
@@ -7206,7 +7206,7 @@ async fn handle_run_watch_command(options : RunReadOptions) -> Int {
           options.json_fields,
           options.jq_expr,
         )
-        println(output.trim_end(chars="\n").to_string())
+        println(output.trim_end(chars="\n").to_owned())
         return exit_code
       }
       match
@@ -7216,7 +7216,7 @@ async fn handle_run_watch_command(options : RunReadOptions) -> Int {
           job_id=options.job_id,
         ) {
         Some(text) => {
-          println(text.trim_end(chars="\n").to_string())
+          println(text.trim_end(chars="\n").to_owned())
           return exit_code
         }
         None => {
@@ -7266,7 +7266,7 @@ fn handle_run_read_command(options : RunReadOptions) -> Int {
           } else {
             text
           }
-          println(output.trim_end(chars="\n").to_string())
+          println(output.trim_end(chars="\n").to_owned())
           return 0
         }
         None => {
@@ -7286,7 +7286,7 @@ fn handle_run_read_command(options : RunReadOptions) -> Int {
       ) {
       Some(text) => {
         if text.length() > 0 {
-          println(text.trim_end(chars="\n").to_string())
+          println(text.trim_end(chars="\n").to_owned())
         }
         return 0
       }
@@ -7339,7 +7339,7 @@ fn handle_run_read_command(options : RunReadOptions) -> Int {
           job_filter=options.job_id,
         ) {
         Some(text) => {
-          println(text.trim_end(chars="\n").to_string())
+          println(text.trim_end(chars="\n").to_owned())
           return view_exit
         }
         None => {
@@ -7354,7 +7354,7 @@ fn handle_run_read_command(options : RunReadOptions) -> Int {
         options.json_fields,
         options.jq_expr,
       )
-      println(output.trim_end(chars="\n").to_string())
+      println(output.trim_end(chars="\n").to_owned())
       return view_exit
     }
     match
@@ -7364,7 +7364,7 @@ fn handle_run_read_command(options : RunReadOptions) -> Int {
         job_id=options.job_id,
       ) {
       Some(text) => {
-        println(text.trim_end(chars="\n").to_string())
+        println(text.trim_end(chars="\n").to_owned())
         return view_exit
       }
       None => {
@@ -7420,7 +7420,7 @@ fn handle_run_read_command(options : RunReadOptions) -> Int {
       job_filter=options.job_id,
     ) {
     Some(text) => {
-      println(text.trim_end(chars="\n").to_string())
+      println(text.trim_end(chars="\n").to_owned())
       0
     }
     None => {

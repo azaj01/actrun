@@ -412,7 +412,7 @@ pub suberror LexError {
 }
 
 ///|
-pub impl Show for LexError with output(self, logger) {
+pub impl Show for LexError with fn output(self, logger) {
   match self {
     UnterminatedString(line, col) =>
       logger.write_string("Unterminated string at \{line}:\{col}")

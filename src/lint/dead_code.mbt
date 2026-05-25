@@ -37,7 +37,7 @@ fn extract_expressions(text : String) -> Array[String] {
     }
     let expr = String::unsafe_substring(text, start=expr_start, end=found_end)
       .trim(chars=" \t\n\r")
-      .to_string()
+      .to_owned()
     if expr.length() > 0 {
       result.push(expr)
     }

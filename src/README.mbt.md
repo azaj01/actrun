@@ -106,8 +106,8 @@ test {
     #|      - run: pnpm test
   let parsed = parse_workflow_yaml(src)
   let lowered = lower_push_workflow(parsed.workflow.unwrap())
-  inspect(lowered.errors, content="[]")
-  inspect(lowered.ir.tasks.length(), content="2")
+  @debug.debug_inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(lowered.ir.tasks.length(), content="2")
 }
 ```
 

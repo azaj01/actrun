@@ -1,6 +1,10 @@
 import {
 }
 
+import {
+  "moonbitlang/core/debug",
+} for "test"
+
 options(
   targets: { "wasi_host_js.mbt": [ "js" ] },
 )

@@ -22,7 +22,12 @@ priv enum TokenKind {
   Star
   Ident(String)
   Eof
-} derive(Eq, Show)
+} derive(Eq, Debug)
+
+///|
+impl Show for TokenKind with fn output(self, logger) {
+  logger.write_string(@debug.to_string(self))
+}
 
 ///|
 priv struct Token {

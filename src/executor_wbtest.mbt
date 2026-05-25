@@ -1,8 +1,13 @@
 ///|
 test "nix_wrap_command: NixNone passes through" {
   let (cmd, args) = nix_wrap_command(NixNone, "bash", ["--norc", "script.sh"])
-  inspect(cmd, content="bash")
-  inspect(
+  @debug.debug_inspect(
+    cmd,
+    content=(
+      #|"bash"
+    ),
+  )
+  @debug.debug_inspect(
     args,
     content=(
       #|["--norc", "script.sh"]
@@ -13,8 +18,13 @@ test "nix_wrap_command: NixNone passes through" {
 ///|
 test "nix_wrap_command: Flake wraps with nix develop" {
   let (cmd, args) = nix_wrap_command(Flake, "bash", ["--norc", "script.sh"])
-  inspect(cmd, content="nix")
-  inspect(
+  @debug.debug_inspect(
+    cmd,
+    content=(
+      #|"nix"
+    ),
+  )
+  @debug.debug_inspect(
     args,
     content=(
       #|["develop", "--command", "bash", "--norc", "script.sh"]
@@ -25,8 +35,18 @@ test "nix_wrap_command: Flake wraps with nix develop" {
 ///|
 test "nix_wrap_command: Shell wraps with nix-shell --run" {
   let (cmd, args) = nix_wrap_command(Shell, "bash", ["--norc", "script.sh"])
-  inspect(cmd, content="nix-shell")
-  inspect(args[0], content="--run")
+  @debug.debug_inspect(
+    cmd,
+    content=(
+      #|"nix-shell"
+    ),
+  )
+  @debug.debug_inspect(
+    args[0],
+    content=(
+      #|"--run"
+    ),
+  )
 }
 
 ///|
@@ -36,8 +56,13 @@ test "nix_wrap_command: Packages wraps with nix-shell -p" {
     "bash",
     ["script.sh"],
   )
-  inspect(cmd, content="nix-shell")
-  inspect(
+  @debug.debug_inspect(
+    cmd,
+    content=(
+      #|"nix-shell"
+    ),
+  )
+  @debug.debug_inspect(
     args,
     content=(
       #|["-p", "python312", "-p", "nodejs", "--run", "'bash' 'script.sh'"]
@@ -50,8 +75,13 @@ test "sandbox_wrap_command: SandboxNone passes through" {
   let (cmd, args) = sandbox_wrap_command(SandboxNone, "bash", [
     "--norc", "script.sh",
   ])
-  inspect(cmd, content="bash")
-  inspect(
+  @debug.debug_inspect(
+    cmd,
+    content=(
+      #|"bash"
+    ),
+  )
+  @debug.debug_inspect(
     args,
     content=(
       #|["--norc", "script.sh"]
@@ -64,8 +94,13 @@ test "sandbox_wrap_command: Ronly wraps with ronly --" {
   let (cmd, args) = sandbox_wrap_command(Ronly([]), "bash", [
     "--norc", "script.sh",
   ])
-  inspect(cmd, content="ronly")
-  inspect(
+  @debug.debug_inspect(
+    cmd,
+    content=(
+      #|"ronly"
+    ),
+  )
+  @debug.debug_inspect(
     args,
     content=(
       #|["--", "bash", "--norc", "script.sh"]
@@ -80,72 +115,121 @@ test "sandbox_wrap_command: Ronly with writable paths" {
     "env",
     ["FOO=bar", "bash", "script.sh"],
   )
-  inspect(cmd, content="ronly")
-  inspect(
+  @debug.debug_inspect(
+    cmd,
+    content=(
+      #|"ronly"
+    ),
+  )
+  @debug.debug_inspect(
     args,
     content=(
-      #|["--writable", "/workspace", "--writable", "/tmp/output", "--", "env", "FOO=bar", "bash", "script.sh"]
+      #|[
+      #|  "--writable",
+      #|  "/workspace",
+      #|  "--writable",
+      #|  "/tmp/output",
+      #|  "--",
+      #|  "env",
+      #|  "FOO=bar",
+      #|  "bash",
+      #|  "script.sh",
+      #|]
     ),
   )
 }
 
 ///|
 test "is_commit_sha: full 40-char SHA is recognized" {
-  assert_eq(is_commit_sha("abc1234def5678abc1234def5678abc1234def56"), true)
+  @debug.assert_eq(
+    is_commit_sha("abc1234def5678abc1234def5678abc1234def56"),
+    true,
+  )
 }
 
 ///|
 test "is_commit_sha: short 7-char SHA is recognized" {
-  assert_eq(is_commit_sha("abc1234"), true)
+  @debug.assert_eq(is_commit_sha("abc1234"), true)
 }
 
 ///|
 test "is_commit_sha: uppercase hex chars are valid" {
-  assert_eq(is_commit_sha("ABC1234DEF5678ABC1234DEF5678ABC1234DEF56"), true)
+  @debug.assert_eq(
+    is_commit_sha("ABC1234DEF5678ABC1234DEF5678ABC1234DEF56"),
+    true,
+  )
 }
 
 ///|
 test "is_commit_sha: tag is not a SHA" {
-  assert_eq(is_commit_sha("v1"), false)
-  assert_eq(is_commit_sha("v1.2.3"), false)
+  @debug.assert_eq(is_commit_sha("v1"), false)
+  @debug.assert_eq(is_commit_sha("v1.2.3"), false)
 }
 
 ///|
 test "is_commit_sha: branch name is not a SHA" {
-  assert_eq(is_commit_sha("main"), false)
+  @debug.assert_eq(is_commit_sha("main"), false)
 }
 
 ///|
 test "is_commit_sha: too short hex string is not a SHA" {
-  assert_eq(is_commit_sha("abc123"), false)
+  @debug.assert_eq(is_commit_sha("abc123"), false)
 }
 
 ///|
 test "is_commit_sha: empty string is not a SHA" {
-  assert_eq(is_commit_sha(""), false)
+  @debug.assert_eq(is_commit_sha(""), false)
 }
 
 ///|
 test "canonicalize_abs_path: resolves parent segments" {
-  inspect(canonicalize_abs_path("/a/b/../c"), content="/a/c")
-  inspect(canonicalize_abs_path("/a/b/../../c"), content="/c")
-  inspect(canonicalize_abs_path("/a/./b/./c"), content="/a/b/c")
-  inspect(canonicalize_abs_path("/a/b/c/../../d"), content="/a/d")
+  @debug.debug_inspect(
+    canonicalize_abs_path("/a/b/../c"),
+    content=(
+      #|"/a/c"
+    ),
+  )
+  @debug.debug_inspect(
+    canonicalize_abs_path("/a/b/../../c"),
+    content=(
+      #|"/c"
+    ),
+  )
+  @debug.debug_inspect(
+    canonicalize_abs_path("/a/./b/./c"),
+    content=(
+      #|"/a/b/c"
+    ),
+  )
+  @debug.debug_inspect(
+    canonicalize_abs_path("/a/b/c/../../d"),
+    content=(
+      #|"/a/d"
+    ),
+  )
 }
 
 ///|
 test "canonicalize_abs_path: stops at root" {
-  inspect(canonicalize_abs_path("/a/../../../.."), content="/")
+  @debug.debug_inspect(
+    canonicalize_abs_path("/a/../../../.."),
+    content=(
+      #|"/"
+    ),
+  )
 }
 
 ///|
 test "validate_workspace_path: rejects traversal with leading dotdot" {
-  assert_eq(validate_workspace_path("/home/user/workspace", "../../etc"), None)
+  @debug.assert_eq(
+    validate_workspace_path("/home/user/workspace", "../../etc"),
+    None,
+  )
 }
 
 ///|
 test "validate_workspace_path: rejects traversal with intermediate dotdot" {
-  assert_eq(
+  @debug.assert_eq(
     validate_workspace_path("/home/user/workspace", "sub/../../.."),
     None,
   )
@@ -164,7 +248,12 @@ test "configured_wasm_runner_kind: explicit runner overrides wasm bin inference"
     "ACTRUN_WASM_RUNNER": "deno",
     "ACTRUN_WASM_BIN": "/tmp/tools/node",
   })
-  inspect(kind, content="deno")
+  @debug.debug_inspect(
+    kind,
+    content=(
+      #|"deno"
+    ),
+  )
 }
 
 ///|
@@ -172,16 +261,23 @@ test "configured_wasm_runner_kind: infers v8 from node bin when unset" {
   let kind = configured_wasm_runner_kind({
     "ACTRUN_WASM_BIN": "/tmp/tools/node",
   })
-  inspect(kind, content="v8")
+  @debug.debug_inspect(
+    kind,
+    content=(
+      #|"v8"
+    ),
+  )
 }
 
 ///|
 test "configured_wasm_runner_kind_error: rejects unsupported explicit runner" {
-  inspect(
+  @debug.debug_inspect(
     configured_wasm_runner_kind_error({ "ACTRUN_WASM_RUNNER": "custom" }).unwrap_or(
       "",
     ),
-    content="unsupported ACTRUN_WASM_RUNNER: custom (expected: wasmtime, deno, v8)",
+    content=(
+      #|"unsupported ACTRUN_WASM_RUNNER: custom (expected: wasmtime, deno, v8)"
+    ),
   )
 }
 
@@ -190,7 +286,12 @@ test "configured_wasm_bin: v8 defaults to ACTRUN_NODE_BIN" {
   let previous = @xsys.get_env_var("ACTRUN_NODE_BIN")
   @xsys.set_env_var("ACTRUN_NODE_BIN", "/tmp/tools/node24")
   let wasm_bin = configured_wasm_runner_bin({ "ACTRUN_WASM_RUNNER": "v8" })
-  inspect(wasm_bin, content="/tmp/tools/node24")
+  @debug.debug_inspect(
+    wasm_bin,
+    content=(
+      #|"/tmp/tools/node24"
+    ),
+  )
   match previous {
     Some(value) => @xsys.set_env_var("ACTRUN_NODE_BIN", value)
     None => @xsys.unset_env_var("ACTRUN_NODE_BIN")
@@ -211,7 +312,7 @@ async fn wbtest_run(
 /// Helper to create a temporary directory for symlink tests.
 async fn wbtest_setup_tmpdir() -> String {
   let (code, stdout, _) = wbtest_run("mktemp", ["-d"])
-  assert_eq(code, 0)
+  @debug.assert_eq(code, 0)
   trim_exec_output(stdout)
 }
 
@@ -236,7 +337,7 @@ async test "validate_workspace_path_real: rejects symlink pointing outside works
     validate_workspace_path(workspace, "evil-link/secret.txt") != None,
   )
   // Real path validation rejects (symlink resolves outside workspace)
-  assert_eq(
+  @debug.assert_eq(
     validate_workspace_path_real(workspace, "evil-link/secret.txt"),
     None,
   )
@@ -270,7 +371,10 @@ async test "validate_workspace_path_real: rejects nested symlink chain escaping 
   // String-based passes
   assert_true(validate_workspace_path(workspace, "a/b/link/data.txt") != None)
   // Real path rejects
-  assert_eq(validate_workspace_path_real(workspace, "a/b/link/data.txt"), None)
+  @debug.assert_eq(
+    validate_workspace_path_real(workspace, "a/b/link/data.txt"),
+    None,
+  )
   wbtest_cleanup(tmpdir)
 }
 
@@ -282,7 +386,7 @@ async test "resolve_real_path: resolves symlink to real target" {
   let resolved = resolve_real_path(tmpdir + "/link")
   // Resolve tmpdir itself to handle macOS /var -> /private/var
   let real_tmpdir = resolve_real_path(tmpdir)
-  inspect(resolved, content=real_tmpdir + "/real")
+  @debug.assert_eq(resolved, real_tmpdir + "/real")
   wbtest_cleanup(tmpdir)
 }
 
@@ -291,5 +395,10 @@ async test "resolve_real_path: returns path for non-existent path" {
   let path = "/nonexistent/path/that/does/not/exist"
   let resolved = resolve_real_path(path)
   // realpath -m resolves even non-existent paths
-  inspect(resolved, content=path)
+  @debug.debug_inspect(
+    resolved,
+    content=(
+      #|"/nonexistent/path/that/does/not/exist"
+    ),
+  )
 }

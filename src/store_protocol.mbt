@@ -25,7 +25,7 @@ pub fn store_mode_from_env(env : Map[String, String]) -> StoreMode {
 pub struct StoreOutputEntry {
   key : String
   value : String
-} derive(ToJson, FromJson, Show)
+} derive(ToJson, FromJson, Debug)
 
 ///|
 /// Env update: maps to GITHUB_ENV (key=value or heredoc)
@@ -33,21 +33,21 @@ pub struct StoreOutputEntry {
 pub struct StoreEnvEntry {
   key : String
   value : String
-} derive(ToJson, FromJson, Show)
+} derive(ToJson, FromJson, Debug)
 
 ///|
 /// Path update: maps to GITHUB_PATH (one path per line)
 /// HTTP: POST /runs/{run_id}/path  body: {"path": "..."}
 pub struct StorePathEntry {
   path : String
-} derive(ToJson, FromJson, Show)
+} derive(ToJson, FromJson, Debug)
 
 ///|
 /// Step summary: maps to GITHUB_STEP_SUMMARY (markdown text)
 /// HTTP: POST /steps/{step_id}/summary  body: {"content": "..."}
 pub struct StoreSummaryEntry {
   content : String
-} derive(ToJson, FromJson, Show)
+} derive(ToJson, FromJson, Debug)
 
 ///|
 /// Collected results for a step execution.
@@ -58,7 +58,7 @@ pub struct StoreStepResult {
   env_updates : Map[String, String]
   path_entries : Array[String]
   summary : String
-} derive(ToJson, FromJson, Show)
+} derive(ToJson, FromJson, Debug)
 
 ///|
 pub fn empty_step_result() -> StoreStepResult {

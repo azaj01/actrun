@@ -8,17 +8,17 @@ test "inspect_wasm_module: valid wasi module" {
     _ => return // skip if test module not available
   }
   let info = inspect_wasm_module(bytes)
-  inspect(info.valid, content="true")
-  inspect(info.function_count > 0, content="true")
-  inspect(info.export_count > 0, content="true")
-  inspect(info.total_bytes > 0, content="true")
+  @debug.debug_inspect(info.valid, content="true")
+  @debug.debug_inspect(info.function_count > 0, content="true")
+  @debug.debug_inspect(info.export_count > 0, content="true")
+  @debug.debug_inspect(info.total_bytes > 0, content="true")
 }
 
 ///|
 test "inspect_wasm_module: invalid bytes" {
   let info = inspect_wasm_module(b"not a wasm module")
-  inspect(info.valid, content="false")
-  inspect(info.error.length() > 0, content="true")
+  @debug.debug_inspect(info.valid, content="false")
+  @debug.debug_inspect(info.error.length() > 0, content="true")
 }
 
 ///|
@@ -30,10 +30,13 @@ test "optimize_wasm_module: reduces size" {
     _ => return
   }
   let result = optimize_wasm_module(bytes)
-  inspect(result.ok, content="true")
-  inspect(result.original_size > 0, content="true")
+  @debug.debug_inspect(result.ok, content="true")
+  @debug.debug_inspect(result.original_size > 0, content="true")
   // Optimized should be <= original
-  inspect(result.optimized_size <= result.original_size, content="true")
+  @debug.debug_inspect(
+    result.optimized_size <= result.original_size,
+    content="true",
+  )
 }
 
 ///|
@@ -45,7 +48,7 @@ test "analyze_wasm_dead_code: reports removable code" {
     _ => return
   }
   let report = analyze_wasm_dead_code(bytes)
-  inspect(report.ok, content="true")
+  @debug.debug_inspect(report.ok, content="true")
   // DCE report should at least parse successfully
-  inspect(report.removable_functions >= 0, content="true")
+  @debug.debug_inspect(report.removable_functions >= 0, content="true")
 }

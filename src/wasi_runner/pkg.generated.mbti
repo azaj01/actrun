@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "mizchi/actrun/wasi_runner"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 
 // Errors
@@ -40,7 +44,7 @@ pub struct WasiRunResult {
   stderr : String
   outputs : Map[String, String]
   env_updates : Map[String, String]
-} derive(Show, ToJson)
+} derive(ToJson, @debug.Debug)
 
 // Type aliases
 

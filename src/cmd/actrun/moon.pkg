@@ -1,17 +1,21 @@
 import {
   "mizchi/actrun" @ar,
   "mizchi/bitflow/workflow" @wf,
-  "mizchi/actrun/lint" @lint,
-  "mizchi/jq" @jq,
-  "bobzhang/toml" @toml,
+  "mizchi/actrun/lint",
+  "mizchi/jq",
+  "bobzhang/toml",
   "moonbitlang/async",
-  "moonbitlang/async/process" @process,
-  "moonbitlang/core/env" @env,
-  "moonbitlang/core/json" @json,
-  "moonbitlang/core/strconv" @strconv,
+  "moonbitlang/async/process",
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
+  "moonbitlang/core/strconv",
   "moonbitlang/x/fs" @xfs,
   "moonbitlang/x/sys" @xsys,
 }
+
+import {
+  "moonbitlang/core/debug",
+} for "wbtest"
 
 options(
   "is-main": true,

@@ -1,6 +1,7 @@
 import {
   "mizchi/actrun" @ar,
   "mizchi/moomaid" @mermaid,
+  "moonbitlang/core/debug",
 }
 
 warnings = "-0006-0007-0009"

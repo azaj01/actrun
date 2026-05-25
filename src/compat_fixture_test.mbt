@@ -48,14 +48,14 @@ fn compat_read_text(path : String) -> String? {
 
 ///|
 fn compat_trim_cr(text : String) -> String {
-  text.trim_end(chars="\r").to_string()
+  text.trim_end(chars="\r").to_owned()
 }
 
 ///|
 fn compat_parse_metadata(text : String) -> Map[String, String] {
   let values : Map[String, String] = {}
   for line_view in text.split("\n") {
-    let line = compat_trim_cr(line_view.to_string()).trim(chars=" ").to_string()
+    let line = compat_trim_cr(line_view.to_owned()).trim(chars=" ").to_owned()
     if line.length() == 0 || line.has_prefix("#") {
       continue
     }
@@ -63,14 +63,14 @@ fn compat_parse_metadata(text : String) -> Map[String, String] {
       Some(idx) => {
         let key = String::unsafe_substring(line, start=0, end=idx)
           .trim(chars=" ")
-          .to_string()
+          .to_owned()
         let value = String::unsafe_substring(
             line,
             start=idx + 1,
             end=line.length(),
           )
           .trim(chars=" ")
-          .to_string()
+          .to_owned()
         if key.length() > 0 {
           values[key] = value
         }
@@ -85,7 +85,7 @@ fn compat_parse_metadata(text : String) -> Map[String, String] {
 fn compat_parse_docs_urls(text : String) -> Array[String] {
   let urls : Array[String] = []
   for part in text.split(";") {
-    let url = part.to_string().trim(chars=" ").to_string()
+    let url = part.to_owned().trim(chars=" ").to_owned()
     if url.length() > 0 {
       urls.push(url)
     }
@@ -97,7 +97,7 @@ fn compat_parse_docs_urls(text : String) -> Array[String] {
 fn compat_fixture_leaf_name(path : String) -> String {
   let mut leaf = ""
   for part_view in path.trim(chars="/").split("/") {
-    let part = part_view.to_string()
+    let part = part_view.to_owned()
     if part.length() > 0 {
       leaf = part
     }
@@ -468,22 +468,60 @@ test "compat fixture: load docs sample fixture" {
   let result = load_compat_fixture("testdata/docs/push-scalar")
   let fixture = compat_expect_fixture(result)
 
-  inspect(fixture.id, content="docs-push-scalar")
-  inspect(fixture.source, content="docs")
-  inspect(fixture.mode, content="supported")
-  inspect(fixture.kind, content="parse")
-  inspect(fixture.url.has_prefix("https://docs.github.com/"), content="true")
-  inspect(fixture.docs_urls, content="[]")
-  inspect(fixture.added_at, content="2026-03-11")
-  inspect(fixture.notes.length() > 0, content="true")
-  inspect(fixture.root_dir, content="testdata/docs/push-scalar")
-  inspect(
-    fixture.workflow_path,
-    content="testdata/docs/push-scalar/workflow.yml",
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"docs-push-scalar"
+    ),
   )
-  inspect(fixture.workflow_text.contains("'on': push"), content="true")
-  inspect(fixture.event_path, content="None")
-  inspect(fixture.event_text, content="None")
+  @debug.debug_inspect(
+    fixture.source,
+    content=(
+      #|"docs"
+    ),
+  )
+  @debug.debug_inspect(
+    fixture.mode,
+    content=(
+      #|"supported"
+    ),
+  )
+  @debug.debug_inspect(
+    fixture.kind,
+    content=(
+      #|"parse"
+    ),
+  )
+  @debug.debug_inspect(
+    fixture.url.has_prefix("https://docs.github.com/"),
+    content="true",
+  )
+  @debug.debug_inspect(fixture.docs_urls, content="[]")
+  @debug.debug_inspect(
+    fixture.added_at,
+    content=(
+      #|"2026-03-11"
+    ),
+  )
+  @debug.debug_inspect(fixture.notes.length() > 0, content="true")
+  @debug.debug_inspect(
+    fixture.root_dir,
+    content=(
+      #|"testdata/docs/push-scalar"
+    ),
+  )
+  @debug.debug_inspect(
+    fixture.workflow_path,
+    content=(
+      #|"testdata/docs/push-scalar/workflow.yml"
+    ),
+  )
+  @debug.debug_inspect(
+    fixture.workflow_text.contains("'on': push"),
+    content="true",
+  )
+  @debug.debug_inspect(fixture.event_path, content="None")
+  @debug.debug_inspect(fixture.event_text, content="None")
 }
 
 ///|
@@ -493,12 +531,24 @@ test "compat fixture: load docs fixture with event json" {
   )
   let parsed_event = compat_expect_push_event_fixture(fixture)
 
-  inspect(
+  @debug.debug_inspect(
     fixture.event_path.unwrap_or(""),
-    content="testdata/docs/context-github-actor/event.json",
+    content=(
+      #|"testdata/docs/context-github-actor/event.json"
+    ),
   )
-  inspect(parsed_event.actor, content="octocat")
-  inspect(parsed_event.after_sha, content="abc123def456")
+  @debug.debug_inspect(
+    parsed_event.actor,
+    content=(
+      #|"octocat"
+    ),
+  )
+  @debug.debug_inspect(
+    parsed_event.after_sha,
+    content=(
+      #|"abc123def456"
+    ),
+  )
 }
 
 ///|
@@ -510,31 +560,49 @@ test "compat fixture: github context docs fixtures include event json" {
   for dir in dirs {
     let fixture = compat_expect_fixture(load_compat_fixture(dir))
     let event = compat_expect_push_event_fixture(fixture)
-    inspect(fixture.event_path is Some(_), content="true")
-    inspect(event.ref_name, content="main")
-    inspect(event.after_sha, content="abc123def456")
+    @debug.debug_inspect(fixture.event_path is Some(_), content="true")
+    @debug.debug_inspect(
+      event.ref_name,
+      content=(
+        #|"main"
+      ),
+    )
+    @debug.debug_inspect(
+      event.after_sha,
+      content=(
+        #|"abc123def456"
+      ),
+    )
   }
 }
 
 ///|
 test "compat fixture: workspace name derives from leaf dir" {
-  inspect(
+  @debug.debug_inspect(
     compat_fixture_leaf_name("testdata/docs/context-github-actor"),
-    content="context-github-actor",
+    content=(
+      #|"context-github-actor"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     compat_fixture_dir("testdata/docs", "push-scalar"),
-    content="testdata/docs/push-scalar",
+    content=(
+      #|"testdata/docs/push-scalar"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     compat_fixture_workspace_name(
       "languageservices", "testdata/upstream/languageservices/expr-env-basic",
     ),
-    content="languageservices-expr-env-basic",
+    content=(
+      #|"languageservices-expr-env-basic"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
     compat_fixture_workspace_name("", "testdata/upstream/act/shells-bash"),
-    content="shells-bash",
+    content=(
+      #|"shells-bash"
+    ),
   )
 }
 
@@ -544,17 +612,54 @@ test "compat fixture: suite configs centralize roots and prefixes" {
   let languageservices = compat_languageservices_suite()
   let act = compat_act_suite()
 
-  inspect(docs.expected_source, content="docs")
-  inspect(docs.fixture_root, content="testdata/docs")
-  inspect(languageservices.expected_source, content="actions-languageservices")
-  inspect(languageservices.workspace_prefix, content="languageservices")
-  inspect(act.expected_source, content="nektos-act")
-  inspect(act.workspace_root, content="_build/test-workspaces")
-  inspect(
-    act.copied_workspace_root,
-    content="_build/test-compat-act-workspaces",
+  @debug.debug_inspect(
+    docs.expected_source,
+    content=(
+      #|"docs"
+    ),
   )
-  inspect(act.copied_workspace_prefix, content="")
+  @debug.debug_inspect(
+    docs.fixture_root,
+    content=(
+      #|"testdata/docs"
+    ),
+  )
+  @debug.debug_inspect(
+    languageservices.expected_source,
+    content=(
+      #|"actions-languageservices"
+    ),
+  )
+  @debug.debug_inspect(
+    languageservices.workspace_prefix,
+    content=(
+      #|"languageservices"
+    ),
+  )
+  @debug.debug_inspect(
+    act.expected_source,
+    content=(
+      #|"nektos-act"
+    ),
+  )
+  @debug.debug_inspect(
+    act.workspace_root,
+    content=(
+      #|"_build/test-workspaces"
+    ),
+  )
+  @debug.debug_inspect(
+    act.copied_workspace_root,
+    content=(
+      #|"_build/test-compat-act-workspaces"
+    ),
+  )
+  @debug.debug_inspect(
+    act.copied_workspace_prefix,
+    content=(
+      #|""
+    ),
+  )
 }
 
 ///|
@@ -565,8 +670,8 @@ test "compat fixture: prepare workspace in root can return absolute path" {
     absolute=true,
   )
 
-  inspect(workspace.has_prefix("/"), content="true")
-  inspect(
+  @debug.debug_inspect(workspace.has_prefix("/"), content="true")
+  @debug.debug_inspect(
     @xfs.path_exists("_build/test-compat-shared-workspaces/absolute"),
     content="true",
   )
@@ -590,9 +695,20 @@ test "compat fixture: copied workspace clears stale files" {
     "_build/test-compat-shared-copies", "copy-dst", source,
   )
 
-  inspect(copied_again, content="_build/test-compat-shared-copies/copy-dst")
-  inspect(@xfs.path_exists(copied_again + "/fresh.txt"), content="true")
-  inspect(@xfs.path_exists(copied_again + "/stale.txt"), content="false")
+  @debug.debug_inspect(
+    copied_again,
+    content=(
+      #|"_build/test-compat-shared-copies/copy-dst"
+    ),
+  )
+  @debug.debug_inspect(
+    @xfs.path_exists(copied_again + "/fresh.txt"),
+    content="true",
+  )
+  @debug.debug_inspect(
+    @xfs.path_exists(copied_again + "/stale.txt"),
+    content="false",
+  )
 }
 
 ///|
@@ -610,10 +726,20 @@ test "compat fixture: prepare workflow fixture auto loads workflow" {
     suite, "push-scalar",
   )
 
-  inspect(fixture.id, content="docs-push-scalar")
-  inspect(workflow.name, content="ci")
-  inspect(workspace.has_prefix("/"), content="true")
-  inspect(@xfs.path_exists(workspace), content="true")
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"docs-push-scalar"
+    ),
+  )
+  @debug.debug_inspect(
+    workflow.name,
+    content=(
+      #|"ci"
+    ),
+  )
+  @debug.debug_inspect(workspace.has_prefix("/"), content="true")
+  @debug.debug_inspect(@xfs.path_exists(workspace), content="true")
 }
 
 ///|
@@ -624,9 +750,14 @@ test "compat fixture: expect lowered workflow fixture lowers workflow" {
     "env-precedence",
   )
 
-  inspect(fixture.id, content="docs-env-precedence")
-  inspect(lowered.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"docs-env-precedence"
+    ),
+  )
+  @debug.debug_inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(
     find_task_plan(lowered.plan, "build/print") is Some(_),
     content="true",
   )
@@ -640,8 +771,18 @@ test "compat fixture: expect workflow fixture in root loads workflow" {
     "push-scalar",
   )
 
-  inspect(fixture.id, content="docs-push-scalar")
-  inspect(workflow.name, content="ci")
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"docs-push-scalar"
+    ),
+  )
+  @debug.debug_inspect(
+    workflow.name,
+    content=(
+      #|"ci"
+    ),
+  )
 }
 
 ///|
@@ -661,9 +802,20 @@ test "compat fixture: prepare copied workflow fixture auto copies fixture files"
     copy_fixture=true,
   )
 
-  inspect(fixture.id, content="act-set-env-step-env-override")
-  inspect(@xfs.path_exists(workspace + "/workflow.yml"), content="true")
-  inspect(@xfs.path_exists(workspace + "/action/action.yml"), content="true")
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"act-set-env-step-env-override"
+    ),
+  )
+  @debug.debug_inspect(
+    @xfs.path_exists(workspace + "/workflow.yml"),
+    content="true",
+  )
+  @debug.debug_inspect(
+    @xfs.path_exists(workspace + "/action/action.yml"),
+    content="true",
+  )
 }
 
 ///|
@@ -684,7 +836,7 @@ test "compat fixture: reject missing metadata" {
     Some(_) => abort("fixture should be None")
     None => ()
   }
-  inspect(
+  @debug.debug_inspect(
     result.errors,
     content="[\"missing fixture.txt: _build/test-compat-fixtures/missing-metadata/fixture.txt\"]",
   )
@@ -693,14 +845,22 @@ test "compat fixture: reject missing metadata" {
 ///|
 test "compat fixture: act fixtures include official docs refs" {
   let fixture_dirs = compat_fixture_dirs("testdata/upstream/act")
-  inspect(fixture_dirs.length() > 0, content="true")
+  @debug.debug_inspect(fixture_dirs.length() > 0, content="true")
 
   for dir in fixture_dirs {
     let fixture = compat_expect_fixture(load_compat_fixture(dir))
-    inspect(fixture.source, content="nektos-act")
-    inspect(fixture.docs_urls.length() > 0, content="true")
+    @debug.debug_inspect(
+      fixture.source,
+      content=(
+        #|"nektos-act"
+      ),
+    )
+    @debug.debug_inspect(fixture.docs_urls.length() > 0, content="true")
     for url in fixture.docs_urls {
-      inspect(url.has_prefix("https://docs.github.com/"), content="true")
+      @debug.debug_inspect(
+        url.has_prefix("https://docs.github.com/"),
+        content="true",
+      )
     }
   }
 }
@@ -710,7 +870,7 @@ test "compat fixture: upstream fixtures are classified with stable metadata" {
   let fixture_dirs = compat_fixture_dirs("testdata/upstream")
   let ids : Map[String, Bool] = {}
 
-  inspect(fixture_dirs.length() > 0, content="true")
+  @debug.debug_inspect(fixture_dirs.length() > 0, content="true")
   for dir in fixture_dirs {
     let fixture = compat_expect_fixture(load_compat_fixture(dir))
     let valid_source = fixture.source == "actions-languageservices" ||
@@ -719,20 +879,23 @@ test "compat fixture: upstream fixtures are classified with stable metadata" {
       fixture.mode == "unsupported" ||
       fixture.mode == "known_diff"
 
-    inspect(valid_source, content="true")
-    inspect(valid_mode, content="true")
-    inspect(fixture.url.has_prefix("https://"), content="true")
-    inspect(fixture.notes.length() > 0, content="true")
-    inspect(ids.get(fixture.id) is None, content="true")
+    @debug.debug_inspect(valid_source, content="true")
+    @debug.debug_inspect(valid_mode, content="true")
+    @debug.debug_inspect(fixture.url.has_prefix("https://"), content="true")
+    @debug.debug_inspect(fixture.notes.length() > 0, content="true")
+    @debug.debug_inspect(ids.get(fixture.id) is None, content="true")
     ids[fixture.id] = true
 
     if fixture.mode != "supported" {
-      inspect(fixture.notes.length() > 0, content="true")
+      @debug.debug_inspect(fixture.notes.length() > 0, content="true")
     }
     if fixture.source == "nektos-act" {
-      inspect(fixture.docs_urls.length() > 0, content="true")
+      @debug.debug_inspect(fixture.docs_urls.length() > 0, content="true")
       for url in fixture.docs_urls {
-        inspect(url.has_prefix("https://docs.github.com/"), content="true")
+        @debug.debug_inspect(
+          url.has_prefix("https://docs.github.com/"),
+          content="true",
+        )
       }
     }
   }

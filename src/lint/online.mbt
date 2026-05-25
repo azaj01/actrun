@@ -9,7 +9,7 @@ pub struct ActionRefToResolve {
   job_id : String
   step_index : Int
   is_sha_pinned : Bool
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// Result of online action resolution
@@ -18,7 +18,7 @@ pub struct ActionResolution {
   sha : String // resolved SHA, empty if failed
   exists : Bool
   error : String // error message, empty if success
-} derive(Show)
+} derive(Debug)
 
 ///|
 pub fn new_action_resolution(
@@ -84,7 +84,7 @@ fn parse_action_uses(uses : String) -> (String, String, String, String)? {
       // Split path into owner/repo[/subpath]
       let parts : Array[String] = []
       for p in path.split("/") {
-        parts.push(p.to_string())
+        parts.push(p.to_owned())
       }
       if parts.length() < 2 {
         return Option::None

@@ -3,6 +3,7 @@ package "mizchi/actrun/lint"
 
 import {
   "mizchi/actrun",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -70,14 +71,14 @@ pub struct ActionRefToResolve {
   job_id : String
   step_index : Int
   is_sha_pinned : Bool
-} derive(Show)
+} derive(@debug.Debug)
 
 pub struct ActionResolution {
   uses : String
   sha : String
   exists : Bool
   error : String
-} derive(Show)
+} derive(@debug.Debug)
 
 pub enum BinaryOp {
   OpAnd
@@ -88,7 +89,8 @@ pub enum BinaryOp {
   OpLe
   OpGt
   OpGe
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
+pub impl Show for BinaryOp
 
 pub enum Expr {
   Literal(ExprLiteral)
@@ -98,14 +100,16 @@ pub enum Expr {
   UnaryOp(UnaryOp, Expr)
   BinaryOp(BinaryOp, Expr, Expr)
   FunctionCall(String, Array[Expr])
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
+pub impl Show for Expr
 
 pub enum ExprLiteral {
   LitString(String)
   LitNumber(String)
   LitBool(Bool)
   LitNull
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
+pub impl Show for ExprLiteral
 
 pub enum ExprType {
   TyAny
@@ -115,7 +119,8 @@ pub enum ExprType {
   TyString
   TyArray(ExprType)
   TyObject(ObjectKind)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
+pub impl Show for ExprType
 
 pub struct LintContext {
   contexts : Map[String, ExprType]
@@ -128,29 +133,33 @@ pub struct LintDiagnostic {
   job_id : String
   step_index : Int
   field : String
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn LintDiagnostic::format(Self) -> String
+pub impl Show for LintDiagnostic
 
 pub struct LintOptions {
   strict : Bool
   online : Bool
   yaml_text : String
-} derive(Show)
+} derive(@debug.Debug)
 
 pub enum ObjectKind {
   Strict(Map[String, ExprType])
   Loose(Map[String, ExprType], ExprType)
   MapObj(ExprType)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
+pub impl Show for ObjectKind
 
 pub enum Severity {
   Error
   Warning
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
+pub impl Show for Severity
 
 pub enum UnaryOp {
   OpNot
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
+pub impl Show for UnaryOp
 
 // Type aliases
 

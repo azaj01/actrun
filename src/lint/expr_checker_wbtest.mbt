@@ -16,7 +16,7 @@ fn make_test_context() -> LintContext {
 test "check valid github.ref" {
   let ctx = make_test_context()
   let diags = check_expression("github.ref", ctx, "test", 0, "if")
-  assert_eq(diags.length(), 0)
+  @debug.assert_eq(diags.length(), 0)
 }
 
 ///|
@@ -25,7 +25,7 @@ test "check valid github.event_name" {
   let diags = check_expression(
     "github.event_name == 'push'", ctx, "test", 0, "if",
   )
-  assert_eq(diags.length(), 0)
+  @debug.assert_eq(diags.length(), 0)
 }
 
 ///|
@@ -33,7 +33,7 @@ test "check undefined context" {
   let ctx = make_test_context()
   let diags = check_expression("foobar.something", ctx, "test", 0, "if")
   assert_true(diags.length() > 0)
-  assert_eq(diags[0].code, "undefined-context")
+  @debug.assert_eq(diags[0].code, "undefined-context")
 }
 
 ///|
@@ -41,21 +41,21 @@ test "check unknown github property" {
   let ctx = make_test_context()
   let diags = check_expression("github.nonexistent", ctx, "test", 0, "if")
   assert_true(diags.length() > 0)
-  assert_eq(diags[0].code, "unknown-property")
+  @debug.assert_eq(diags[0].code, "unknown-property")
 }
 
 ///|
 test "check env access is valid" {
   let ctx = make_test_context()
   let diags = check_expression("env.MY_VAR", ctx, "test", 0, "if")
-  assert_eq(diags.length(), 0)
+  @debug.assert_eq(diags.length(), 0)
 }
 
 ///|
 test "check secrets access is valid" {
   let ctx = make_test_context()
   let diags = check_expression("secrets.GITHUB_TOKEN", ctx, "test", 0, "if")
-  assert_eq(diags.length(), 0)
+  @debug.assert_eq(diags.length(), 0)
 }
 
 ///|
@@ -65,7 +65,7 @@ test "check steps access" {
   let diags = check_expression(
     "steps.step1.outputs.result", ctx, "test", 2, "if",
   )
-  assert_eq(diags.length(), 0)
+  @debug.assert_eq(diags.length(), 0)
 }
 
 ///|
@@ -75,7 +75,7 @@ test "check unknown step reference" {
     "steps.nonexistent.outputs.foo", ctx, "test", 2, "if",
   )
   assert_true(diags.length() > 0)
-  assert_eq(diags[0].code, "unknown-property")
+  @debug.assert_eq(diags[0].code, "unknown-property")
 }
 
 ///|
@@ -84,7 +84,7 @@ test "check needs access" {
   let diags = check_expression(
     "needs.build.result == 'success'", ctx, "test", 0, "if",
   )
-  assert_eq(diags.length(), 0)
+  @debug.assert_eq(diags.length(), 0)
 }
 
 ///|
@@ -99,7 +99,7 @@ test "check function arity: contains with wrong args" {
   let ctx = make_test_context()
   let diags = check_expression("contains('hello')", ctx, "test", 0, "if")
   assert_true(diags.length() > 0)
-  assert_eq(diags[0].code, "wrong-arity")
+  @debug.assert_eq(diags[0].code, "wrong-arity")
 }
 
 ///|
@@ -107,7 +107,7 @@ test "check function arity: success with args" {
   let ctx = make_test_context()
   let diags = check_expression("success('x')", ctx, "test", 0, "if")
   assert_true(diags.length() > 0)
-  assert_eq(diags[0].code, "wrong-arity")
+  @debug.assert_eq(diags[0].code, "wrong-arity")
 }
 
 ///|
@@ -115,7 +115,7 @@ test "check unknown function" {
   let ctx = make_test_context()
   let diags = check_expression("fooFunc()", ctx, "test", 0, "if")
   assert_true(diags.length() > 0)
-  assert_eq(diags[0].code, "unknown-function")
+  @debug.assert_eq(diags[0].code, "unknown-function")
 }
 
 ///|
@@ -124,7 +124,7 @@ test "check valid contains call" {
   let diags = check_expression(
     "contains('hello world', 'world')", ctx, "test", 0, "if",
   )
-  assert_eq(diags.length(), 0)
+  @debug.assert_eq(diags.length(), 0)
 }
 
 ///|
@@ -134,7 +134,7 @@ test "check valid complex expression" {
     "github.event_name == 'push' && contains(github.ref, 'main')", ctx, "test", 0,
     "if",
   )
-  assert_eq(diags.length(), 0)
+  @debug.assert_eq(diags.length(), 0)
 }
 
 ///|
@@ -143,14 +143,14 @@ test "check hashFiles" {
   let diags = check_expression(
     "hashFiles('**/package-lock.json')", ctx, "test", 0, "run",
   )
-  assert_eq(diags.length(), 0)
+  @debug.assert_eq(diags.length(), 0)
 }
 
 ///|
 test "check toJSON" {
   let ctx = make_test_context()
   let diags = check_expression("toJSON(env)", ctx, "test", 0, "run")
-  assert_eq(diags.length(), 0)
+  @debug.assert_eq(diags.length(), 0)
 }
 
 ///|

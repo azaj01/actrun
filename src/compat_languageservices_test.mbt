@@ -4,14 +4,31 @@ test "compat languageservices: parse events-single fixture" {
     "events-single",
   )
 
-  inspect(fixture.id, content="languageservices-events-single")
-  inspect(workflow.jobs.length(), content="1")
-  inspect(workflow.jobs[0].id, content="build")
-  inspect(
-    workflow.jobs[0].steps[0].uses.unwrap_or(""),
-    content="actions/checkout@v3",
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"languageservices-events-single"
+    ),
   )
-  inspect(workflow.jobs[0].steps[1].run.unwrap_or(""), content="echo hi")
+  @debug.debug_inspect(workflow.jobs.length(), content="1")
+  @debug.debug_inspect(
+    workflow.jobs[0].id,
+    content=(
+      #|"build"
+    ),
+  )
+  @debug.debug_inspect(
+    workflow.jobs[0].steps[0].uses.unwrap_or(""),
+    content=(
+      #|"actions/checkout@v3"
+    ),
+  )
+  @debug.debug_inspect(
+    workflow.jobs[0].steps[1].run.unwrap_or(""),
+    content=(
+      #|"echo hi"
+    ),
+  )
 }
 
 ///|
@@ -20,15 +37,29 @@ test "compat languageservices: parse workflow env fixture" {
     "workflow-env",
   )
 
-  inspect(fixture.id, content="languageservices-workflow-env")
-  inspect(workflow.env.get("root-env").unwrap_or(""), content="root env value")
-  inspect(
-    workflow.jobs[0].env.get("job-env").unwrap_or(""),
-    content="job env value",
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"languageservices-workflow-env"
+    ),
   )
-  inspect(
+  @debug.debug_inspect(
+    workflow.env.get("root-env").unwrap_or(""),
+    content=(
+      #|"root env value"
+    ),
+  )
+  @debug.debug_inspect(
+    workflow.jobs[0].env.get("job-env").unwrap_or(""),
+    content=(
+      #|"job env value"
+    ),
+  )
+  @debug.debug_inspect(
     workflow.jobs[0].steps[0].env.get("step-env").unwrap_or(""),
-    content="step env value",
+    content=(
+      #|"step env value"
+    ),
   )
 }
 
@@ -39,10 +70,25 @@ test "compat languageservices: lower workflow defaults fixture" {
   )
   let plan = compat_expect_task_plan(lowered.plan, "one/step_1")
 
-  inspect(fixture.id, content="languageservices-workflow-defaults")
-  inspect(lowered.errors, content="[]")
-  inspect(plan.shell, content="cmd")
-  inspect(plan.working_directory, content="foo")
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"languageservices-workflow-defaults"
+    ),
+  )
+  @debug.debug_inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(
+    plan.shell,
+    content=(
+      #|"cmd"
+    ),
+  )
+  @debug.debug_inspect(
+    plan.working_directory,
+    content=(
+      #|"foo"
+    ),
+  )
 }
 
 ///|
@@ -52,9 +98,14 @@ test "compat languageservices: lower job needs fixture" {
   )
   let task = flow_task_by_id(lowered.ir, "deploy/step_1")
 
-  inspect(fixture.id, content="languageservices-job-needs")
-  inspect(lowered.errors, content="[]")
-  inspect(
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"languageservices-job-needs"
+    ),
+  )
+  @debug.debug_inspect(lowered.errors, content="[]")
+  @debug.debug_inspect(
     task.needs,
     content="[\"test-level-0/__finish\", \"test-level-1/__finish\"]",
   )
@@ -64,9 +115,24 @@ test "compat languageservices: lower job needs fixture" {
 test "compat languageservices: parse step id fixture" {
   let (fixture, workflow) = compat_expect_languageservices_fixture("step-id")
 
-  inspect(fixture.id, content="languageservices-step-id")
-  inspect(workflow.jobs[0].steps[0].id, content="action-step-id")
-  inspect(workflow.jobs[0].steps[1].id, content="run-step-id")
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"languageservices-step-id"
+    ),
+  )
+  @debug.debug_inspect(
+    workflow.jobs[0].steps[0].id,
+    content=(
+      #|"action-step-id"
+    ),
+  )
+  @debug.debug_inspect(
+    workflow.jobs[0].steps[1].id,
+    content=(
+      #|"run-step-id"
+    ),
+  )
 }
 
 ///|
@@ -75,9 +141,22 @@ test "compat languageservices: lower step run missing fixture" {
     "errors-step-run-missing",
   )
 
-  inspect(fixture.id, content="languageservices-errors-step-run-missing")
-  inspect(fixture.mode, content="supported")
-  inspect(lowered.errors, content="[\"step 'build/step_1' must define run\"]")
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"languageservices-errors-step-run-missing"
+    ),
+  )
+  @debug.debug_inspect(
+    fixture.mode,
+    content=(
+      #|"supported"
+    ),
+  )
+  @debug.debug_inspect(
+    lowered.errors,
+    content="[\"step 'build/step_1' must define run\"]",
+  )
 }
 
 ///|
@@ -86,9 +165,22 @@ test "compat languageservices: step uses missing is a known diff" {
     "errors-step-uses-missing",
   )
 
-  inspect(fixture.id, content="languageservices-errors-step-uses-missing")
-  inspect(fixture.mode, content="known_diff")
-  inspect(lowered.errors, content="[\"step 'build/step_1' must define run\"]")
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"languageservices-errors-step-uses-missing"
+    ),
+  )
+  @debug.debug_inspect(
+    fixture.mode,
+    content=(
+      #|"known_diff"
+    ),
+  )
+  @debug.debug_inspect(
+    lowered.errors,
+    content="[\"step 'build/step_1' must define run\"]",
+  )
 }
 
 ///|
@@ -97,16 +189,30 @@ test "compat languageservices: step uses syntax is a known diff" {
     "errors-step-uses-syntax",
   )
 
-  inspect(fixture.id, content="languageservices-errors-step-uses-syntax")
-  inspect(fixture.mode, content="known_diff")
-  inspect(
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"languageservices-errors-step-uses-syntax"
+    ),
+  )
+  @debug.debug_inspect(
+    fixture.mode,
+    content=(
+      #|"known_diff"
+    ),
+  )
+  @debug.debug_inspect(
     lowered.errors,
-    content="[\"step 'build/step_2' action 'actions/aws/ec2@main' is not supported in MVP\", " +
-      "\"step 'build/step_3' local action './.github/actions/my-action' requires workspace-aware lowering\", " +
-      "\"step 'build/step_4' action '$$docker://alpine:3.8' is not supported in MVP\", " +
-      "\"step 'build/step_5' action '...docker://alpine:3.8' is not supported in MVP\", " +
-      "\"step 'build/step_6' action ref 'badrepo@invalid' must be owner/repo@ref, docker://image, ./path, or scheme://name@version\", " +
-      "\"step 'build/step_7' action ref 'docker://' must include an image name\"]",
+    content=(
+      #|[
+      #|  "step 'build/step_2' action 'actions/aws/ec2@main' is not supported in MVP",
+      #|  "step 'build/step_3' local action './.github/actions/my-action' requires workspace-aware lowering",
+      #|  "step 'build/step_4' action '$$docker://alpine:3.8' is not supported in MVP",
+      #|  "step 'build/step_5' action '...docker://alpine:3.8' is not supported in MVP",
+      #|  "step 'build/step_6' action ref 'badrepo@invalid' must be owner/repo@ref, docker://image, ./path, or scheme://name@version",
+      #|  "step 'build/step_7' action ref 'docker://' must include an image name",
+      #|]
+    ),
   )
 }
 
@@ -122,10 +228,25 @@ async test "compat languageservices: expression env exact property fixture" {
   )
   let task = compat_expect_task_report(report, "build/show")
 
-  inspect(fixture.id, content="languageservices-expr-env-basic")
-  inspect(report.ok, content="true")
-  inspect(task.status, content="success")
-  inspect(task.stdout, content="<baz>")
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"languageservices-expr-env-basic"
+    ),
+  )
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    task.stdout,
+    content=(
+      #|"<baz>"
+    ),
+  )
 }
 
 ///|
@@ -140,10 +261,25 @@ async test "compat languageservices: expression env property is case-insensitive
   )
   let task = compat_expect_task_report(report, "build/show")
 
-  inspect(fixture.id, content="languageservices-expr-env-case-insensitive")
-  inspect(report.ok, content="true")
-  inspect(task.status, content="success")
-  inspect(task.stdout, content="<baz>")
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"languageservices-expr-env-case-insensitive"
+    ),
+  )
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    task.stdout,
+    content=(
+      #|"<baz>"
+    ),
+  )
 }
 
 ///|
@@ -158,10 +294,25 @@ async test "compat languageservices: expression step output exact property fixtu
   )
   let task = compat_expect_task_report(report, "build/consume")
 
-  inspect(fixture.id, content="languageservices-expr-step-output-basic")
-  inspect(report.ok, content="true")
-  inspect(task.status, content="success")
-  inspect(task.stdout, content="<baz>")
+  @debug.debug_inspect(
+    fixture.id,
+    content=(
+      #|"languageservices-expr-step-output-basic"
+    ),
+  )
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    task.stdout,
+    content=(
+      #|"<baz>"
+    ),
+  )
 }
 
 ///|
@@ -176,11 +327,23 @@ async test "compat languageservices: expression step output property is case-ins
   )
   let task = compat_expect_task_report(report, "build/consume")
 
-  inspect(
+  @debug.debug_inspect(
     fixture.id,
-    content="languageservices-expr-step-output-case-insensitive",
+    content=(
+      #|"languageservices-expr-step-output-case-insensitive"
+    ),
   )
-  inspect(report.ok, content="true")
-  inspect(task.status, content="success")
-  inspect(task.stdout, content="<baz>")
+  @debug.debug_inspect(report.ok, content="true")
+  @debug.debug_inspect(
+    task.status,
+    content=(
+      #|"success"
+    ),
+  )
+  @debug.debug_inspect(
+    task.stdout,
+    content=(
+      #|"<baz>"
+    ),
+  )
 }

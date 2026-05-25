@@ -1,6 +1,7 @@
 import {
-  "mizchi/actrun" @actrun,
-  "moonbitlang/core/json" @json,
+  "mizchi/actrun",
+  "moonbitlang/core/json",
+  "moonbitlang/core/debug",
 }
 
 warnings = "-0029"

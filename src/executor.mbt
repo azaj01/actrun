@@ -531,7 +531,7 @@ fn absolute_exec_path(path : String) -> String {
 
 ///|
 fn trim_exec_output(text : String) -> String {
-  text.trim(chars=" \t\n\r").to_string()
+  text.trim(chars=" \t\n\r").to_owned()
 }
 
 ///|
@@ -715,7 +715,7 @@ fn prepare_step_file_commands(
 
 ///|
 fn trim_cr(text : String) -> String {
-  text.trim_end(chars="\r").to_string()
+  text.trim_end(chars="\r").to_owned()
 }
 
 ///|
@@ -725,7 +725,7 @@ fn parse_env_updates(path : String) -> Map[String, String] {
   let lines = content.split("\n").collect()
   let mut idx = 0
   while idx < lines.length() {
-    let line = trim_cr(lines[idx].to_string())
+    let line = trim_cr(lines[idx].to_owned())
     if line.length() == 0 {
       idx += 1
       continue
@@ -739,7 +739,7 @@ fn parse_env_updates(path : String) -> Map[String, String] {
           let mut cursor = idx + 1
           let mut closed = false
           while cursor < lines.length() {
-            let value_line = trim_cr(lines[cursor].to_string())
+            let value_line = trim_cr(lines[cursor].to_owned())
             if value_line == delimiter {
               closed = true
               break
@@ -776,7 +776,7 @@ fn parse_path_updates(path : String) -> Array[String] {
   let updates : Array[String] = []
   guard read_exec_text(path) is Some(content) else { return updates }
   for line_view in content.split("\n") {
-    let line = trim_cr(line_view.to_string())
+    let line = trim_cr(line_view.to_owned())
     if line.length() == 0 {
       continue
     }
@@ -802,7 +802,7 @@ fn parse_summary_text(path : String) -> String {
 
 ///|
 fn step_output_expr_name(expression : String) -> (String, String)? {
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   guard trimmed.has_prefix("steps.") && trimmed.length() > 6 else {
     return None
   }
@@ -820,7 +820,7 @@ fn step_output_expr_name(expression : String) -> (String, String)? {
 
 ///|
 fn step_status_expr_name(expression : String, suffix : String) -> String? {
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   guard trimmed.has_prefix("steps.") && trimmed.has_suffix(suffix) else {
     return None
   }
@@ -834,7 +834,7 @@ fn step_status_expr_name(expression : String, suffix : String) -> String? {
 
 ///|
 fn needs_output_expr_name(expression : String) -> (String, String)? {
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   guard trimmed.has_prefix("needs.") && trimmed.length() > 6 else {
     return None
   }
@@ -852,7 +852,7 @@ fn needs_output_expr_name(expression : String) -> (String, String)? {
 
 ///|
 fn needs_result_expr_name(expression : String) -> String? {
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   guard trimmed.has_prefix("needs.") && trimmed.has_suffix(".result") else {
     return None
   }
@@ -866,7 +866,7 @@ fn needs_result_expr_name(expression : String) -> String? {
 
 ///|
 fn env_expr_name(expression : String) -> String? {
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   if trimmed.has_prefix("env.") && trimmed.length() > 4 {
     Some(exec_text_slice(trimmed, 4, trimmed.length()))
   } else {
@@ -876,7 +876,7 @@ fn env_expr_name(expression : String) -> String? {
 
 ///|
 fn job_expr_name(expression : String) -> String? {
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   if trimmed.has_prefix("job.") && trimmed.length() > 4 {
     Some(exec_text_slice(trimmed, 4, trimmed.length()))
   } else {
@@ -886,7 +886,7 @@ fn job_expr_name(expression : String) -> String? {
 
 ///|
 fn github_expr_name(expression : String) -> String? {
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   if trimmed.has_prefix("github.") && trimmed.length() > 7 {
     Some(exec_text_slice(trimmed, 7, trimmed.length()))
   } else {
@@ -896,7 +896,7 @@ fn github_expr_name(expression : String) -> String? {
 
 ///|
 fn runner_expr_name(expression : String) -> String? {
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   if trimmed.has_prefix("runner.") && trimmed.length() > 7 {
     Some(exec_text_slice(trimmed, 7, trimmed.length()))
   } else {
@@ -906,7 +906,7 @@ fn runner_expr_name(expression : String) -> String? {
 
 ///|
 fn vars_expr_name(expression : String) -> String? {
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   if trimmed.has_prefix("vars.") && trimmed.length() > 5 {
     Some(exec_text_slice(trimmed, 5, trimmed.length()))
   } else {
@@ -916,7 +916,7 @@ fn vars_expr_name(expression : String) -> String? {
 
 ///|
 fn secrets_expr_name(expression : String) -> String? {
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   if trimmed.has_prefix("secrets.") && trimmed.length() > 8 {
     Some(exec_text_slice(trimmed, 8, trimmed.length()))
   } else {
@@ -926,7 +926,7 @@ fn secrets_expr_name(expression : String) -> String? {
 
 ///|
 fn dispatch_inputs_expr_name(expression : String) -> String? {
-  let trimmed = expression.trim(chars=" \t\n\r").to_string()
+  let trimmed = expression.trim(chars=" \t\n\r").to_owned()
   if trimmed.has_prefix("inputs.") && trimmed.length() > 7 {
     Some(exec_text_slice(trimmed, 7, trimmed.length()))
   } else if trimmed.has_prefix("github.event.inputs.") && trimmed.length() > 20 {
@@ -1171,7 +1171,7 @@ fn push_event_name(
 fn github_repository_owner(push_event : PushEvent?) -> String {
   match push_event {
     Some(event) => {
-      let repository = event.repository.trim(chars=" /").to_string()
+      let repository = event.repository.trim(chars=" /").to_owned()
       match repository.find("/") {
         Some(idx) =>
           if idx > 0 {
@@ -1317,7 +1317,7 @@ pub fn collect_secret_values() -> Array[String] {
 
 ///|
 fn service_port_segment_value(value : String) -> String {
-  let trimmed = value.trim(chars=" \t\r\n").to_string()
+  let trimmed = value.trim(chars=" \t\r\n").to_owned()
   match trimmed.find("/") {
     Some(idx) => exec_text_slice(trimmed, 0, idx)
     None => trimmed
@@ -1328,7 +1328,7 @@ fn service_port_segment_value(value : String) -> String {
 fn service_port_segments(port_spec : String) -> Array[String] {
   let segments : Array[String] = []
   for segment in port_spec.split(":") {
-    segments.push(segment.trim(chars=" \t\r\n").to_string())
+    segments.push(segment.trim(chars=" \t\r\n").to_owned())
   }
   segments
 }
@@ -1618,7 +1618,7 @@ fn shell_command(
   shell : String,
   script_path : String,
 ) -> (String, Array[String]) {
-  let trimmed = shell.trim(chars=" ").to_string()
+  let trimmed = shell.trim(chars=" ").to_owned()
   if trimmed.contains("{0}") {
     let expanded = trimmed.replace_all(
       old="{0}",
@@ -1659,7 +1659,7 @@ fn env_command_args(
 fn split_exec_words(text : String) -> Array[String] {
   let parts : Array[String] = []
   for part_view in text.split(" ") {
-    let part = part_view.trim(chars=" \t\r\n").to_string()
+    let part = part_view.trim(chars=" \t\r\n").to_owned()
     if part.length() > 0 {
       parts.push(part)
     }
@@ -2581,7 +2581,7 @@ fn exec_remove_tree(path : String) -> Bool {
 fn exec_leaf_name(path : String) -> String {
   let parts : Array[String] = []
   for part in path.split("/") {
-    let text = part.to_string()
+    let text = part.to_owned()
     if text.length() > 0 {
       parts.push(text)
     }
@@ -2679,7 +2679,7 @@ fn parse_bool_false_default(value : String) -> Bool {
 fn canonicalize_abs_path(path : String) -> String {
   let parts : Array[String] = []
   for part_view in path.split("/") {
-    let part = part_view.to_string()
+    let part = part_view.to_owned()
     if part.length() == 0 || part == "." {
       continue
     }
@@ -2769,7 +2769,7 @@ async fn validate_workspace_path_real(
 fn split_nonempty_lines(text : String) -> Array[String] {
   let lines : Array[String] = []
   for line_view in text.split("\n") {
-    let line = line_view.trim(chars=" \t\r").to_string()
+    let line = line_view.trim(chars=" \t\r").to_owned()
     if line.length() > 0 {
       lines.push(line)
     }

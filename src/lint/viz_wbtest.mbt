@@ -6,11 +6,10 @@ test "snapshot: mermaid single job" {
       @ar.new_run_step("test", "make test"),
     ]),
   ])
-  inspect(
+  @debug.debug_inspect(
     workflow_to_mermaid(workflow),
     content=(
-      #|graph TD
-      #|  build["build (2 steps)"]
+      #|"graph TD\n  build[\"build (2 steps)\"]"
     ),
   )
 }
@@ -27,17 +26,10 @@ test "snapshot: mermaid diamond dependency" {
       "build",
     ]),
   ])
-  inspect(
+  @debug.debug_inspect(
     workflow_to_mermaid(workflow),
     content=(
-      #|graph TD
-      #|  lint["lint (1 steps)"]
-      #|  test["test (1 steps)"]
-      #|  build["build (1 steps)"]
-      #|  deploy["deploy (1 steps)"]
-      #|  lint --> build
-      #|  test --> build
-      #|  build --> deploy
+      #|"graph TD\n  lint[\"lint (1 steps)\"]\n  test[\"test (1 steps)\"]\n  build[\"build (1 steps)\"]\n  deploy[\"deploy (1 steps)\"]\n  lint --> build\n  test --> build\n  build --> deploy"
     ),
   )
 }
@@ -53,19 +45,10 @@ test "snapshot: mermaid detail with subgraphs" {
       "build",
     ]),
   ])
-  inspect(
+  @debug.debug_inspect(
     workflow_to_mermaid_detail(workflow),
     content=(
-      #|graph TD
-      #|  subgraph build ["build"]
-      #|    build_s0(["checkout"])
-      #|    build_s1(["compile"])
-      #|    build_s0 --> build_s1
-      #|  end
-      #|  subgraph test ["test"]
-      #|    test_s0(["test"])
-      #|  end
-      #|  build --> test
+      #|"graph TD\n  subgraph build [\"build\"]\n    build_s0([\"checkout\"])\n    build_s1([\"compile\"])\n    build_s0 --> build_s1\n  end\n  subgraph test [\"test\"]\n    test_s0([\"test\"])\n  end\n  build --> test"
     ),
   )
 }
@@ -79,22 +62,10 @@ test "snapshot: ascii render simple pipeline" {
       "test",
     ]),
   ])
-  inspect(
+  @debug.debug_inspect(
     render_workflow_ascii(workflow),
     content=(
-      #|┌───────┐
-      #|│ build │
-      #|└───────┘
-      #|    └┐
-      #|     │
-      #| ┌──────┐
-      #| │ test │
-      #| └──────┘
-      #|     │
-      #|     │
-      #|┌────────┐
-      #|│ deploy │
-      #|└────────┘
+      #|"┌───────┐\n│ build │\n└───────┘\n    └┐\n     │\n ┌──────┐\n │ test │\n └──────┘\n     │\n     │\n┌────────┐\n│ deploy │\n└────────┘"
     ),
   )
 }
@@ -109,17 +80,10 @@ test "snapshot: ascii render parallel jobs" {
       "lint", "test", "e2e",
     ]),
   ])
-  inspect(
+  @debug.debug_inspect(
     render_workflow_ascii(workflow),
     content=(
-      #|┌──────┐    ┌──────┐    ┌─────┐
-      #|│ lint │    │ test │    │ e2e │
-      #|└──────┘    └──────┘    └─────┘
-      #|    └──────────┬┴──────────┘
-      #|               │
-      #|           ┌───────┐
-      #|           │ merge │
-      #|           └───────┘
+      #|"┌──────┐    ┌──────┐    ┌─────┐\n│ lint │    │ test │    │ e2e │\n└──────┘    └──────┘    └─────┘\n    └──────────┬┴──────────┘\n               │\n           ┌───────┐\n           │ merge │\n           └───────┘"
     ),
   )
 }
@@ -154,19 +118,12 @@ test "snapshot: mermaid from yaml" {
   let parsed = @ar.parse_workflow_yaml(yaml)
   match parsed.workflow {
     Option::Some(w) =>
-      inspect(
+      @debug.debug_inspect(
         workflow_to_mermaid(w),
         content=(
-          #|graph TD
-          #|  lint["lint (2 steps)"]
-          #|  test["test (2 steps)"]
-          #|  build["build (2 steps)"]
-          #|  deploy["deploy (1 steps)"]
-          #|  lint --> build
-          #|  test --> build
-          #|  build --> deploy
+          #|"graph TD\n  lint[\"lint (2 steps)\"]\n  test[\"test (2 steps)\"]\n  build[\"build (2 steps)\"]\n  deploy[\"deploy (1 steps)\"]\n  lint --> build\n  test --> build\n  build --> deploy"
         ),
       )
-    Option::None => inspect("parse failed")
+    Option::None => @debug.debug_inspect("parse failed")
   }
 }

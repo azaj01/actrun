@@ -299,7 +299,7 @@ fn check_if_always(
 ) -> Unit {
   for job in workflow.jobs {
     // Check job-level
-    let job_cond = job.if_condition.trim(chars=" \t\n\r").to_string()
+    let job_cond = job.if_condition.trim(chars=" \t\n\r").to_owned()
     if is_bare_always(job_cond) {
       diagnostics.push({
         severity: Warning,
@@ -311,7 +311,7 @@ fn check_if_always(
       })
     }
     for i, step in job.steps {
-      let cond = step.if_condition.trim(chars=" \t\n\r").to_string()
+      let cond = step.if_condition.trim(chars=" \t\n\r").to_owned()
       if is_bare_always(cond) {
         diagnostics.push({
           severity: Warning,
@@ -339,7 +339,7 @@ fn unwrap_expression_text(text : String) -> String {
   if text.has_prefix(prefix) && text.has_suffix(suffix) && text.length() >= 5 {
     String::unsafe_substring(text, start=3, end=text.length() - 2)
     .trim(chars=" \t\n\r")
-    .to_string()
+    .to_owned()
   } else {
     text
   }
