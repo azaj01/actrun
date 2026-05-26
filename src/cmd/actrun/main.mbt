@@ -5352,6 +5352,47 @@ fn doctor_wasm_runner_bin() -> String {
 }
 
 ///|
+async fn doctor_bin_exists(bin : String) -> Bool {
+  if bin.contains("/") {
+    @xfs.path_exists(bin)
+  } else {
+    let (code, _, _) = run_command("which", [bin], cwd=".")
+    code == 0
+  }
+}
+
+///|
+fn doctor_optional_hint(check : DoctorCheck) -> String {
+  if check.env_override.length() > 0 {
+    " (optional, override with " + check.env_override + ")"
+  } else {
+    " (optional)"
+  }
+}
+
+///|
+fn doctor_print_not_found(check : DoctorCheck) -> Unit {
+  if check.required {
+    println("ERR " + check.name + ": not found (required)")
+  } else {
+    println("--  " + check.name + ": not found" + doctor_optional_hint(check))
+  }
+}
+
+///|
+fn doctor_print_version_probe_failed(
+  check : DoctorCheck,
+  exit_code : Int,
+) -> Unit {
+  let probe = "version probe failed (exit " + exit_code.to_string() + ")"
+  if check.required {
+    println("ERR " + check.name + ": " + probe + " (required)")
+  } else {
+    println("--  " + check.name + ": " + probe + doctor_optional_hint(check))
+  }
+}
+
+///|
 async fn handle_doctor_command() -> Int {
   let checks : Array[DoctorCheck] = [
     { name: "git", bin: "git", env_override: "ACTRUN_GIT_BIN", required: true },
@@ -5392,6 +5433,13 @@ async fn handle_doctor_command() -> Int {
     } else {
       check.bin
     }
+    if !doctor_bin_exists(bin) {
+      doctor_print_not_found(check)
+      if check.required {
+        has_error = true
+      }
+      continue
+    }
     let (code, stdout, _) = run_command(bin, ["--version"], cwd=".")
     if code == 0 {
       let version = stdout.trim(chars=" \t\r\n").to_owned()
@@ -5400,16 +5448,11 @@ async fn handle_doctor_command() -> Int {
         None => version
       }
       println("ok  " + check.name + ": " + short_version)
-    } else if check.required {
-      println("ERR " + check.name + ": not found (required)")
-      has_error = true
     } else {
-      let hint = if check.env_override.length() > 0 {
-        " (optional, override with " + check.env_override + ")"
-      } else {
-        " (optional)"
+      doctor_print_version_probe_failed(check, code)
+      if check.required {
+        has_error = true
       }
-      println("--  " + check.name + ": not found" + hint)
     }
   }
   // Check nix environment
